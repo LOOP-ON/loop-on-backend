@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.1'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version "${SPRING_BOOT_VERSION}"
+    id 'io.spring.dependency-management' version "${SPRING_BOOT_DEPENDENCY_MANAGEMENT_VERSION}"
 }
 
 group = 'com.loopon'
@@ -10,7 +10,7 @@ description = 'loop-on-backend'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(Integer.parseInt(JAVA_VERSION))
     }
 }
 
