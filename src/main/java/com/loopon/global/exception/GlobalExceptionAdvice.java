@@ -2,7 +2,6 @@ package com.loopon.global.exception;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.CommonResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,7 +16,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.util.List;
 
 @RestControllerAdvice
-@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionAdvice {
 

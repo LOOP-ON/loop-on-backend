@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - includeAll:
+      path: db/changelog
+      relativeToChangelogFile: false
+      filter: com.loopon.liquibase.LiquibaseIncludeAllFilter
