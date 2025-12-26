@@ -49,11 +49,12 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .headers(
                         headers -> headers
-                                .httpStrictTransportSecurity(
-                                        hsts -> hsts
-                                                .includeSubDomains(true)
-                                                .maxAgeInSeconds(31536000)
-                                )
+                                // TODO 배포 시, HSTS 활성화 검토
+//                                .httpStrictTransportSecurity(
+//                                        hsts -> hsts
+//                                                .includeSubDomains(true)
+//                                                .maxAgeInSeconds(31536000)
+//                                )
                                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                                 .contentTypeOptions(Customizer.withDefaults())
                                 .cacheControl(HeadersConfigurer.CacheControlConfig::disable)
