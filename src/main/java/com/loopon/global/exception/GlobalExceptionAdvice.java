@@ -64,6 +64,14 @@ public class GlobalExceptionAdvice {
                 .body(CommonResponse.onFailure(errorCode));
     }
 
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<CommonResponse<Void>> handleAuthorizationException(AuthorizationException ex) {
+        log.warn("Authorization Error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(ex.getErrorCode().getStatus())
+                .body(CommonResponse.onFailure(ex.getErrorCode()));
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<CommonResponse<Void>> handleAuthenticationException(AuthenticationException ex) {
         log.warn("Authentication Error: {}", ex.getMessage());
