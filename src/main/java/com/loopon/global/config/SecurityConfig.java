@@ -1,5 +1,7 @@
 package com.loopon.global.config;
 
+import com.loopon.global.security.filter.JwtAuthenticationFilter;
+import com.loopon.global.security.filter.SecurityAuditLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
@@ -20,6 +23,9 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final SecurityExceptionConfig securityExceptionConfig;
+
+    private final SecurityAuditLogger securityAuditLogger;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] PUBLIC_URLS = {
             "/",
@@ -70,6 +76,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(securityExceptionConfig::configure)
+                .addFilterBefore(jwtAuthenticationFilter, OAuth2LoginAuthenticationFilter.class)
+                .addFilterBefore(securityAuditLogger, JwtAuthenticationFilter.class)
         ;
 
         return http.build();
