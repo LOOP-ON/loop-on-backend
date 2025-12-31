@@ -1,0 +1,65 @@
+name: deploy
+
+on:
+  push:
+    branches: ["develop"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-southeast-2
+  AWS_ACCOUNT_ID: "898774459902"
+  ECR_REPO: "loopon-api"
+  EC2_INSTANCE_ID: "i-0460d72647c838821"
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Build (Gradle or Maven)
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew clean bootJar -x test
+          elif [ -f "./mvnw" ]; then
+            chmod +x ./mvnw
+            ./mvnw -B -DskipTests package
+          else
+            echo "No gradlew or mvnw found" && exit 1
+          fi
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::898774459902:role/loopon-github-deploy-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin \
+              "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+
+      - name: Build & Push Docker image (latest)
+        run: |
+          IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Deploy via SSM (run deploy.sh on EC2)
+        run: |
+          aws ssm send-command \
+            --region "$AWS_REGION" \
+            --instance-ids "$EC2_INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters commands="sudo /opt/loopon/deploy.sh"
