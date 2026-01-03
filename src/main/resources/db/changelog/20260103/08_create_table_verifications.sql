@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:54
+-- changeset Seungwon-Choi:53
 CREATE TABLE verifications
 (
     verification_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '인증 PK',
@@ -14,7 +14,7 @@ CREATE TABLE verifications
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '인증 테이블';
 
--- changeset Seungwon-Choi:55
+-- changeset Seungwon-Choi:54
 ALTER TABLE verifications
     ADD CONSTRAINT ck_verifications_channel
         CHECK (channel IN (
@@ -22,7 +22,7 @@ ALTER TABLE verifications
                             'SMS'
             ));
 
--- changeset Seungwon-Choi:56
+-- changeset Seungwon-Choi:55
 ALTER TABLE verifications
     ADD CONSTRAINT ck_verifications_purpose
         CHECK (purpose IN (
@@ -31,7 +31,7 @@ ALTER TABLE verifications
                            'FIND_PASSWORD'
             ));
 
--- changeset Seungwon-Choi:57
+-- changeset Seungwon-Choi:56
 ALTER TABLE verifications
     ADD CONSTRAINT ck_verifications_status
         CHECK (status IN (
