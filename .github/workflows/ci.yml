@@ -23,4 +23,4 @@ jobs:
       - name: Unit tests (exclude integration tag)
         run: |
           chmod +x ./gradlew
-          ./gradlew clean test --exclude-tag integration
+          ./gradlew clean test -Djunit.platform.tags.exclude=integration
