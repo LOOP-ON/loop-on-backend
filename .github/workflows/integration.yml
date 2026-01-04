@@ -23,7 +23,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           # 통합 테스트만 실행 (현재 0개여도 gradle은 보통 성공으로 끝남)
-          ./gradlew clean test -Djunit.platform.tags.include=integration
+          ./gradlew clean test -PincludeTags=integration
 
       - name: Warn if integration tests are 0 (but keep success)
         if: always()
