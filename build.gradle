@@ -46,4 +46,16 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    // -PincludeTags=integration 처럼 주면 해당 태그만 실행
+    if (project.hasProperty('includeTags')) {
+        def tags = project.property('includeTags').toString().split(',')*.trim()
+        useJUnitPlatform { includeTags tags }
+    }
+
+    // -PexcludeTags=integration 처럼 주면 해당 태그 제외
+    if (project.hasProperty('excludeTags')) {
+        def tags = project.property('excludeTags').toString().split(',')*.trim()
+        useJUnitPlatform { excludeTags tags }
+    }
 }
