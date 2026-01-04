@@ -1,0 +1,43 @@
+name: integration-tests
+
+on:
+  push:
+    branches: ["develop"]
+  workflow_dispatch:
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Run integration tests only (@Tag("integration"))
+        run: |
+          chmod +x ./gradlew
+          # 통합 테스트만 실행 (현재 0개여도 gradle은 보통 성공으로 끝남)
+          ./gradlew test --include-tag integration
+
+      - name: Warn if integration tests are 0 (but keep success)
+        if: always()
+        run: |
+          # JUnit XML에서 tests="N" 합산해서 통합 테스트 실행 수를 추정
+          TOTAL=0
+          if ls build/test-results/test/*.xml >/dev/null 2>&1; then
+            TOTAL=$(grep -Rho 'tests="[0-9]\+"' build/test-results/test/*.xml \
+              | sed 's/tests="//;s/"//' \
+              | awk '{s+=$1} END{print s+0}')
+          fi
+
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "::warning title=Integration tests::No integration tests were executed. Add @Tag(\"integration\") to @SpringBootTest / DB/Redis dependent tests."
+          else
+            echo "Integration tests executed: $TOTAL"
+          fi
