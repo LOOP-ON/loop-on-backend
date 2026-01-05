@@ -13,8 +13,3 @@ CREATE TABLE journey_goals
 -- changeset Seungwon-Choi:24
 ALTER TABLE journey_goals
     ADD CONSTRAINT fk_journey_goals_journey_id FOREIGN KEY (journey_id) REFERENCES journeys (journey_id);
-
--- changeset Seungwon-Choi:ck-journey_goals-notification_time
-ALTER TABLE journey_goals
-    ADD CONSTRAINT ck_journey_goals_notification_time
-        CHECK (notification_time IS NULL OR notification_time > CURRENT_TIMESTAMP);
