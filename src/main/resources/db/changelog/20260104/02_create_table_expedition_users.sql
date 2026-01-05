@@ -3,11 +3,11 @@
 -- changeset Seungwon-Choi:56
 CREATE TABLE expedition_users
 (
-    expedition_user_id        BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '사용자 탐험가 PK',
-    user_id     BIGINT PRIMARY KEY COMMENT '사용자 PK',
-    expedition_id BIGINT      NOT NULL COMMENT '탐험대 PK',
-    status      VARCHAR(20) NOT NULL COMMENT '상태',
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
+    expedition_user_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '사용자 탐험가 PK',
+    user_id            BIGINT COMMENT '사용자 PK',
+    expedition_id      BIGINT                              NOT NULL COMMENT '탐험대 PK',
+    status             VARCHAR(20)                         NOT NULL COMMENT '상태',
+    created_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '사용자 탐험가 테이블';
 
 -- changeset Seungwon-Choi:57
