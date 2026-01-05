@@ -4,7 +4,8 @@
 CREATE TABLE challenge_hashtag
 (
     challenge_id         BIGINT                              NOT NULL COMMENT '챌린지 PK',
-    hashtag_id           BIGINT                              NOT NULL COMMENT '해시태그 PK'
+    hashtag_id           BIGINT                              NOT NULL COMMENT '해시태그 PK',
+    PRIMARY KEY (challenge_id, hashtag_id)
 ) COMMENT '챌린지 해시태그 테이블';
 
 -- changeset Seungwon-Choi:43
