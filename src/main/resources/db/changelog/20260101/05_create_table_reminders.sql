@@ -17,7 +17,7 @@ ALTER TABLE reminders
 
 -- changeset Seungwon-Choi:ck-reminders-target-type
 ALTER TABLE reminders
-    ADD CONSTRAINT ck_notification_reminders_target_type
+    ADD CONSTRAINT ck_reminders_target_type
         CHECK (target_type IN (
                                'JOURNEY',
                                'GOAL'
