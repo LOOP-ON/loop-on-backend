@@ -7,7 +7,3 @@ CREATE TABLE growth_reports
     content          TEXT                                NOT NULL COMMENT '리포트 내용',
     created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '성장 리포트 테이블';
-
--- changeset Seungwon-Choi:52
-ALTER TABLE growth_reports
-    ADD CONSTRAINT ux_growth_reports_user_created_at UNIQUE (user_id, created_at);
