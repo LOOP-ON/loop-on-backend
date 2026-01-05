@@ -24,7 +24,3 @@ ALTER TABLE comments
 -- changeset Seungwon-Choi:49
 ALTER TABLE comments
     ADD CONSTRAINT fk_comments_challenge_id FOREIGN KEY (challenge_id) REFERENCES challenges (challenge_id);
-
--- changeset Seungwon-Choi:50
-ALTER TABLE comments
-    ADD CONSTRAINT ux_comments_parent_user_challenge_content UNIQUE (parent_id, user_id, challenge_id, content);
