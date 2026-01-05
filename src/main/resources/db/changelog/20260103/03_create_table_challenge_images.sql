@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:37
+-- changeset Seungwon-Choi:35
 CREATE TABLE challenge_images
 (
     image_id      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '챌린지 이미지 PK',
@@ -10,10 +10,10 @@ CREATE TABLE challenge_images
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '챌린지 이미지 테이블';
 
--- changeset Seungwon-Choi:38
+-- changeset Seungwon-Choi:36
 ALTER TABLE challenge_images
     ADD CONSTRAINT fk_challenge_images_challenge_id FOREIGN KEY (challenge_id) REFERENCES challenges (challenge_id);
 
--- changeset Seungwon-Choi:39
+-- changeset Seungwon-Choi:37
 ALTER TABLE challenge_images
     ADD CONSTRAINT ux_challenge_images_challenge_image_order UNIQUE (challenge_id, display_order);

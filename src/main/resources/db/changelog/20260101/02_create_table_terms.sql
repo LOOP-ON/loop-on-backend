@@ -12,7 +12,7 @@ CREATE TABLE terms
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '약관 테이블';
 
--- changeset Seungwon-Choi:6
+-- changeset Seungwon-Choi:5
 CREATE UNIQUE INDEX ux_terms_code_version ON terms (code, version);
 
 -- changeset Seungwon-Choi:ck-terms-code

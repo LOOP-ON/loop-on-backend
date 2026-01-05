@@ -1,6 +1,6 @@
 -- Liquibase formatted sql
 
--- changeset Seungwon-Choi:25
+-- changeset Seungwon-Choi:24
 CREATE TABLE journey_goal_progress
 (
     progress_id      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '목표 진행 PK',
@@ -12,7 +12,7 @@ CREATE TABLE journey_goal_progress
     completed_at     TIMESTAMP    NULL COMMENT '완료 시각'
 ) COMMENT '여정 목표 진행 기록';
 
--- changeset Seungwon-Choi:26
+-- changeset Seungwon-Choi:25
 ALTER TABLE journey_goal_progress
     ADD CONSTRAINT fk_journey_goal_progress_goal_id FOREIGN KEY (goal_id) REFERENCES journey_goals (goal_id);
 

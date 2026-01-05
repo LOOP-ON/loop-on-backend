@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:13
+-- changeset Seungwon-Choi:12
 CREATE TABLE reminders
 (
     reminder_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '리마인드 PK',
@@ -11,7 +11,7 @@ CREATE TABLE reminders
     enabled     BOOLEAN DEFAULT TRUE NOT NULL COMMENT '리마인드 활성 여부'
 ) COMMENT '리마인드 테이블';
 
--- changeset Seungwon-Choi:14
+-- changeset Seungwon-Choi:13
 ALTER TABLE reminders
     ADD CONSTRAINT fk_reminders_user_id FOREIGN KEY (user_id) REFERENCES users (user_id);
 
@@ -23,5 +23,5 @@ ALTER TABLE reminders
                                'GOAL'
             ));
 
--- changeset Seungwon-Choi:15
+-- changeset Seungwon-Choi:14
 CREATE UNIQUE INDEX ux_reminders_user_target ON reminders (user_id, target_type, target_id);

@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:57
+-- changeset Seungwon-Choi:54
 CREATE TABLE expeditions
 (
     expedition_id  BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '탐험대 PK',
@@ -14,7 +14,7 @@ CREATE TABLE expeditions
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '탐험대 테이블';
 
--- changeset Seungwon-Choi:58
+-- changeset Seungwon-Choi:55
 ALTER TABLE expeditions
     ADD CONSTRAINT fk_expeditions_admin_id FOREIGN KEY (admin_id) REFERENCES users (user_id);
 

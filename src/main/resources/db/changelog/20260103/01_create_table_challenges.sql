@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:29
+-- changeset Seungwon-Choi:28
 CREATE TABLE challenges
 (
     challenge_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '챌린지 PK',
@@ -12,10 +12,10 @@ CREATE TABLE challenges
 
 ) COMMENT '챌린지 테이블';
 
--- changeset Seungwon-Choi:30
+-- changeset Seungwon-Choi:29
 ALTER TABLE challenges
     ADD CONSTRAINT fk_challenges_user_id FOREIGN KEY (user_id) REFERENCES users (user_id);
 
--- changeset Seungwon-Choi:31
+-- changeset Seungwon-Choi:30
 ALTER TABLE challenges
     ADD CONSTRAINT fk_challenges_journey_id FOREIGN KEY (journey_id) REFERENCES journeys (journey_id);

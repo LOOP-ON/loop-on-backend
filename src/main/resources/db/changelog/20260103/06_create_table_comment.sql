@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:46
+-- changeset Seungwon-Choi:44
 CREATE TABLE comments
 (
     comment_id   BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '댓글 PK',
@@ -13,14 +13,14 @@ CREATE TABLE comments
 
 ) COMMENT '댓글 테이블';
 
--- changeset Seungwon-Choi:47
+-- changeset Seungwon-Choi:45
 ALTER TABLE comments
     ADD CONSTRAINT fk_comments_parent_id FOREIGN KEY (parent_id) REFERENCES comments (comment_id);
 
--- changeset Seungwon-Choi:48
+-- changeset Seungwon-Choi:46
 ALTER TABLE comments
     ADD CONSTRAINT fk_comments_user_id FOREIGN KEY (user_id) REFERENCES users (user_id);
 
--- changeset Seungwon-Choi:49
+-- changeset Seungwon-Choi:47
 ALTER TABLE comments
     ADD CONSTRAINT fk_comments_challenge_id FOREIGN KEY (challenge_id) REFERENCES challenges (challenge_id);

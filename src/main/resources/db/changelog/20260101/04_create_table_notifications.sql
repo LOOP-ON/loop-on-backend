@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:11
+-- changeset Seungwon-Choi:10
 CREATE TABLE notifications
 (
     notification_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '알림 PK',
@@ -12,7 +12,7 @@ CREATE TABLE notifications
     related_id      BIGINT                              NULL COMMENT '관련 엔티티 ID'
 ) COMMENT '알림 로그 테이블';
 
--- changeset Seungwon-Choi:12
+-- changeset Seungwon-Choi:11
 ALTER TABLE notifications
     ADD CONSTRAINT fk_notifications_user_id FOREIGN KEY (user_id) REFERENCES users (user_id);
 
