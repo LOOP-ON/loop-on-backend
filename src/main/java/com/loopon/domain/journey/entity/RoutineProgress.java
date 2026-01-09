@@ -7,11 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "journey_goal_progress")
+@Table(name = "routine_progress")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class JourneyGoalProgress {
+public class RoutineProgress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +19,8 @@ public class JourneyGoalProgress {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goal_id", nullable = false)
-    private JourneyGoal goal;
+    @JoinColumn(name = "routine_id", nullable = false)
+    private Routine routine;
 
     @Column(name = "progress_date", nullable = false)
     private LocalDate progressDate;

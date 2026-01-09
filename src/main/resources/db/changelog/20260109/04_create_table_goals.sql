@@ -1,6 +1,6 @@
 -- Liquibase formatted sql
 
--- changeset yeeun:67
+-- changeset yeeun:68
 CREATE TABLE goals
 (
     goal_id    BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '목표 PK',

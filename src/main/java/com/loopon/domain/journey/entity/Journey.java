@@ -29,7 +29,7 @@ public class Journey {
     private JourneyCategory category;
 
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String goal;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
