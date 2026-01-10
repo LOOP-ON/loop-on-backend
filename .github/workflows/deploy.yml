@@ -10,10 +10,10 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: ap-southeast-2
-  AWS_ACCOUNT_ID: "898774459902"
-  ECR_REPO: "loopon-api"
-  EC2_INSTANCE_ID: "i-0460d72647c838821"
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  ECR_REPO: ${{ vars.ECR_REPO }}
+  EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
 
 concurrency:
   group: deploy-main
@@ -41,7 +41,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::898774459902:role/loopon-github-deploy-role
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to ECR
@@ -54,7 +54,6 @@ jobs:
         run: |
           IMAGE_LATEST="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest"
           IMAGE_SHA="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:${GITHUB_SHA}"
-
           docker build -t "$IMAGE_LATEST" -t "$IMAGE_SHA" .
           docker push "$IMAGE_LATEST"
           docker push "$IMAGE_SHA"
@@ -62,7 +61,6 @@ jobs:
       - name: Deploy via SSM (run /opt/loopon/deploy.sh on EC2)
         run: |
           set -euo pipefail
-
           CMD_ID=$(aws ssm send-command \
             --region "$AWS_REGION" \
             --instance-ids "$EC2_INSTANCE_ID" \
@@ -70,36 +68,29 @@ jobs:
             --parameters commands="sudo /opt/loopon/deploy.sh" \
             --query 'Command.CommandId' \
             --output text)
-
           echo "SSM CommandId: $CMD_ID"
-
           aws ssm wait command-executed \
             --region "$AWS_REGION" \
             --command-id "$CMD_ID" \
             --instance-id "$EC2_INSTANCE_ID"
-
           STATUS=$(aws ssm get-command-invocation \
             --region "$AWS_REGION" \
             --command-id "$CMD_ID" \
             --instance-id "$EC2_INSTANCE_ID" \
             --query 'Status' --output text)
-
           echo "SSM Status: $STATUS"
-
           echo "---- STDOUT ----"
           aws ssm get-command-invocation \
             --region "$AWS_REGION" \
             --command-id "$CMD_ID" \
             --instance-id "$EC2_INSTANCE_ID" \
             --query 'StandardOutputContent' --output text || true
-
           echo "---- STDERR ----"
           aws ssm get-command-invocation \
             --region "$AWS_REGION" \
             --command-id "$CMD_ID" \
             --instance-id "$EC2_INSTANCE_ID" \
             --query 'StandardErrorContent' --output text || true
-
           if [ "$STATUS" != "Success" ]; then
             echo "::error title=Deploy failed::SSM command did not succeed (Status=$STATUS)"
             exit 1
