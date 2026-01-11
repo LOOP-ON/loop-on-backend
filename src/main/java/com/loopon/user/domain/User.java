@@ -26,8 +26,9 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "provider", length = 20, nullable = false)
-    private String provider;
+    private UserProvider provider;
 
     @Column(name = "name", length = 20, nullable = false)
     private String name;
