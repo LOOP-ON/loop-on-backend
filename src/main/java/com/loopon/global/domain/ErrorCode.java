@@ -8,6 +8,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 사용자 관련
+    EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST.value()),
+    NICKNAME_ALREADY_EXISTS("이미 존재하는 닉네임입니다.", HttpStatus.BAD_REQUEST.value()),
+    PASSWORD_MISMATCH("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST.value()),
+
     // 인증 및 인가 관련
     JWT_MALFORMED("잘못된 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
     JWT_EXPIRED("만료된 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
@@ -23,7 +28,7 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED("허용되지 않은 HTTP 메소드입니다.", HttpStatus.METHOD_NOT_ALLOWED.value()),
 
     // 5xx 에러 코드
-    INTERNAL_SERVER_ERROR("예상치 못한 서버 오류입니다. 관리자에게 문의해주세요.", HttpStatus.INTERNAL_SERVER_ERROR.value())
+    INTERNAL_SERVER_ERROR("예상치 못한 서버 오류입니다. 관리자에게 문의해주세요.", HttpStatus.INTERNAL_SERVER_ERROR.value()),
     ;
 
     private final String message;

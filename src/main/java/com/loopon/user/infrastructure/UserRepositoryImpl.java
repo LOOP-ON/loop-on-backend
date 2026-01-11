@@ -1,5 +1,6 @@
 package com.loopon.user.infrastructure;
 
+import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,14 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class UserRepositoryImpl implements UserRepository {
     private final UserJpaRepository userJpaRepository;
+
+    @Override
+    public Long save(User user) {
+        User savedUser = userJpaRepository.save(user);
+        log.info("UserRepositoryImpl.save - 사용자 저장 완료(id: {}, email: {}, nickname: {})",
+                savedUser.getId(), savedUser.getEmail(), savedUser.getNickname());
+        return savedUser.getId();
+    }
 
     @Override
     public boolean existsByEmail(String email) {

@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/favicon.ico",
             "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/api/users/**",
     };
 
     private static final String[] API_URLS = {
