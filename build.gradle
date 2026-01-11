@@ -45,6 +45,10 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${JJWT_VERSION}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${JJWT_VERSION}"
 
+    // Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SPRINGDOC_OPENAPI_VERSION}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:${SPRINGDOC_OPENAPI_VERSION}"
+
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
