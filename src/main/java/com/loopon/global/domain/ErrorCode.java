@@ -8,6 +8,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    // 인증 및 인가 관련
+    JWT_MALFORMED("잘못된 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
+    JWT_EXPIRED("만료된 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
+    JWT_INVALID("유효하지 않은 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
+    JWT_MISSING("JWT 토큰이 없습니다.", HttpStatus.UNAUTHORIZED.value()),
+
     // 4xx 에러 코드
     BAD_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST.value()),
     UNAUTHORIZED("인증이 필요합니다.", HttpStatus.UNAUTHORIZED.value()),
