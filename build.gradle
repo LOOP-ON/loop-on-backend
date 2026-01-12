@@ -37,6 +37,9 @@ dependencies {
     // MySQL Driver
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // Liquibase
     implementation 'org.springframework.boot:spring-boot-starter-liquibase'
 
