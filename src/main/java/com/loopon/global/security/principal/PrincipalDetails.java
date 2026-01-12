@@ -22,6 +22,10 @@ public class PrincipalDetails implements UserDetails {
         return new PrincipalDetails(user);
     }
 
+    public Long getUserId() {
+        return user.getId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole()));

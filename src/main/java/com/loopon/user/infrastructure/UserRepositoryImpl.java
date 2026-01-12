@@ -4,6 +4,7 @@ import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -28,5 +29,14 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean existsByNickname(String nickname) {
         return userJpaRepository.existsByNickname(nickname);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userJpaRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("UserRepositoryImpl.findByEmail - 사용자 없음(email: {})", email);
+                    return new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.");
+                });
     }
 }

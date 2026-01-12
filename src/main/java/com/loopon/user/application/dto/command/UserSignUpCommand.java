@@ -2,6 +2,7 @@ package com.loopon.user.application.dto.command;
 
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.UserRole;
 import com.loopon.user.domain.UserStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -26,6 +27,7 @@ public record UserSignUpCommand(
                 .birthDate(birthDate)
                 .profileImageUrl(null)
                 .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
                 .build();
     }
 }
