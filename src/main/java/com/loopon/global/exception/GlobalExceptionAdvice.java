@@ -5,6 +5,8 @@ import com.loopon.global.domain.dto.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,7 +29,10 @@ public class GlobalExceptionAdvice {
                 .body(CommonResponse.onFailure(ex.getErrorCode()));
     }
 
-    @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler({
+            BindException.class,
+            MethodArgumentNotValidException.class
+    })
     public ResponseEntity<CommonResponse<List<CommonResponse.ValidationErrorDetail>>> handleValidationException(BindException ex) {
         log.warn("Validation Error: {}", ex.getBindingResult().getFieldError() != null
                 ? ex.getBindingResult().getFieldError().getDefaultMessage()
@@ -60,6 +65,30 @@ public class GlobalExceptionAdvice {
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(CommonResponse.onFailure(errorCode));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<CommonResponse<Void>> handleAuthenticationException(AuthenticationException ex) {
+        log.warn("Authentication Exception: {}", ex.getMessage());
+        return ResponseEntity
+                .status(ErrorCode.UNAUTHORIZED.getStatus())
+                .body(CommonResponse.onFailure(ErrorCode.UNAUTHORIZED));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CommonResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("Access Denied Exception: {}", ex.getMessage());
+        return ResponseEntity
+                .status(ErrorCode.FORBIDDEN.getStatus())
+                .body(CommonResponse.onFailure(ErrorCode.FORBIDDEN));
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<CommonResponse<Void>> handleAuthorizationException(AuthorizationException ex) {
+        log.warn("Authorization Exception: {}", ex.getMessage());
+        return ResponseEntity
+                .status(ex.getErrorCode().getStatus())
+                .body(CommonResponse.onFailure(ex.getErrorCode()));
     }
 
     @ExceptionHandler(Exception.class)
