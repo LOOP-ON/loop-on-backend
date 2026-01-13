@@ -18,6 +18,8 @@ public enum ErrorCode {
     JWT_EXPIRED("만료된 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
     JWT_INVALID("유효하지 않은 JWT 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
     JWT_MISSING("JWT 토큰이 없습니다.", HttpStatus.UNAUTHORIZED.value()),
+    INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED.value()),
+    REFRESH_TOKEN_NOT_FOUND("리프레시 토큰을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED.value()),
 
     // 4xx 에러 코드
     BAD_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST.value()),
@@ -28,7 +30,7 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED("허용되지 않은 HTTP 메소드입니다.", HttpStatus.METHOD_NOT_ALLOWED.value()),
 
     // 5xx 에러 코드
-    INTERNAL_SERVER_ERROR("예상치 못한 서버 오류입니다. 관리자에게 문의해주세요.", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+    INTERNAL_SERVER_ERROR("예상치 못한 서버 오류입니다. 관리자에게 문의해주세요.", HttpStatus.INTERNAL_SERVER_ERROR.value())
     ;
 
     private final String message;
