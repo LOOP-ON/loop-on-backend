@@ -1,6 +1,8 @@
 package com.loopon.global.security.handler;
 
 import com.loopon.auth.application.dto.response.LoginSuccessResponse;
+import com.loopon.auth.domain.RefreshToken;
+import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.security.jwt.JwtTokenProvider;
 import com.loopon.global.security.principal.PrincipalDetails;
 import jakarta.servlet.http.Cookie;
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -31,6 +34,15 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String accessToken = jwtProvider.createAccessToken(principal.getUserId(), principal.getUsername(), principal.getAuthorities());
         String refreshToken = jwtProvider.createRefreshToken(principal.getUsername());
+
+        RefreshToken redisToken = RefreshToken.builder()
+                .email(principal.getUsername())
+                .token(refreshToken)
+                .role(principal.getAuthorities().iterator().next().getAuthority())
+                .userId(principal.getUser().getId())
+                .build();
+
+        refreshTokenRepository.save(redisToken);
 
         Cookie refreshCookie = createRefreshTokenCookie(refreshToken);
         response.addCookie(refreshCookie);
