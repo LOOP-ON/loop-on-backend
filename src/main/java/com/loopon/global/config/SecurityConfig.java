@@ -47,6 +47,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // CSRF 보호 비활성화:
+                // 1. 세션 기반이 아닌, JWT 기반의 Stateless 인증을 사용함.
+                // 2. Access Token은 헤더(Authorization)에 담겨 전송되므로 브라우저 자동 전송에 의한 공격에서 안전함.
+                // 3. Refresh Token은 쿠키에 담기지만, SameSite=Lax 설정을 통해 CSRF를 방어하고 있음.
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
