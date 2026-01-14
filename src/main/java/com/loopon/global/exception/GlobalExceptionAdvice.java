@@ -2,6 +2,8 @@ package com.loopon.global.exception;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.domain.dto.CommonResponse.ValidationErrorDetail;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,6 +18,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
@@ -23,7 +26,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<CommonResponse<Void>> handleBusinessException(BusinessException ex) {
-        log.warn("Business Exception: {}", ex.getMessage());
+        log.warn("Business Exception: [{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.getErrorCode().getStatus())
                 .body(CommonResponse.onFailure(ex.getErrorCode()));
@@ -33,7 +36,7 @@ public class GlobalExceptionAdvice {
             BindException.class,
             MethodArgumentNotValidException.class
     })
-    public ResponseEntity<CommonResponse<List<CommonResponse.ValidationErrorDetail>>> handleValidationException(BindException ex) {
+    public ResponseEntity<CommonResponse<List<ValidationErrorDetail>>> handleValidationException(BindException ex) {
         log.warn("Validation Error: {}", ex.getBindingResult().getFieldError() != null
                 ? ex.getBindingResult().getFieldError().getDefaultMessage()
                 : "Unknown Validation Error");
@@ -42,8 +45,24 @@ public class GlobalExceptionAdvice {
                 .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
                 .body(CommonResponse.onFailure(
                         ErrorCode.INVALID_INPUT_VALUE,
-                        CommonResponse.ValidationErrorDetail.of(ex.getBindingResult())
+                        ex.getBindingResult()
                 ));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<CommonResponse<List<ValidationErrorDetail>>> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.warn("Constraint Violation: {}", ex.getMessage());
+
+        List<ValidationErrorDetail> details = ex.getConstraintViolations().stream()
+                .map(violation -> new ValidationErrorDetail(
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage()
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(CommonResponse.onFailure(ErrorCode.INVALID_INPUT_VALUE, details));
     }
 
     @ExceptionHandler({
@@ -59,6 +78,7 @@ public class GlobalExceptionAdvice {
         ErrorCode errorCode = switch (ex) {
             case NoHandlerFoundException ignored -> ErrorCode.NOT_FOUND;
             case HttpRequestMethodNotSupportedException ignored -> ErrorCode.METHOD_NOT_ALLOWED;
+            case IllegalArgumentException ignored -> ErrorCode.INVALID_INPUT_VALUE;
             default -> ErrorCode.BAD_REQUEST;
         };
 
@@ -85,7 +105,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<CommonResponse<Void>> handleAuthorizationException(AuthorizationException ex) {
-        log.warn("Authorization Exception: {}", ex.getMessage());
+        log.warn("Authorization Custom Exception: {}", ex.getMessage());
         return ResponseEntity
                 .status(ex.getErrorCode().getStatus())
                 .body(CommonResponse.onFailure(ex.getErrorCode()));
@@ -93,7 +113,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonResponse<Void>> handleException(Exception ex) {
-        log.error("Unhandled Exception", ex);
+        log.error("Unhandled Exception: ", ex);
         return ResponseEntity
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(CommonResponse.onFailure(ErrorCode.INTERNAL_SERVER_ERROR));
