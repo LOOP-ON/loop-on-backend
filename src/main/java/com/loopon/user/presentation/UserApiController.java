@@ -7,6 +7,7 @@ import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,20 +22,20 @@ public class UserApiController {
     private final UserQueryService userQueryService;
 
     @PostMapping("/check-email")
-    public CommonResponse<UserDuplicateCheckResponse> checkEmailExists(@RequestParam String email) {
+    public ResponseEntity<CommonResponse<UserDuplicateCheckResponse>> checkEmailExists(@RequestParam String email) {
         UserDuplicateCheckResponse response = userQueryService.isEmailAvailable(email);
-        return CommonResponse.onSuccess(response);
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
     @PostMapping("/check-nickname")
-    public CommonResponse<UserDuplicateCheckResponse> checkNicknameExists(@RequestParam String nickname) {
+    public ResponseEntity<CommonResponse<UserDuplicateCheckResponse>> checkNicknameExists(@RequestParam String nickname) {
         UserDuplicateCheckResponse response = userQueryService.isNicknameAvailable(nickname);
-        return CommonResponse.onSuccess(response);
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
     @PostMapping
-    public CommonResponse<Long> signUp(@Valid @RequestBody UserSignUpRequest request) {
+    public ResponseEntity<CommonResponse<Long>> signUp(@Valid @RequestBody UserSignUpRequest request) {
         Long userId = userCommandService.signUp(request.toCommand());
-        return CommonResponse.onSuccess(userId);
+        return ResponseEntity.ok(CommonResponse.onSuccess(userId));
     }
 }

@@ -22,12 +22,12 @@ public class AuthApiController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginSuccessResponse> login(LoginRequest request) {
+    public ResponseEntity<CommonResponse<LoginSuccessResponse>> login(LoginRequest request) {
         throw new UnsupportedOperationException("이 메서드는 Spring Security의 JsonLoginProcessingFilter에서 처리됩니다.");
     }
 
     @PostMapping("/reissue")
-    public CommonResponse<AccessTokenResponse> reissueTokens(
+    public ResponseEntity<CommonResponse<AccessTokenResponse>> reissueTokens(
             @CookieValue(value = "refresh_token", required = true) String refreshToken,
             HttpServletResponse response
     ) {
@@ -36,7 +36,7 @@ public class AuthApiController {
         Cookie refreshCookie = createRefreshTokenCookie(reissueTokensResponse.refreshToken());
         response.addCookie(refreshCookie);
 
-        return CommonResponse.onSuccess(AccessTokenResponse.of(reissueTokensResponse.accessToken()));
+        return ResponseEntity.ok(CommonResponse.onSuccess(AccessTokenResponse.of(reissueTokensResponse.accessToken())));
     }
 
     private Cookie createRefreshTokenCookie(String refreshToken) {
