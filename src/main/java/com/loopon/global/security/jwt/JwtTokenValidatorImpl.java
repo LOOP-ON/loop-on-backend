@@ -2,6 +2,7 @@ package com.loopon.global.security.jwt;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.AuthorizationException;
+import com.loopon.global.security.dto.AuthUser;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.global.security.token.JwtAuthenticationToken;
 import com.loopon.user.domain.User;
@@ -76,12 +77,9 @@ public class JwtTokenValidatorImpl implements JwtTokenValidator {
         Long userId = claims.get(USER_ID_KEY, Long.class);
         String email = claims.getSubject();
 
-        User detachedUser = User.builder()
-                .id(userId)
-                .email(email)
-                .build();
+        AuthUser detachedUser = AuthUser.of(userId, email, authorities.iterator().next().getAuthority());
 
-        PrincipalDetails principal = PrincipalDetails.of(detachedUser);
+        PrincipalDetails principal = PrincipalDetails.from(detachedUser);
 
         return new JwtAuthenticationToken(principal, token, authorities);
     }

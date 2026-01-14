@@ -1,7 +1,9 @@
 package com.loopon.global.security.principal;
 
+import com.loopon.global.security.dto.AuthUser;
 import com.loopon.user.domain.User;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,35 +12,42 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Getter
+@RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
+    private final AuthUser authUser;
+    private final String password;
 
-    private final User user;
+    public static PrincipalDetails from(User user) {
+        AuthUser authUser = AuthUser.of(
+                user.getId(),
+                user.getEmail(),
+                user.getUserRole()
+        );
 
-    private PrincipalDetails(User user) {
-        this.user = user;
+        return new PrincipalDetails(authUser, user.getPassword());
     }
 
-    public static PrincipalDetails of(User user) {
-        return new PrincipalDetails(user);
+    public static PrincipalDetails from(AuthUser authUser) {
+        return new PrincipalDetails(authUser, null);
     }
 
     public Long getUserId() {
-        return user.getId();
+        return authUser.userId();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole()));
+        return Collections.singletonList(new SimpleGrantedAuthority(authUser.role()));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return authUser.email();
     }
 
     @Override

@@ -22,6 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findByEmail(email);
 
-        return PrincipalDetails.of(user);
+        return PrincipalDetails.from(user);
     }
 }
