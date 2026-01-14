@@ -5,6 +5,7 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +21,7 @@ public class UserCommandService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public Long signUp(UserSignUpCommand command) {
+    public Long signUp(@Valid UserSignUpCommand command) {
         checkPasswordConfirmation(command.password(), command.confirmPassword());
         checkDuplicate(command.email(), command.nickname());
 
