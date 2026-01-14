@@ -6,9 +6,11 @@ import com.loopon.auth.application.dto.response.AccessTokenResponse;
 import com.loopon.auth.application.dto.response.LoginSuccessResponse;
 import com.loopon.auth.application.dto.response.ReissueTokensResponse;
 import com.loopon.global.domain.dto.CommonResponse;
-import jakarta.servlet.http.Cookie;
+import com.loopon.global.security.jwt.TokenCookieFactory;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthApiController {
     private final AuthService authService;
+
+    private final TokenCookieFactory tokenCookieFactory;
 
     @PostMapping("/login")
     public ResponseEntity<CommonResponse<LoginSuccessResponse>> login(LoginRequest request) {
@@ -33,18 +37,26 @@ public class AuthApiController {
     ) {
         ReissueTokensResponse reissueTokensResponse = authService.reissueTokens(refreshToken);
 
-        Cookie refreshCookie = createRefreshTokenCookie(reissueTokensResponse.refreshToken());
-        response.addCookie(refreshCookie);
+        ResponseCookie refreshTokenCookie = tokenCookieFactory.createRefreshTokenCookie(reissueTokensResponse.refreshToken());
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(AccessTokenResponse.of(reissueTokensResponse.accessToken())));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(CommonResponse.onSuccess(AccessTokenResponse.of(reissueTokensResponse.accessToken())));
     }
 
-    private Cookie createRefreshTokenCookie(String refreshToken) {
-        Cookie cookie = new Cookie("refresh_token", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 14);
-        return cookie;
+    @PostMapping("/logout")
+    public ResponseEntity<CommonResponse<Void>> logout(
+            @CookieValue(value = "refresh_token", required = false) String refreshToken
+    ) {
+        if (refreshToken != null) {
+            authService.logout(refreshToken);
+        }
+
+        ResponseCookie logoutCookie = tokenCookieFactory.createLogoutCookie();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, logoutCookie.toString())
+                .body(CommonResponse.onSuccess());
     }
 }

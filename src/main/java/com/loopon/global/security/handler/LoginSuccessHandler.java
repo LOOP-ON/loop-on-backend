@@ -4,14 +4,17 @@ import com.loopon.auth.application.dto.response.LoginSuccessResponse;
 import com.loopon.auth.domain.RefreshToken;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.security.jwt.JwtTokenProvider;
+import com.loopon.global.security.jwt.TokenCookieFactory;
 import com.loopon.global.security.principal.PrincipalDetails;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -26,6 +29,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtProvider;
     private final ObjectMapper objectMapper;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenCookieFactory tokenCookieFactory;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -44,19 +48,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         refreshTokenRepository.save(redisToken);
 
-        Cookie refreshCookie = createRefreshTokenCookie(refreshToken);
-        response.addCookie(refreshCookie);
+        ResponseCookie refreshTokenCookie = tokenCookieFactory.createRefreshTokenCookie(refreshToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         sendAccessTokenResponse(response, accessToken);
-    }
-
-    private Cookie createRefreshTokenCookie(String refreshToken) {
-        Cookie cookie = new Cookie("refresh_token", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 14);
-        return cookie;
     }
 
     private void sendAccessTokenResponse(HttpServletResponse response, String accessToken) throws IOException {

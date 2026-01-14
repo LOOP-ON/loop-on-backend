@@ -49,4 +49,16 @@ public class AuthService {
 
         return ReissueTokensResponse.of(newAccessToken, newRefreshToken);
     }
+
+    public void logout(String refreshToken) {
+        try {
+            jwtTokenValidator.getEmailFromRefreshToken(refreshToken)
+                    .ifPresent(email -> {
+                        refreshTokenRepository.deleteById(email);
+                        log.info("로그아웃 성공 - Refresh Token 삭제 완료 (email: {})", email);
+                    });
+        } catch (Exception e) {
+            log.warn("로그아웃 처리 중 토큰 파싱 실패 (이미 만료됨): {}", e.getMessage());
+        }
+    }
 }
