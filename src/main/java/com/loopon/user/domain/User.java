@@ -26,8 +26,9 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "provider", length = 20, nullable = false)
-    private String provider;
+    private UserProvider provider;
 
     @Column(name = "name", length = 20, nullable = false)
     private String name;
@@ -51,6 +52,10 @@ public class User {
     @Column(name = "user_status", length = 20, nullable = false)
     private UserStatus userStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20, nullable = false)
+    private UserRole role;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -70,5 +75,9 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String getUserRole() {
+        return this.role.name();
     }
 }

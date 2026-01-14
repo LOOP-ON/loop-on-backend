@@ -1,0 +1,95 @@
+package com.loopon.global.config;
+
+import com.loopon.global.security.filter.JsonLoginProcessingFilter;
+import com.loopon.global.security.filter.JwtAuthenticationFilter;
+import com.loopon.global.security.filter.SecurityAuditLogger;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    private final SecurityExceptionConfig securityExceptionConfig;
+
+    private final SecurityAuditLogger securityAuditLogger;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JsonLoginProcessingFilter jsonLoginProcessingFilter;
+
+    private static final String[] PUBLIC_URLS = {
+            "/",
+            "/favicon.ico",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/api/users/**",
+            "/api/auth/reissue"
+    };
+
+    private static final String[] API_URLS = {
+            "/oauth2/**",
+
+            // TODO API URL 패턴 추가 필요
+    };
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // CSRF 보호 비활성화:
+                // 1. 세션 기반이 아닌, JWT 기반의 Stateless 인증을 사용함.
+                // 2. Access Token은 헤더(Authorization)에 담겨 전송되므로 브라우저 자동 전송에 의한 공격에서 안전함.
+                // 3. Refresh Token은 쿠키에 담기지만, SameSite=Lax 설정을 통해 CSRF를 방어하고 있음.
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .headers(
+                        headers -> headers
+                                // TODO 배포 시, HSTS 활성화 검토
+//                                .httpStrictTransportSecurity(
+//                                        hsts -> hsts
+//                                                .includeSubDomains(true)
+//                                                .maxAgeInSeconds(31536000)
+//                                )
+                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                                .contentTypeOptions(Customizer.withDefaults())
+                                .cacheControl(HeadersConfigurer.CacheControlConfig::disable)
+                                .contentSecurityPolicy(csp -> csp
+                                        .policyDirectives("default-src 'self'; frame-ancestors 'self'")
+                                )
+                                .referrerPolicy(rp -> rp
+                                        .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)
+                                )
+                                .permissionsPolicyHeader(pp -> pp
+                                        .policy("geolocation=(), microphone=(), camera=()")
+                                )
+
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
+                        .requestMatchers(API_URLS).authenticated()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(securityExceptionConfig::configure)
+                .addFilterAt(jsonLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, JsonLoginProcessingFilter.class)
+                .addFilterBefore(securityAuditLogger, JwtAuthenticationFilter.class)
+        ;
+
+        return http.build();
+    }
+}
