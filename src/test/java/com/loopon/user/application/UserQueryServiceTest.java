@@ -17,18 +17,18 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class UserQueryServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
     @InjectMocks
     private UserQueryService userQueryService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Nested
     @DisplayName("이메일 중복 확인")
     class 이메일_중복_확인 {
 
         @Test
-        @DisplayName("이메일 중복 확인 - 사용 가능한 이메일")
+        @DisplayName("성공: 이메일 중복 확인 - 사용 가능한 이메일")
         void 이메일_중복_확인_사용_가능한_이메일() {
             // given
             String email = "test@gmail.com";
@@ -43,7 +43,7 @@ class UserQueryServiceTest {
         }
 
         @Test
-        @DisplayName("이메일 중복 확인 - 이미 사용 중인 이메일")
+        @DisplayName("실패: 이메일 중복 확인 - 이미 사용 중인 이메일")
         void 이메일_중복_확인_이미_사용_중인_이메일() {
             // given
             String email = "test@gmail.com";
@@ -63,7 +63,7 @@ class UserQueryServiceTest {
     class 닉네임_중복_확인 {
 
         @Test
-        @DisplayName("닉네임 중복 확인 - 사용 가능한 닉네임")
+        @DisplayName("성공: 닉네임 중복 확인 - 사용 가능한 닉네임")
         void 닉네임_중복_확인_사용_가능한_닉네임() {
             // given
             String nickname = "loopon";
@@ -78,7 +78,7 @@ class UserQueryServiceTest {
         }
 
         @Test
-        @DisplayName("닉네임 중복 확인 - 이미 사용 중인 닉네임")
+        @DisplayName("실패: 닉네임 중복 확인 - 이미 사용 중인 닉네임")
         void 닉네임_중복_확인_이미_사용_중인_닉네임() {
             // given
             String nickname = "loopon";
