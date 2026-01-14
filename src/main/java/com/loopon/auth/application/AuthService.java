@@ -44,8 +44,8 @@ public class AuthService {
         String newAccessToken = jwtTokenProvider.createAccessToken(userId, email, Collections.singletonList(new SimpleGrantedAuthority(role)));
         String newRefreshToken = jwtTokenProvider.createRefreshToken(email);
 
-        savedRefreshToken.rotate(newRefreshToken);
-        refreshTokenRepository.save(savedRefreshToken);
+        RefreshToken newRefreshTokenEntity = savedRefreshToken.rotate(newRefreshToken);
+        refreshTokenRepository.save(newRefreshTokenEntity);
 
         return ReissueTokensResponse.of(newAccessToken, newRefreshToken);
     }

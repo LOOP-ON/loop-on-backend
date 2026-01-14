@@ -14,15 +14,20 @@ public class RefreshToken {
     public static final long REFRESH_TOKEN_TTL_SECONDS = 60L * 60 * 24 * 14;
 
     @Id
-    private String email;
+    private final String email;
 
-    private String token;
+    private final String token;
 
-    private String role;
+    private final String role;
 
-    private Long userId;
+    private final Long userId;
 
-    public void rotate(String newToken) {
-        this.token = newToken;
+    public RefreshToken rotate(String newToken) {
+        return RefreshToken.builder()
+                .email(this.email)
+                .userId(this.userId)
+                .role(this.role)
+                .token(newToken)
+                .build();
     }
 }
