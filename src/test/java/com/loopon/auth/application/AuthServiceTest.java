@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -80,8 +81,12 @@ class AuthServiceTest {
             assertThat(response.accessToken()).isEqualTo(newAccess);
             assertThat(response.refreshToken()).isEqualTo(newRefresh);
 
-            assertThat(savedTokenEntity.getToken()).isEqualTo(newRefresh);
-            verify(refreshTokenRepository).save(savedTokenEntity);
+            ArgumentCaptor<RefreshToken> captor = ArgumentCaptor.forClass(RefreshToken.class);
+            verify(refreshTokenRepository).save(captor.capture());
+
+            RefreshToken savedEntity = captor.getValue();
+            assertThat(savedEntity.getEmail()).isEqualTo(email);
+            assertThat(savedEntity.getToken()).isEqualTo(newRefresh);
         }
 
         @Test
