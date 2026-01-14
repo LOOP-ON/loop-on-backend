@@ -2,6 +2,7 @@ package com.loopon.auth.presentation;
 
 import com.loopon.auth.application.AuthService;
 import com.loopon.auth.application.dto.request.LoginRequest;
+import com.loopon.auth.application.dto.response.AccessTokenResponse;
 import com.loopon.auth.application.dto.response.LoginSuccessResponse;
 import com.loopon.auth.application.dto.response.ReissueTokensResponse;
 import com.loopon.global.domain.dto.CommonResponse;
@@ -26,7 +27,7 @@ public class AuthApiController {
     }
 
     @PostMapping("/reissue")
-    public CommonResponse<String> reissueTokens(
+    public CommonResponse<AccessTokenResponse> reissueTokens(
             @CookieValue(value = "refresh_token", required = true) String refreshToken,
             HttpServletResponse response
     ) {
@@ -35,7 +36,7 @@ public class AuthApiController {
         Cookie refreshCookie = createRefreshTokenCookie(reissueTokensResponse.refreshToken());
         response.addCookie(refreshCookie);
 
-        return CommonResponse.onSuccess(reissueTokensResponse.accessToken());
+        return CommonResponse.onSuccess(AccessTokenResponse.of(reissueTokensResponse.accessToken()));
     }
 
     private Cookie createRefreshTokenCookie(String refreshToken) {
