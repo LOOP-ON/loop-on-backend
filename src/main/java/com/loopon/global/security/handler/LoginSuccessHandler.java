@@ -39,7 +39,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .email(principal.getUsername())
                 .token(refreshToken)
                 .role(principal.getAuthorities().iterator().next().getAuthority())
-                .userId(principal.getUser().getId())
+                .userId(principal.getUserId())
                 .build();
 
         refreshTokenRepository.save(redisToken);
