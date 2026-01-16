@@ -36,7 +36,8 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/users/**",
-            "/api/auth/**"
+            "/api/auth/login",
+            "/api/auth/reissue",
     };
 
     private static final String[] API_URLS = {
