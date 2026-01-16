@@ -41,7 +41,6 @@ public class AuthApiController implements AuthApiDocs {
         ReissueTokensResponse reissueTokensResponse = authService.reissueTokens(refreshToken);
 
         ResponseCookie refreshTokenCookie = tokenCookieFactory.createRefreshTokenCookie(reissueTokensResponse.refreshToken());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
