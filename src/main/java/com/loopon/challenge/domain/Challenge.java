@@ -1,5 +1,6 @@
 package com.loopon.challenge.domain;
 
+import com.loopon.expedition.domain.Expedition;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
 import jakarta.persistence.*;
@@ -26,6 +27,12 @@ public class Challenge {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journey_id", nullable = false)
     private Journey journey;
+
+    // 탐험대 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "expedition_id")
+    @Builder.Default
+    private Expedition expedition = null;
 
     @Column(nullable = false, length = 500)
     private String content;
