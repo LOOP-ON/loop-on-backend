@@ -13,7 +13,7 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "G002", "잘못된 요청입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G003", "잘못된 입력입니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G004", "허용되지 않은 HTTP 메소드입니다."),
-    NOT_FOUND(HttpStatus.NOT_FOUND, "G005", "요청한 리소스를 찾을 수 없습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "G005", "요청하신 리소스를 찾을 수 없습니다."),
 
     // User (사용자, U-xxx)
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "U001", "이미 존재하는 이메일입니다."),
@@ -22,7 +22,7 @@ public enum ErrorCode {
 
     // Auth (인증/인가, A-xxx)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "A002", "권한이 없습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "A002", "접근 권한이 없습니다."),
     JWT_MALFORMED(HttpStatus.UNAUTHORIZED, "A003", "잘못된 JWT 토큰입니다."),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "A004", "만료된 JWT 토큰입니다."),
     JWT_INVALID(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 JWT 토큰입니다."),

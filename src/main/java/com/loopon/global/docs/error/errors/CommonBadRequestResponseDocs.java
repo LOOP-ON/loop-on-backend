@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
                                 {
                                     "result": "FAIL",
                                     "code": "G002",
-                                    "message": "잘못된 요청입니다. 입력값을 확인해주세요.",
+                                    "message": "잘못된 요청입니다.",
                                     "timestamp": "2026-01-17 12:00:00"
                                 }
                                 """
