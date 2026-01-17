@@ -10,6 +10,7 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -21,7 +22,7 @@ public class ChallengeApiController {
 
     @PostMapping("/api/challenges")
     public CommonResponse<ChallengePostResponse> postChallenge(
-            ChallengePostCommand dto,
+            @RequestBody ChallengePostCommand dto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         return CommonResponse.onSuccess(
@@ -31,7 +32,7 @@ public class ChallengeApiController {
 
     @PostMapping("/api/hashtags")
     public CommonResponse<HashtagAddResponse> addHashtags(
-            HashtagAddCommand dto
+            @RequestBody HashtagAddCommand dto
     ) {
         return CommonResponse.onSuccess(
                 challengeCommandService.addHashtags(dto)
