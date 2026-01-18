@@ -1,11 +1,8 @@
 package com.loopon.challenge.application.service;
 
 import com.loopon.challenge.application.converter.ChallengeConverter;
-import com.loopon.challenge.application.converter.HashtagConverter;
-import com.loopon.challenge.application.dto.command.HashtagAddCommand;
 import com.loopon.challenge.application.dto.response.ChallengePostResponse;
 import com.loopon.challenge.application.dto.command.ChallengePostCommand;
-import com.loopon.challenge.application.dto.response.HashtagAddResponse;
 import com.loopon.challenge.domain.*;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.domain.Expedition;
@@ -70,49 +67,21 @@ public class ChallengeCommandService {
         challengeRepository.save(challenge);
 
 
-
-        for (String tag : dto.hashtagList()) {
-            Hashtag hashtag = challengeRepository.findHashtagByName(tag)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
-
-            ChallengeHashtag challengeHashtag = new ChallengeHashtag(challenge, hashtag);
-            challengeRepository.saveChallengeHashtag(challengeHashtag);
+        List<String> hashtagList = dto.hashtagList();
+        if (hashtagList == null) {
+            hashtagList = new ArrayList<>();
         }
 
-
-
-        for (String imageUrl : imageUrls) {
-            ChallengeImage challengeImage = ChallengeImage.builder()
-                    .challenge(challenge)
-                    .imageUrl(imageUrl)
-                    .displayOrder(imageUrls.indexOf(imageUrl))
-                    .build();
-            challengeRepository.saveChallengeImage(challengeImage);
-        }
-
-
-
-        return ChallengeConverter.postChallenge(challenge);
-    }
-
-
-    @Transactional
-    public HashtagAddResponse addHashtags(
-            HashtagAddCommand dto
-    ) {
-
-        List<Hashtag> existingHashtags = challengeRepository.findAllHashtagByNameIn(dto.hashtagList());
+        List<Hashtag> existingHashtags = challengeRepository.findAllHashtagByNameIn(hashtagList);
         Set<String> existingNames = new HashSet<>();
         for (Hashtag h : existingHashtags) {
             existingNames.add(h.getName());
         }
 
-
         List<Hashtag> resultList = new ArrayList<>(existingHashtags);
 
-
         List<Hashtag> newHashtags = new ArrayList<>();
-        for (String tag : dto.hashtagList()) {
+        for (String tag : hashtagList) {
             if (!existingNames.contains(tag)) {
                 Hashtag newTag = Hashtag.builder()
                         .name(tag)
@@ -127,6 +96,21 @@ public class ChallengeCommandService {
             challengeRepository.saveAllHashtags(newHashtags);
         }
 
-        return HashtagConverter.addHashtag(resultList);
+        for (Hashtag hashtag : resultList) {
+            ChallengeHashtag challengeHashtag = new ChallengeHashtag(challenge, hashtag);
+            challengeRepository.saveChallengeHashtag(challengeHashtag);
+        }
+
+
+        for (String imageUrl : imageUrls) {
+            ChallengeImage challengeImage = ChallengeImage.builder()
+                    .challenge(challenge)
+                    .imageUrl(imageUrl)
+                    .displayOrder(imageUrls.indexOf(imageUrl))
+                    .build();
+            challengeRepository.saveChallengeImage(challengeImage);
+        }
+
+        return ChallengeConverter.postChallenge(challenge);
     }
 }

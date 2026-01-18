@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import com.loopon.challenge.application.service.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,7 +77,7 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findHashtagByName("해시태그1")).willReturn(Optional.of(mock(Hashtag.class)));
+        given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
 
         // when
         ChallengePostResponse response = challengeCommandService.postChallenge(command, principalDetails);
@@ -84,6 +85,43 @@ class ChallengeCommandServiceTest {
         // then
         assertNotNull(response);
         verify(s3Service, times(1)).uploadFiles(any());
+    }
+
+
+    @Test
+    @DisplayName("빈 해시태그 리스트 성공 테스트")
+    void postChallenge_Success_WhenHashtagListIsNull() {
+
+        // given
+
+        ChallengePostCommand nullCommand = ChallengePostCommand.builder()
+                .journeyId(journeyId)
+                .expeditionId(expeditionId)
+                .hashtagList(null)
+                .imageList(List.of(mock(MultipartFile.class)))
+                .build();
+
+        given(principalDetails.getUserId()).willReturn(userId);
+        given(challengeRepository.existsByJourneyId(journeyId)).willReturn(false);
+        given(journeyJpaRepository.findById(journeyId)).willReturn(Optional.of(mock(Journey.class)));
+        given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
+        given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
+        given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
+        given(challengeRepository.findAllHashtagByNameIn(Collections.emptyList()))
+                .willReturn(Collections.emptyList());
+
+        // when
+        ChallengePostResponse response = challengeCommandService.postChallenge(nullCommand, principalDetails);
+
+        // then
+        assertNotNull(response);
+
+        // 해시태그 저장 관련 로직이 실행되지 않았거나 빈 리스트로 실행되었는지 검증
+        verify(challengeRepository, never()).saveAllHashtags(anyList());
+        verify(challengeRepository, never()).saveChallengeHashtag(any());
+
+        verify(challengeRepository, times(1)).save(any(Challenge.class));
+
     }
 
     @Test
@@ -101,9 +139,8 @@ class ChallengeCommandServiceTest {
 
         // when & then
         BusinessException exception =
-                assertThrows(BusinessException.class, () -> {
-            challengeCommandService.postChallenge(command, principalDetails);
-        });
+                assertThrows(BusinessException.class,
+                        () -> challengeCommandService.postChallenge(command, principalDetails));
 
         assertEquals(ErrorCode.CHALLENGE_ALREADY_EXISTS, exception.getErrorCode());
     }
@@ -156,7 +193,7 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findHashtagByName("해시태그1")).willReturn(Optional.of(mock(Hashtag.class)));
+        given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
 
 
         // when
@@ -177,7 +214,7 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findHashtagByName(anyString())).willReturn(Optional.of(mock(Hashtag.class)));
+        given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
 
         // when
         challengeCommandService.postChallenge(command, principalDetails);

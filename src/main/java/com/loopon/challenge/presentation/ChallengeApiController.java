@@ -1,9 +1,7 @@
 package com.loopon.challenge.presentation;
 
-import com.loopon.challenge.application.dto.command.HashtagAddCommand;
 import com.loopon.challenge.application.dto.response.ChallengePostResponse;
 import com.loopon.challenge.application.dto.command.ChallengePostCommand;
-import com.loopon.challenge.application.dto.response.HashtagAddResponse;
 import com.loopon.challenge.application.service.ChallengeCommandService;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
@@ -30,12 +28,4 @@ public class ChallengeApiController {
         );
     }
 
-    @PostMapping("/api/hashtags")
-    public CommonResponse<HashtagAddResponse> addHashtags(
-            @RequestBody HashtagAddCommand dto
-    ) {
-        return CommonResponse.onSuccess(
-                challengeCommandService.addHashtags(dto)
-        );
-    }
 }
