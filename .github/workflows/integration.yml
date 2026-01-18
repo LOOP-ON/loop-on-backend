@@ -25,25 +25,14 @@ jobs:
           --health-timeout=5s
           --health-retries=20
 
-      redis:
-        image: bitnami/redis:7.2.5-debian-12-r4
-        env:
-          ALLOW_EMPTY_PASSWORD: "no"
-          REDIS_PASSWORD: testpassword
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd="redis-cli -a testpassword ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=20
-
     env:
+      # ✅ (네 프로젝트가 ${MYSQL_URL}을 쓰는 구조라서 필수)
       MYSQL_URL: jdbc:mysql://127.0.0.1:3306/loopon_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
       MYSQL_DATABASE: loopon_test
       MYSQL_USER: testuser
       MYSQL_PASSWORD: testpassword
 
+      # ✅ runs-on에서는 127.0.0.1로 접근
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       REDIS_PASSWORD: 'testpassword'
@@ -62,23 +51,28 @@ jobs:
           java-version: "25"
           cache: gradle
 
-      - name: Run integration tests only (@Tag("integration"))
+      # ✅ Redis는 bitnami 태그 이슈 피하려고 공식 이미지로 직접 띄움 + 비번 적용 확실
+      - name: Start Redis (with password)
+        run: |
+          docker run -d --name ci-redis -p 6379:6379 redis:7.2-alpine \
+            redis-server --requirepass "$REDIS_PASSWORD"
+
+          # readiness 체크
+          for i in {1..30}; do
+            docker exec ci-redis redis-cli -a "$REDIS_PASSWORD" ping && exit 0
+            sleep 1
+          done
+
+          echo "Redis did not become ready"
+          docker logs ci-redis
+          exit 1
+
+      - name: Run integration tests (@Tag("integration"))
         run: |
           chmod +x ./gradlew
           ./gradlew clean test -PincludeTags=integration --stacktrace
 
-      - name: Warn if integration tests are 0 (but keep success)
+      - name: Stop Redis container
         if: always()
         run: |
-          TOTAL=0
-          if ls build/test-results/test/*.xml >/dev/null 2>&1; then
-            TOTAL=$(grep -Rho 'tests="[0-9]\+"' build/test-results/test/*.xml \
-              | sed 's/tests="//;s/"//' \
-              | awk '{s+=$1} END{print s+0}')
-          fi
-
-          if [ "$TOTAL" -eq 0 ]; then
-            echo "::warning title=Integration tests::No integration tests were executed. Add @Tag(\"integration\") to tests."
-          else
-            echo "Integration tests executed: $TOTAL"
-          fi
+          docker rm -f ci-redis || true
