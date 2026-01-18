@@ -29,9 +29,11 @@ public class LogAspect {
     @Around("controllerMethods() || serviceMethods()")
     public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
         StopWatch stopWatch = new StopWatch();
-        MethodInfo methodInfo = extractMethodInfo(joinPoint);
+        MethodInfo methodInfo = null;
 
         try {
+            methodInfo = extractMethodInfo(joinPoint);
+
             stopWatch.start();
             Object result = joinPoint.proceed();
             stopWatch.stop();
@@ -40,7 +42,10 @@ public class LogAspect {
             return result;
 
         } catch (Throwable e) {
-            stopWatch.stop();
+            if (stopWatch.isRunning()) {
+                stopWatch.stop();
+            }
+
             logFailure(methodInfo, e, stopWatch);
             throw e;
         }
@@ -56,10 +61,14 @@ public class LogAspect {
     }
 
     private void logFailure(MethodInfo info, Throwable e, StopWatch stopWatch) {
+        String className = (info != null) ? info.className() : "UnknownClass";
+        String methodName = (info != null) ? info.methodName() : "UnknownMethod";
+        Map<String, Object> params = (info != null) ? info.params() : Map.of();
+
         log.error("{} | {}({}) -> [EXCEPTION] {}: {} [{}ms]",
-                info.className(),
-                info.methodName(),
-                info.params(),
+                className,
+                methodName,
+                params,
                 e.getClass().getSimpleName(),
                 e.getMessage(),
                 stopWatch.getTotalTimeMillis()
