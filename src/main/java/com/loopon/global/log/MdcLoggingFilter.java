@@ -17,7 +17,6 @@ import java.util.UUID;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@Slf4j
 public class MdcLoggingFilter implements Filter {
     private static final String REQUEST_ID = "request_id";
 
