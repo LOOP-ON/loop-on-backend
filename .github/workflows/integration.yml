@@ -26,13 +26,12 @@ jobs:
           --health-retries=20
 
     env:
-      # ✅ (네 프로젝트가 ${MYSQL_URL}을 쓰는 구조라서 필수)
+      # 너희 커스텀 env (기존 유지)
       MYSQL_URL: jdbc:mysql://127.0.0.1:3306/loopon_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
       MYSQL_DATABASE: loopon_test
       MYSQL_USER: testuser
       MYSQL_PASSWORD: testpassword
 
-      # ✅ runs-on에서는 127.0.0.1로 접근
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       REDIS_PASSWORD: 'testpassword'
@@ -40,6 +39,14 @@ jobs:
       SECRET_KEY: 'test-secret-key-for-jwt-token-generation-in-integration-tests'
       ACCESS_TOKEN_TIME: 3600
       REFRESH_TOKEN_TIME: 86400
+
+      # ✅ 표준 Spring env로 강제 (local 프로파일이 뭘 읽든 이게 최우선으로 먹음)
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/loopon_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: testuser
+      SPRING_DATASOURCE_PASSWORD: testpassword
+      SPRING_DATA_REDIS_HOST: 127.0.0.1
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: 'testpassword'
 
     steps:
       - uses: actions/checkout@v4
@@ -51,26 +58,52 @@ jobs:
           java-version: "25"
           cache: gradle
 
-      # ✅ Redis는 bitnami 태그 이슈 피하려고 공식 이미지로 직접 띄움 + 비번 적용 확실
+      # ✅ Redis는 공식 이미지로 직접 띄우기
       - name: Start Redis (with password)
         run: |
           docker run -d --name ci-redis -p 6379:6379 redis:7.2-alpine \
             redis-server --requirepass "$REDIS_PASSWORD"
 
-          # readiness 체크
           for i in {1..30}; do
-            docker exec ci-redis redis-cli -a "$REDIS_PASSWORD" ping && exit 0
+            docker exec ci-redis redis-cli -a "$REDIS_PASSWORD" ping && break
             sleep 1
           done
 
-          echo "Redis did not become ready"
-          docker logs ci-redis
+      # ✅ 여기 추가: MySQL이 “3306으로” 열릴 때까지 대기 (핵심)
+      - name: Wait for MySQL (port 3306)
+        run: |
+          echo "Waiting for MySQL port..."
+          for i in {1..60}; do
+            (echo >/dev/tcp/127.0.0.1/3306) >/dev/null 2>&1 && echo "MySQL port is open" && break
+            sleep 1
+          done
+
+          echo "Waiting for MySQL to accept connections..."
+          MYSQL_CID=$(docker ps -q --filter "ancestor=mysql:8.0.36" | head -n 1)
+          if [ -z "$MYSQL_CID" ]; then
+            echo "MySQL container not found"; docker ps -a; exit 1
+          fi
+
+          for i in {1..60}; do
+            docker exec "$MYSQL_CID" mysqladmin ping -h 127.0.0.1 -uroot -prootpassword >/dev/null 2>&1 && echo "MySQL is ready" && exit 0
+            sleep 1
+          done
+
+          echo "MySQL did not become ready"
+          docker logs "$MYSQL_CID"
           exit 1
 
-      - name: Run integration tests (@Tag("integration"))
+      - name: Run integration tests (by class name)
         run: |
           chmod +x ./gradlew
-          ./gradlew clean test -PincludeTags=integration --stacktrace
+          ./gradlew clean test --tests "*IntegrationTest" --stacktrace
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
 
       - name: Stop Redis container
         if: always()
