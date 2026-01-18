@@ -13,9 +13,7 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "G002", "잘못된 요청입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G003", "잘못된 입력입니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G004", "허용되지 않은 HTTP 메소드입니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "G005", "인증이 필요합니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "G006", "권한이 없습니다."),
-    NOT_FOUND(HttpStatus.NOT_FOUND, "G007", "요청한 리소스를 찾을 수 없습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "G005", "요청하신 리소스를 찾을 수 없습니다."),
 
     // User (사용자, U-xxx)
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "U001", "이미 존재하는 이메일입니다."),
@@ -23,10 +21,12 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "U003", "비밀번호가 일치하지 않습니다."),
 
     // Auth (인증/인가, A-xxx)
-    JWT_MALFORMED(HttpStatus.UNAUTHORIZED, "A001", "잘못된 JWT 토큰입니다."),
-    JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "A002", "만료된 JWT 토큰입니다."),
-    JWT_INVALID(HttpStatus.UNAUTHORIZED, "A003", "유효하지 않은 JWT 토큰입니다."),
-    JWT_MISSING(HttpStatus.UNAUTHORIZED, "A004", "JWT 토큰이 없습니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "A002", "접근 권한이 없습니다."),
+    JWT_MALFORMED(HttpStatus.UNAUTHORIZED, "A003", "잘못된 JWT 토큰입니다."),
+    JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "A004", "만료된 JWT 토큰입니다."),
+    JWT_INVALID(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 JWT 토큰입니다."),
+    JWT_MISSING(HttpStatus.UNAUTHORIZED, "A006", "JWT 토큰이 없습니다."),
 
     // RTR(Refresh Token Rotation) 관련 에러
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 리프레시 토큰입니다."),

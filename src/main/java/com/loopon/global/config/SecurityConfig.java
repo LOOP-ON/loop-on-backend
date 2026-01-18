@@ -32,15 +32,15 @@ public class SecurityConfig {
     private static final String[] PUBLIC_URLS = {
             "/",
             "/favicon.ico",
-            "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
             "/api/users/**",
-            "/api/auth/reissue"
+            "/api/auth/login",
+            "/api/auth/reissue",
     };
 
     private static final String[] API_URLS = {
-            "/oauth2/**",
-
             // TODO API URL 패턴 추가 필요
     };
 
