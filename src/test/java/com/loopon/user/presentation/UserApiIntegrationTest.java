@@ -1,21 +1,22 @@
 package com.loopon.user.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
-import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import com.loopon.user.domain.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 
@@ -25,20 +26,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Tag("integration")
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("local")
 @Transactional
 class UserApiIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebApplicationContext webApplicationContext;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserCommandService userCommandService;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .build();
+    }
 
     @Nested
     @DisplayName("회원가입 통합 테스트")

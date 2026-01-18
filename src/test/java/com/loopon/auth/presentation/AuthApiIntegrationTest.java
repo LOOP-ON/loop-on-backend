@@ -2,7 +2,6 @@ package com.loopon.auth.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopon.auth.application.dto.request.LoginRequest;
-import com.loopon.auth.domain.RefreshToken;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
@@ -12,12 +11,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 
@@ -27,14 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Tag("integration")
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("local")
 @Transactional
 class AuthApiIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebApplicationContext webApplicationContext;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -45,11 +44,17 @@ class AuthApiIntegrationTest {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
+    private MockMvc mockMvc;
+
     private String testEmail;
     private String testPassword;
 
     @BeforeEach
     void setUp() {
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .build();
+
         testEmail = "auth@test.com";
         testPassword = "P@ssword123!";
 
@@ -130,7 +135,7 @@ class AuthApiIntegrationTest {
         void setUpRefreshToken() throws Exception {
             // 로그인하여 refresh token 발급
             LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
-            
+
             String cookieValue = mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
@@ -138,7 +143,7 @@ class AuthApiIntegrationTest {
                     .getResponse()
                     .getCookie("refresh_token")
                     .getValue();
-            
+
             refreshToken = cookieValue;
         }
 
@@ -186,7 +191,7 @@ class AuthApiIntegrationTest {
         void setUpRefreshToken() throws Exception {
             // 로그인하여 refresh token 발급
             LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
-            
+
             String cookieValue = mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
@@ -194,7 +199,7 @@ class AuthApiIntegrationTest {
                     .getResponse()
                     .getCookie("refresh_token")
                     .getValue();
-            
+
             refreshToken = cookieValue;
         }
 
