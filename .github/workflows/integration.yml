@@ -26,7 +26,7 @@ jobs:
           --health-retries=20
 
       redis:
-        image: bitnami/redis:7.2
+        image: bitnami/redis:7.2.5-debian-12-r4
         env:
           ALLOW_EMPTY_PASSWORD: "no"
           REDIS_PASSWORD: testpassword
