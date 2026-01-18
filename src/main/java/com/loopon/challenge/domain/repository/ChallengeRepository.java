@@ -20,4 +20,10 @@ public interface ChallengeRepository {
     List<Hashtag> findAllHashtagByNameIn(List<String> strings);
 
     List<Long> saveAllHashtags(List<Hashtag> newHashtags);
+
+    Optional<Challenge> findById(Long challengeId);
+
+    List<ChallengeImage> findAllImageByChallengeId(Long challengeId);
+
+    List<Hashtag> findAllHashtagByChallengeId(Long challengeId);
 }

@@ -60,4 +60,27 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
 
         return hashtagIdList;
     }
+
+    @Override
+    public Optional<Challenge> findById(Long challengeId) {
+        return challengeJpaRepository.findById(challengeId);
+    }
+
+    @Override
+    public List<ChallengeImage> findAllImageByChallengeId(Long challengeId) {
+        return challengeImageJpaRepository.findAllImageByChallengeId(challengeId);
+    }
+
+    @Override
+    public List<Hashtag> findAllHashtagByChallengeId(Long challengeId) {
+        List<ChallengeHashtag> challengeHashtagList
+                = challengeHashtagJpaRepository.findAllChallengeHashtagByChallengeId(challengeId);
+
+        List<Hashtag> hashtagList = new ArrayList<>();
+        for  (ChallengeHashtag tag : challengeHashtagList) {
+            hashtagList.add(tag.getHashtag());
+        }
+
+        return hashtagList;
+    }
 }
