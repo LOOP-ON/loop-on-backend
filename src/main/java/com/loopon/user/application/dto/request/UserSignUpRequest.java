@@ -3,6 +3,7 @@ package com.loopon.user.application.dto.request;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -54,5 +55,17 @@ public record UserSignUpRequest(
                 nickname,
                 birthDate
         );
+    }
+
+    @Override
+    public String toString() {
+        return "UserSignUpRequest[" +
+                "email=" + email +
+                ", name=" + name +
+                ", nickname=" + nickname +
+                ", birthDate=" + birthDate +
+                ", password=****" +
+                ", confirmPassword=****" +
+                "]";
     }
 }

@@ -38,4 +38,16 @@ public record UserSignUpCommand(
                 .role(UserRole.ROLE_USER)
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "UserSignUpCommand[" +
+                "email=" + email +
+                ", name=" + name +
+                ", nickname=" + nickname +
+                ", birthDate=" + birthDate +
+                ", password=****" +
+                ", confirmPassword=****" +
+                "]";
+    }
 }
