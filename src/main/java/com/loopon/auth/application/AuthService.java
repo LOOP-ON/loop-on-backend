@@ -30,7 +30,6 @@ public class AuthService {
                 .orElseThrow(() -> new AuthorizationException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
         if (!savedRefreshToken.getToken().equals(refreshToken)) {
-
             refreshTokenRepository.delete(savedRefreshToken);
             throw new AuthorizationException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
