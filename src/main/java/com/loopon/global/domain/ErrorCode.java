@@ -31,8 +31,15 @@ public enum ErrorCode {
     // RTR(Refresh Token Rotation) 관련 에러
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 리프레시 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "A006", "리프레시 토큰을 찾을 수 없습니다. (로그아웃 되었습니다)"),
-    REFRESH_TOKEN_THEFT_DETECTED(HttpStatus.UNAUTHORIZED, "A007", "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다.")
-    ;
+    REFRESH_TOKEN_THEFT_DETECTED(HttpStatus.UNAUTHORIZED, "A007", "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다."),
+
+    // Challenge (챌린지, C-xxx)
+    CHALLENGE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C001", "해당 여정은 이미 챌린지가 존재합니다."),
+    HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
+
+    // S3 관련 에러
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.");
+
 
     private final HttpStatus status;
     private final String code;
