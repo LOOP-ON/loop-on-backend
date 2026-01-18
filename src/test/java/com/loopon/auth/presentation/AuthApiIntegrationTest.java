@@ -2,13 +2,10 @@ package com.loopon.auth.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopon.auth.application.dto.request.LoginRequest;
-import com.loopon.auth.application.AuthService;
 import com.loopon.auth.domain.RefreshToken;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.user.application.UserCommandService;
-import com.loopon.user.application.dto.command.UserSignUpCommand;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
-import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,16 +40,10 @@ class AuthApiIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private UserCommandService userCommandService;
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
-
-    @Autowired
-    private AuthService authService;
 
     private String testEmail;
     private String testPassword;
@@ -136,15 +127,19 @@ class AuthApiIntegrationTest {
         private String refreshToken;
 
         @BeforeEach
-        void setUpRefreshToken() {
+        void setUpRefreshToken() throws Exception {
             // 로그인하여 refresh token 발급
             LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
-            authService.login(loginRequest.email(), loginRequest.password());
             
-            // 저장된 refresh token 조회
-            refreshToken = refreshTokenRepository.findById(testEmail)
-                    .map(RefreshToken::getToken)
-                    .orElseThrow();
+            String cookieValue = mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andReturn()
+                    .getResponse()
+                    .getCookie("refresh_token")
+                    .getValue();
+            
+            refreshToken = cookieValue;
         }
 
         @Test
@@ -152,7 +147,7 @@ class AuthApiIntegrationTest {
         void 토큰_재발급_성공() throws Exception {
             // when & then
             mockMvc.perform(post("/api/auth/reissue")
-                            .cookie(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.cookie("refresh_token", refreshToken)))
+                            .cookie(new jakarta.servlet.http.Cookie("refresh_token", refreshToken)))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
@@ -166,7 +161,7 @@ class AuthApiIntegrationTest {
         void 토큰_재발급_실패_유효하지_않은_토큰() throws Exception {
             // when & then
             mockMvc.perform(post("/api/auth/reissue")
-                            .cookie(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.cookie("refresh_token", "invalid_token")))
+                            .cookie(new jakarta.servlet.http.Cookie("refresh_token", "invalid_token")))
                     .andDo(print())
                     .andExpect(status().isUnauthorized());
         }
@@ -188,14 +183,19 @@ class AuthApiIntegrationTest {
         private String refreshToken;
 
         @BeforeEach
-        void setUpRefreshToken() {
+        void setUpRefreshToken() throws Exception {
             // 로그인하여 refresh token 발급
             LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
-            authService.login(loginRequest.email(), loginRequest.password());
             
-            refreshToken = refreshTokenRepository.findById(testEmail)
-                    .map(RefreshToken::getToken)
-                    .orElseThrow();
+            String cookieValue = mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andReturn()
+                    .getResponse()
+                    .getCookie("refresh_token")
+                    .getValue();
+            
+            refreshToken = cookieValue;
         }
 
         @Test
@@ -203,7 +203,7 @@ class AuthApiIntegrationTest {
         void 로그아웃_성공() throws Exception {
             // when & then
             mockMvc.perform(post("/api/auth/logout")
-                            .cookie(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.cookie("refresh_token", refreshToken)))
+                            .cookie(new jakarta.servlet.http.Cookie("refresh_token", refreshToken)))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
