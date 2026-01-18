@@ -29,11 +29,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public Optional<Hashtag> findHashtagByName(String hashtag){
-        return hashtagJpaRepository.findByName(hashtag);
-    }
-
-    @Override
     public Long save(Challenge challenge) {
         return challengeJpaRepository.save(challenge).getId();
     }

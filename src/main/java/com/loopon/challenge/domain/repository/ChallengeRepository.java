@@ -11,8 +11,6 @@ public interface ChallengeRepository {
 
     Boolean existsByJourneyId(Long journeyId);
 
-    Optional<Hashtag> findHashtagByName(String hashtag);
-
     Long save(Challenge challenge);
 
     ChallengeHashtagId saveChallengeHashtag(ChallengeHashtag challengeHashtag);
