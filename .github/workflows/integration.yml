@@ -18,34 +18,37 @@ jobs:
           MYSQL_USER: testuser
           MYSQL_PASSWORD: testpassword
         ports:
-          - 3307:3306
+          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD}"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -prootpassword"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
-        command:
-          - --character-set-server=utf8mb4
-          - --collation-server=utf8mb4_unicode_ci
-          - --default-time-zone=+09:00
+          --health-retries=20
 
       redis:
-        image: redis:7.2-alpine
+        image: bitnami/redis:7.2
+        env:
+          ALLOW_EMPTY_PASSWORD: "no"
+          REDIS_PASSWORD: testpassword
         ports:
           - 6379:6379
         options: >-
-          --health-cmd="redis-cli ping"
+          --health-cmd="redis-cli -a testpassword ping"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
-        command: redis-server --requirepass testpassword
+          --health-retries=20
 
     env:
+      MYSQL_URL: jdbc:mysql://127.0.0.1:3306/loopon_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
       MYSQL_DATABASE: loopon_test
       MYSQL_USER: testuser
       MYSQL_PASSWORD: testpassword
-      REDIS_PASSWORD: testpassword
-      SECRET_KEY: test-secret-key-for-jwt-token-generation-in-integration-tests
+
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 'testpassword'
+
+      SECRET_KEY: 'test-secret-key-for-jwt-token-generation-in-integration-tests'
       ACCESS_TOKEN_TIME: 3600
       REFRESH_TOKEN_TIME: 86400
 
@@ -62,13 +65,11 @@ jobs:
       - name: Run integration tests only (@Tag("integration"))
         run: |
           chmod +x ./gradlew
-          # 통합 테스트만 실행 (현재 0개여도 gradle은 보통 성공으로 끝남)
-          ./gradlew clean test -PincludeTags=integration
+          ./gradlew clean test -PincludeTags=integration --stacktrace
 
       - name: Warn if integration tests are 0 (but keep success)
         if: always()
         run: |
-          # JUnit XML에서 tests="N" 합산해서 통합 테스트 실행 수를 추정
           TOTAL=0
           if ls build/test-results/test/*.xml >/dev/null 2>&1; then
             TOTAL=$(grep -Rho 'tests="[0-9]\+"' build/test-results/test/*.xml \
@@ -77,7 +78,7 @@ jobs:
           fi
 
           if [ "$TOTAL" -eq 0 ]; then
-            echo "::warning title=Integration tests::No integration tests were executed. Add @Tag(\"integration\") to @SpringBootTest / DB/Redis dependent tests."
+            echo "::warning title=Integration tests::No integration tests were executed. Add @Tag(\"integration\") to tests."
           else
             echo "Integration tests executed: $TOTAL"
           fi
