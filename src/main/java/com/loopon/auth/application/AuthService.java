@@ -52,7 +52,9 @@ public class AuthService {
             jwtTokenValidator.getEmailFromRefreshToken(refreshToken)
                     .ifPresent(refreshTokenRepository::deleteById);
         } catch (Exception e) {
-            throw new AuthorizationException(ErrorCode.INVALID_REFRESH_TOKEN);
+            if (e instanceof AuthorizationException) {
+                return;
+            }
         }
     }
 }
