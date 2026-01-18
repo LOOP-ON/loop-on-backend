@@ -1,15 +1,14 @@
 package com.loopon.challenge.application.service;
 
 import com.loopon.challenge.application.converter.ChallengeConverter;
-import com.loopon.challenge.application.dto.response.ChallengePostResponse;
 import com.loopon.challenge.application.dto.command.ChallengePostCommand;
+import com.loopon.challenge.application.dto.response.ChallengePostResponse;
 import com.loopon.challenge.domain.*;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.infrastructure.ExpeditionJpaRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.user.domain.User;
@@ -35,8 +34,7 @@ public class ChallengeCommandService {
 
     @Transactional
     public ChallengePostResponse postChallenge(
-            ChallengePostCommand dto,
-            PrincipalDetails principalDetails
+            ChallengePostCommand dto
     ) {
 
         if (challengeRepository.existsByJourneyId(dto.journeyId())) {
@@ -46,7 +44,7 @@ public class ChallengeCommandService {
         Journey journey = journeyJpaRepository.findById(dto.journeyId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
-        User user = userJpaRepository.findById(principalDetails.getUserId())
+        User user = userJpaRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
         Expedition expedition = expeditionJpaRepository.findById(dto.expeditionId())

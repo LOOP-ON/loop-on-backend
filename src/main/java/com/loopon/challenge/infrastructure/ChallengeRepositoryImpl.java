@@ -24,7 +24,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     private final ChallengeHashtagJpaRepository challengeHashtagJpaRepository;
 
     @Override
-    public boolean existsByJourneyId(Long journeyId){
+    public Boolean existsByJourneyId(Long journeyId){
         return challengeJpaRepository.existsByJourneyId(journeyId);
     }
 

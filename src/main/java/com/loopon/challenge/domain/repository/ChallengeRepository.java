@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface ChallengeRepository {
 
-    boolean existsByJourneyId(Long journeyId);
+    Boolean existsByJourneyId(Long journeyId);
 
     Optional<Hashtag> findHashtagByName(String hashtag);
 

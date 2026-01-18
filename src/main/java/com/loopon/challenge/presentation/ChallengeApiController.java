@@ -1,7 +1,9 @@
 package com.loopon.challenge.presentation;
 
-import com.loopon.challenge.application.dto.response.ChallengePostResponse;
+import com.loopon.challenge.application.converter.ChallengeConverter;
 import com.loopon.challenge.application.dto.command.ChallengePostCommand;
+import com.loopon.challenge.application.dto.response.ChallengePostResponse;
+import com.loopon.challenge.application.dto.request.ChallengePostRequest;
 import com.loopon.challenge.application.service.ChallengeCommandService;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
@@ -20,11 +22,14 @@ public class ChallengeApiController {
 
     @PostMapping("/api/challenges")
     public CommonResponse<ChallengePostResponse> postChallenge(
-            @RequestBody ChallengePostCommand dto,
+            @RequestBody ChallengePostRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
+        ChallengePostCommand commandDto =
+                ChallengeConverter.postChallenge(requestDto, principalDetails);
+
         return CommonResponse.onSuccess(
-                challengeCommandService.postChallenge(dto, principalDetails)
+                challengeCommandService.postChallenge(commandDto)
         );
     }
 

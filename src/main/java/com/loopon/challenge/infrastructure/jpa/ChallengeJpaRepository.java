@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChallengeJpaRepository extends JpaRepository<Challenge, Long> {
 
-    boolean existsByJourneyId(Long journeyId);
+    Boolean existsByJourneyId(Long journeyId);
 }

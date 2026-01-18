@@ -12,7 +12,6 @@ import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.infrastructure.ExpeditionJpaRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.user.domain.User;
@@ -49,7 +48,6 @@ class ChallengeCommandServiceTest {
     @Mock private S3Service s3Service;
 
     ChallengePostCommand command;
-    PrincipalDetails principalDetails;
 
     Long userId = 1L;
     Long journeyId = 2L;
@@ -58,20 +56,19 @@ class ChallengeCommandServiceTest {
     @BeforeEach
     void setUp() {
         command = ChallengePostCommand.builder()
+                .userId(userId)
                 .journeyId(journeyId)
                 .expeditionId(expeditionId)
                 .hashtagList(List.of("해시태그1"))
                 .imageList(List.of(mock(MultipartFile.class)))
                 .build();
 
-        principalDetails = mock(PrincipalDetails.class);
     }
     @Test
     @DisplayName("챌린지 등록 성공 테스트")
     void postChallenge_Success() {
 
         // given
-        given(principalDetails.getUserId()).willReturn(userId);
         given(challengeRepository.existsByJourneyId(journeyId)).willReturn(false);
         given(journeyJpaRepository.findById(journeyId)).willReturn(Optional.of(mock(Journey.class)));
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
@@ -80,7 +77,7 @@ class ChallengeCommandServiceTest {
         given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
 
         // when
-        ChallengePostResponse response = challengeCommandService.postChallenge(command, principalDetails);
+        ChallengePostResponse response = challengeCommandService.postChallenge(command);
 
         // then
         assertNotNull(response);
@@ -95,13 +92,13 @@ class ChallengeCommandServiceTest {
         // given
 
         ChallengePostCommand nullCommand = ChallengePostCommand.builder()
+                .userId(userId)
                 .journeyId(journeyId)
                 .expeditionId(expeditionId)
                 .hashtagList(null)
                 .imageList(List.of(mock(MultipartFile.class)))
                 .build();
 
-        given(principalDetails.getUserId()).willReturn(userId);
         given(challengeRepository.existsByJourneyId(journeyId)).willReturn(false);
         given(journeyJpaRepository.findById(journeyId)).willReturn(Optional.of(mock(Journey.class)));
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
@@ -111,7 +108,7 @@ class ChallengeCommandServiceTest {
                 .willReturn(Collections.emptyList());
 
         // when
-        ChallengePostResponse response = challengeCommandService.postChallenge(nullCommand, principalDetails);
+        ChallengePostResponse response = challengeCommandService.postChallenge(nullCommand);
 
         // then
         assertNotNull(response);
@@ -129,6 +126,7 @@ class ChallengeCommandServiceTest {
     void postChallenge_Fail_AlreadyExists() {
         // given
         ChallengePostCommand command = ChallengePostCommand.builder()
+                .userId(1L)
                 .journeyId(1L)
                 .expeditionId(1L)
                 .content("내용")
@@ -140,7 +138,7 @@ class ChallengeCommandServiceTest {
         // when & then
         BusinessException exception =
                 assertThrows(BusinessException.class,
-                        () -> challengeCommandService.postChallenge(command, principalDetails));
+                        () -> challengeCommandService.postChallenge(command));
 
         assertEquals(ErrorCode.CHALLENGE_ALREADY_EXISTS, exception.getErrorCode());
     }
@@ -149,14 +147,14 @@ class ChallengeCommandServiceTest {
     @Test
     @DisplayName("존재하지 않는 사용자일 경우 예외 발생")
     void user_NotFound_Fail() {
+
         // given
-        given(principalDetails.getUserId()).willReturn(userId);
         given(challengeRepository.existsByJourneyId(anyLong())).willReturn(false);
         given(journeyJpaRepository.findById(anyLong())).willReturn(Optional.of(mock(Journey.class)));
         given(userJpaRepository.findById(userId)).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(BusinessException.class, () -> challengeCommandService.postChallenge(command, principalDetails));
+        assertThrows(BusinessException.class, () -> challengeCommandService.postChallenge(command));
     }
 
     @Test
@@ -167,7 +165,7 @@ class ChallengeCommandServiceTest {
         given(journeyJpaRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(BusinessException.class, () -> challengeCommandService.postChallenge(command, principalDetails));
+        assertThrows(BusinessException.class, () -> challengeCommandService.postChallenge(command));
     }
 
     @Test
@@ -180,14 +178,13 @@ class ChallengeCommandServiceTest {
         given(expeditionJpaRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(BusinessException.class, () -> challengeCommandService.postChallenge(command, principalDetails));
+        assertThrows(BusinessException.class, () -> challengeCommandService.postChallenge(command));
     }
 
     @Test
     @DisplayName("S3 업로드 메서드가 정상 호출되는지 확인")
     void s3_Upload_Verify() {
         // given
-        given(principalDetails.getUserId()).willReturn(userId);
         given(challengeRepository.existsByJourneyId(journeyId)).willReturn(false);
         given(journeyJpaRepository.findById(journeyId)).willReturn(Optional.of(mock(Journey.class)));
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
@@ -197,7 +194,7 @@ class ChallengeCommandServiceTest {
 
 
         // when
-        challengeCommandService.postChallenge(command, principalDetails);
+        challengeCommandService.postChallenge(command);
 
         // then
         // s3Service.uploadFiles가 command에 담긴 이미지 리스트를 인자로 한 번 호출되었는지 검증
@@ -208,7 +205,6 @@ class ChallengeCommandServiceTest {
     @DisplayName("챌린지, 해시태그, 이미지가 각각 저장소에 저장되는지 확인")
     void entities_Save_Verify() {
         // given
-        given(principalDetails.getUserId()).willReturn(userId);
         given(challengeRepository.existsByJourneyId(journeyId)).willReturn(false);
         given(journeyJpaRepository.findById(journeyId)).willReturn(Optional.of(mock(Journey.class)));
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
@@ -217,7 +213,7 @@ class ChallengeCommandServiceTest {
         given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
 
         // when
-        challengeCommandService.postChallenge(command, principalDetails);
+        challengeCommandService.postChallenge(command);
 
         // then
         verify(challengeRepository, times(1)).save(any(Challenge.class));

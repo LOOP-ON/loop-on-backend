@@ -1,4 +1,4 @@
-package com.loopon.challenge.application.dto.command;
+package com.loopon.challenge.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Builder
-public record ChallengePostCommand (
+public record ChallengePostRequest(
         @Size(min = 1, max = 10, message = "사진은 최대 10개까지 가능합니다.")
         List<MultipartFile> imageList,
 
@@ -25,5 +25,4 @@ public record ChallengePostCommand (
 
         @NotNull
         Long expeditionId
-
 ){}
