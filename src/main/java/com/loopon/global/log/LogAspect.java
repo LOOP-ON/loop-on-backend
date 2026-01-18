@@ -18,6 +18,14 @@ import java.util.Map;
 @Slf4j
 public class LogAspect {
 
+    private static final String[] SENSITIVE_KEYWORDS = {
+            "password", "pw", "secret",
+            "token", "access", "refresh",
+            "auth", "cred",
+            "key", "pin", "card",
+            "ssn", "social"
+    };
+
     @Pointcut("execution(* com.loopon..*Controller.*(..))")
     public void controllerMethods() {
     }
@@ -105,8 +113,16 @@ public class LogAspect {
     }
 
     private boolean isSensitive(String key) {
+        if (key == null) return false;
+
         String lowerKey = key.toLowerCase();
-        return lowerKey.contains("password") || lowerKey.contains("pw") || lowerKey.contains("secret");
+
+        for (String keyword : SENSITIVE_KEYWORDS) {
+            if (lowerKey.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String formatResult(Object result) {
