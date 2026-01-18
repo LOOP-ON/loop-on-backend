@@ -9,6 +9,46 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0.36
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: loopon_test
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        command:
+          - --character-set-server=utf8mb4
+          - --collation-server=utf8mb4_unicode_ci
+          - --default-time-zone=+09:00
+
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        command: redis-server --requirepass testpassword
+
+    env:
+      MYSQL_DATABASE: loopon_test
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+      REDIS_PASSWORD: testpassword
+      SECRET_KEY: test-secret-key-for-jwt-token-generation-in-integration-tests
+      ACCESS_TOKEN_TIME: 3600
+      REFRESH_TOKEN_TIME: 86400
+
     steps:
       - uses: actions/checkout@v4
 
