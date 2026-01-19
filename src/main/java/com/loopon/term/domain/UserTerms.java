@@ -1,6 +1,7 @@
-package com.loopon.user.domain;
+package com.loopon.term.domain;
 
 
+import com.loopon.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

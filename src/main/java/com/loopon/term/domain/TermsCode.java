@@ -1,4 +1,4 @@
-package com.loopon.user.domain;
+package com.loopon.term.domain;
 
 public enum TermsCode {
     TERMS_SERVICE,
