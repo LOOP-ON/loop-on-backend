@@ -35,6 +35,16 @@ spring:
       port: 6379
       password: ${REDIS_PASSWORD}
 
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ${AWS_REGION}
+      s3:
+        bucket: ${AWS_BUCKET}
+
   liquibase:
     enabled: true
     change-log: classpath:db/db.changelog-master.yaml
@@ -48,3 +58,15 @@ jwt:
   secret: ${SECRET_KEY}
   access-token-validity-in-seconds: ${ACCESS_TOKEN_TIME}
   refresh-token-validity-in-seconds: ${REFRESH_TOKEN_TIME}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operations-sorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
