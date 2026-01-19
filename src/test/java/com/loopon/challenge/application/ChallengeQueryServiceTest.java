@@ -39,7 +39,6 @@ public class ChallengeQueryServiceTest {
         // given
         Long challengeId = 1L;
 
-        // 가짜 Expedition 및 Challenge 엔티티 생성 (엔티티 내부 구조에 따라 적절히 수정 필요)
         Expedition mockExpedition = mock(Expedition.class);
         when(mockExpedition.getId()).thenReturn(100L);
 
@@ -48,14 +47,12 @@ public class ChallengeQueryServiceTest {
         when(mockChallenge.getContent()).thenReturn("챌린지 내용입니다.");
         when(mockChallenge.getExpedition()).thenReturn(mockExpedition);
 
-        // 이미지 및 해시태그 가짜 리스트 생성
         ChallengeImage image = mock(ChallengeImage.class);
         when(image.getImageUrl()).thenReturn("https://s3.url/image.jpg");
 
         Hashtag hashtag = mock(Hashtag.class);
         when(hashtag.getName()).thenReturn("갓생");
 
-        // Mockito Stubbing
         when(challengeRepository.findById(challengeId)).thenReturn(Optional.of(mockChallenge));
         when(challengeRepository.findAllImageByChallengeId(challengeId)).thenReturn(List.of(image));
         when(challengeRepository.findAllHashtagByChallengeId(challengeId)).thenReturn(List.of(hashtag));

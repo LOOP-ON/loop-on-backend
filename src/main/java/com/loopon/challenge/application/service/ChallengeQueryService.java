@@ -28,8 +28,14 @@ public class ChallengeQueryService {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
-        List<ChallengeImage> imageList = challengeRepository.findAllImageByChallengeId(challengeId);
+        List<ChallengeImage> tempList = challengeRepository.findAllImageByChallengeId(challengeId);
         List<Hashtag> tagList = challengeRepository.findAllHashtagByChallengeId(challengeId);
+
+        List<ChallengeImage> imageList = new ArrayList<>(tempList);
+        for (ChallengeImage challengeImage : tempList) {
+            int index = challengeImage.getDisplayOrder();
+            imageList.set(index, challengeImage);
+        }
 
         List<String> urlList = new ArrayList<>();
         for (ChallengeImage image : imageList){
