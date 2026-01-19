@@ -1,4 +1,4 @@
-package com.loopon.user.application;
+package com.loopon.friendRequest.application;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.PageResponse;
@@ -7,6 +7,7 @@ import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
+
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
@@ -182,6 +183,7 @@ class FriendRequestServiceTest {
         @DisplayName("이미 친구인 경우 요청을 보낼 수 없다")
         void sendFriendRequest_AlreadyFriend_ThrowsException() {
             // given
+            // 첫 번째 체크에서 true 반환 (short-circuit으로 두 번째는 호출 안 됨)
             given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 1L, 2L))
                     .willReturn(true);
 
@@ -195,8 +197,12 @@ class FriendRequestServiceTest {
         @DisplayName("이미 대기 중인 요청이 있으면 보낼 수 없다")
         void sendFriendRequest_AlreadyPending_ThrowsException() {
             // given
+            // ACCEPTED 체크 (양방향 모두 false)
             given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 1L, 2L))
                     .willReturn(false);
+            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 2L, 1L))
+                    .willReturn(false);
+            // PENDING 체크 (첫 번째만 true, short-circuit으로 두 번째는 호출 안 됨)
             given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, 1L, 2L))
                     .willReturn(true);
 
@@ -210,7 +216,15 @@ class FriendRequestServiceTest {
         @DisplayName("친구 요청을 성공적으로 보낸다")
         void sendFriendRequest_Success() {
             // given
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(any(), anyLong(), anyLong()))
+            // ACCEPTED 체크 (양방향 모두 false)
+            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 1L, 2L))
+                    .willReturn(false);
+            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 2L, 1L))
+                    .willReturn(false);
+            // PENDING 체크 (양방향 모두 false)
+            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, 1L, 2L))
+                    .willReturn(false);
+            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, 2L, 1L))
                     .willReturn(false);
             given(userRepository.findById(1L)).willReturn(user1);
             given(userRepository.findById(2L)).willReturn(user2);
