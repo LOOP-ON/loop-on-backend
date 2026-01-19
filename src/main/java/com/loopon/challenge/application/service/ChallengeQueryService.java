@@ -42,6 +42,7 @@ public class ChallengeQueryService {
         }
 
         return ChallengeConverter.getChallenge(
+                challenge.getId(),
                 urlList,
                 hashtagList,
                 challenge.getContent(),

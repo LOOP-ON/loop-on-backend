@@ -51,6 +51,7 @@ public class ChallengeConverter {
     }
 
     public static ChallengeGetResponse getChallenge(
+            Long challengeId,
             List<String> imageList,
             List<String> hashtagList,
             String content,
@@ -58,6 +59,7 @@ public class ChallengeConverter {
 
     ) {
         return ChallengeGetResponse.builder()
+                .challengeId(challengeId)
                 .imageList(imageList)
                 .hashtagList(hashtagList)
                 .content(content)

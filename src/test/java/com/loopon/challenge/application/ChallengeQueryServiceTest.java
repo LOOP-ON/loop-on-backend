@@ -44,6 +44,7 @@ public class ChallengeQueryServiceTest {
         when(mockExpedition.getId()).thenReturn(100L);
 
         Challenge mockChallenge = mock(Challenge.class);
+        when(mockChallenge.getId()).thenReturn(challengeId);
         when(mockChallenge.getContent()).thenReturn("챌린지 내용입니다.");
         when(mockChallenge.getExpedition()).thenReturn(mockExpedition);
 
@@ -64,6 +65,7 @@ public class ChallengeQueryServiceTest {
 
         // then
         assertNotNull(response);
+        assertEquals(1L, response.challengeId());
         assertEquals("챌린지 내용입니다.", response.content());
         assertEquals(1, response.imageList().size());
         assertEquals("https://s3.url/image.jpg", response.imageList().getFirst());
