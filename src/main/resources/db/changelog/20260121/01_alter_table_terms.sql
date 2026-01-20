@@ -1,0 +1,6 @@
+-- liquibase formatted sql
+
+-- changeset Seungwon-Choi:10
+ALTER TABLE terms CHANGE terms_id term_id BIGINT AUTO_INCREMENT COMMENT '약관 PK';
+ALTER TABLE terms CHANGE required mandatory BOOLEAN DEFAULT TRUE NOT NULL COMMENT '필수 동의 여부';
+ALTER TABLE terms ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NULL COMMENT '수정일';
