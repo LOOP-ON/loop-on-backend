@@ -7,7 +7,7 @@ import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
-
+import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
@@ -31,6 +31,7 @@ import static com.loopon.user.domain.FriendStatus.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FriendRequestService 테스트")
@@ -182,10 +183,8 @@ class FriendRequestServiceTest {
         @Test
         @DisplayName("이미 친구인 경우 요청을 보낼 수 없다")
         void sendFriendRequest_AlreadyFriend_ThrowsException() {
-            // given
-            // 첫 번째 체크에서 true 반환 (short-circuit으로 두 번째는 호출 안 됨)
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 1L, 2L))
-                    .willReturn(true);
+
+            given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(true);
 
             // when & then
             assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 2L))
@@ -197,15 +196,8 @@ class FriendRequestServiceTest {
         @DisplayName("이미 대기 중인 요청이 있으면 보낼 수 없다")
         void sendFriendRequest_AlreadyPending_ThrowsException() {
             // given
-            // ACCEPTED 체크 (양방향 모두 false)
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 1L, 2L))
-                    .willReturn(false);
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 2L, 1L))
-                    .willReturn(false);
-            // PENDING 체크 (첫 번째만 true, short-circuit으로 두 번째는 호출 안 됨)
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, 1L, 2L))
-                    .willReturn(true);
-
+            given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(false);
+            given(friendRequestRepository.existsFriendship(1L, 2L, PENDING)).willReturn(true);
             // when & then
             assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 2L))
                     .isInstanceOf(BusinessException.class)
@@ -215,25 +207,17 @@ class FriendRequestServiceTest {
         @Test
         @DisplayName("친구 요청을 성공적으로 보낸다")
         void sendFriendRequest_Success() {
-            // given
-            // ACCEPTED 체크 (양방향 모두 false)
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 1L, 2L))
-                    .willReturn(false);
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, 2L, 1L))
-                    .willReturn(false);
-            // PENDING 체크 (양방향 모두 false)
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, 1L, 2L))
-                    .willReturn(false);
-            given(friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, 2L, 1L))
-                    .willReturn(false);
+            given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(false);
+            given(friendRequestRepository.existsFriendship(1L, 2L, PENDING)).willReturn(false);
+
             given(userRepository.findById(1L)).willReturn(user1);
             given(userRepository.findById(2L)).willReturn(user2);
-            given(friendRequestRepository.save(any(Friend.class))).willReturn(friendRequest);
 
-            // when
+            given(friendRequestRepository.save(any(Friend.class)))
+                    .willAnswer(inv -> inv.getArgument(0));
+
             FriendRequestCreateResponse result = friendRequestService.sendFriendRequest(1L, 2L);
 
-            // then
             assertThat(result).isNotNull();
             verify(friendRequestRepository).save(any(Friend.class));
         }

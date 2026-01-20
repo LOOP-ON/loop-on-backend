@@ -51,21 +51,16 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     if(me.equals(receiverId)){
         throw new BusinessException(ErrorCode.FRIEND_REQUEST_SELF);
     }
-    //이미 친구인 지 확인
-    boolean alreadyFriend =
-                friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, me, receiverId)
-                        || friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(ACCEPTED, receiverId, me);
-        if(alreadyFriend){
+        // 양방향 체크를 한 번에 (Repository 메서드 추가)
+        if(friendRequestRepository.existsFriendship(me, receiverId, ACCEPTED)){
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_FRIEND);
         }
-        boolean alreadyPending =
-                friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, me, receiverId)
-                        || friendRequestRepository.existsByStatusAndRequesterIdAndReceiverId(PENDING, receiverId, me);
 
-        if(alreadyPending){
+        if(friendRequestRepository.existsFriendship(me, receiverId, PENDING)){
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
         }
-    //새로운 친구 요청 생성(로직 추가 필요)
+
+        //새로운 친구 요청 생성(로직 추가 필요)
     User requester = userRepository.findById(me);
     User receiver = userRepository.findById(receiverId);
 
