@@ -3,7 +3,6 @@ package com.loopon.challenge.application;
 import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
 import com.loopon.challenge.application.service.ChallengeQueryService;
 import com.loopon.challenge.domain.Challenge;
-import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
@@ -51,14 +50,17 @@ public class ChallengeQueryServiceTest {
         ChallengeImage image = mock(ChallengeImage.class);
         when(image.getImageUrl()).thenReturn("https://s3.url/image.jpg");
 
+
         Hashtag hashtag = mock(Hashtag.class);
         when(hashtag.getName()).thenReturn("해시태그");
 
-        ChallengeHashtag challengeHashtag = mock(ChallengeHashtag.class);
+
+        when(challengeRepository.findById(challengeId)).thenReturn(Optional.of(mockChallenge));
+
 
         when(challengeRepository.findById(challengeId)).thenReturn(Optional.of(mockChallenge));
         when(challengeRepository.findAllImageByChallengeId(challengeId)).thenReturn(List.of(image));
-        when(challengeRepository.findAllChallengeHashtagByChallengeId(challengeId)).thenReturn(List.of(challengeHashtag));
+        when(challengeRepository.findAllHashtagByChallengeId(challengeId)).thenReturn(List.of(hashtag));
 
         // when
         ChallengeGetResponse response = challengeQueryService.getChallenge(challengeId);
