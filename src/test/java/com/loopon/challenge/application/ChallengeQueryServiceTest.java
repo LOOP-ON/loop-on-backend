@@ -52,7 +52,7 @@ public class ChallengeQueryServiceTest {
         when(image.getImageUrl()).thenReturn("https://s3.url/image.jpg");
 
         Hashtag hashtag = mock(Hashtag.class);
-        when(hashtag.getName()).thenReturn("갓생");
+        when(hashtag.getName()).thenReturn("해시태그");
 
         ChallengeHashtag challengeHashtag = mock(ChallengeHashtag.class);
 
@@ -69,6 +69,7 @@ public class ChallengeQueryServiceTest {
         assertEquals("챌린지 내용입니다.", response.content());
         assertEquals(1, response.imageList().size());
         assertEquals("https://s3.url/image.jpg", response.imageList().getFirst());
+        assertEquals("해시태그", response.hashtagList().getFirst());
         assertEquals(100L, response.expeditionId());
 
         verify(challengeRepository, times(1)).findById(challengeId);
