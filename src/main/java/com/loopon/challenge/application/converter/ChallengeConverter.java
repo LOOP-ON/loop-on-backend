@@ -9,6 +9,8 @@ import com.loopon.expedition.domain.Expedition;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 
@@ -16,10 +18,11 @@ public class ChallengeConverter {
 
     public static ChallengePostCommand postChallenge(
             ChallengePostRequest requestDto,
+            List<MultipartFile> imageFiles,
             PrincipalDetails principalDetails
     ) {
         return ChallengePostCommand.builder()
-                .imageList(requestDto.imageList())
+                .imageList(imageFiles)
                 .hashtagList(requestDto.hashtagList())
                 .content(requestDto.content())
                 .expeditionId(requestDto.expeditionId())

@@ -29,6 +29,11 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
+    public Optional<Challenge> findById(Long challengeId) {
+        return challengeJpaRepository.findById(challengeId);
+    }
+
+    @Override
     public Long save(Challenge challenge) {
         return challengeJpaRepository.save(challenge).getId();
     }
@@ -43,38 +48,26 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         return challengeImageJpaRepository.save(challengeImage).getId();
     }
 
+    @Override
+    public Hashtag saveHashtag(Hashtag hashtag) {
+        return hashtagJpaRepository.save(hashtag);
+    }
+
 
     @Override
-    public List<Hashtag> findAllHashtagByNameIn(List<String> nameList) {
-        return hashtagJpaRepository.findAllByNameIn(nameList);
+    public Optional<Hashtag> findHashtagByName(String name) {
+        return hashtagJpaRepository.findByName(name);
     }
 
     @Override
-    public List<Long> saveAllHashtags(List<Hashtag> hashtagList) {
-        List<Hashtag> resultList = hashtagJpaRepository.saveAll(hashtagList);
-
-        List<Long> hashtagIdList = new ArrayList<>();
-        for (Hashtag hashtag : resultList) {
-            hashtagIdList.add(hashtag.getId());
-        }
-
-        return hashtagIdList;
-    }
-
-    @Override
-    public Optional<Challenge> findById(Long challengeId) {
-        return challengeJpaRepository.findById(challengeId);
-    }
-
-    @Override
-    public List<ChallengeImage> findAllImageByChallengeId(Long challengeId) {
-        return challengeImageJpaRepository.findAllImageByChallengeId(challengeId);
+    public List<ChallengeHashtag> findAllChallengeHashtagByChallengeId(Long challengeId) {
+        return challengeHashtagJpaRepository.findAllByChallengeId(challengeId);
     }
 
     @Override
     public List<Hashtag> findAllHashtagByChallengeId(Long challengeId) {
         List<ChallengeHashtag> challengeHashtagList
-                = challengeHashtagJpaRepository.findAllChallengeHashtagByChallengeId(challengeId);
+                = findAllChallengeHashtagByChallengeId(challengeId);
 
         List<Hashtag> hashtagList = new ArrayList<>();
         for  (ChallengeHashtag tag : challengeHashtagList) {
@@ -82,5 +75,15 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         }
 
         return hashtagList;
+    }
+
+    @Override
+    public List<ChallengeImage> findAllImageByChallengeId(Long challengeId) {
+        return challengeImageJpaRepository.findAllByChallengeId(challengeId);
+    }
+
+    @Override
+    public void deleteChallengeHashtag(ChallengeHashtagId challengeHashtagId) {
+        challengeHashtagJpaRepository.deleteById(challengeHashtagId);
     }
 }
