@@ -43,72 +43,64 @@ public class ChallengeCommandService {
 
         Journey journey = journeyJpaRepository.findById(dto.journeyId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
-
         User user = userJpaRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
-
         Expedition expedition = expeditionJpaRepository.findById(dto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
 
-
-        List<String> imageUrls = s3Service.uploadFiles(dto.imageList());
-
-
-
-        Challenge challenge = ChallengeConverter.postChallenge(
-                dto,
-                user,
-                journey,
-                expedition
-        );
+        Challenge challenge = ChallengeConverter.postChallenge(dto, user, journey, expedition);
         challengeRepository.save(challenge);
 
 
-        List<String> hashtagList = dto.hashtagList();
-        if (hashtagList == null) {
-            hashtagList = new ArrayList<>();
-        }
+        updateChallengeHashtags(challenge, dto.hashtagList());
+        saveNewImages(challenge, s3Service.uploadFiles(dto.imageList()));
 
-        List<Hashtag> existingHashtags = challengeRepository.findAllHashtagByNameIn(hashtagList);
-        Set<String> existingNames = new HashSet<>();
-        for (Hashtag h : existingHashtags) {
-            existingNames.add(h.getName());
-        }
-
-        List<Hashtag> resultList = new ArrayList<>(existingHashtags);
-
-        List<Hashtag> newHashtags = new ArrayList<>();
-        for (String tag : hashtagList) {
-            if (!existingNames.contains(tag)) {
-                Hashtag newTag = Hashtag.builder()
-                        .name(tag)
-                        .build();
-
-                newHashtags.add(newTag);
-                resultList.add(newTag);
-            }
-        }
-
-        if (!newHashtags.isEmpty()) {
-            challengeRepository.saveAllHashtags(newHashtags);
-        }
-
-        for (Hashtag hashtag : resultList) {
-            ChallengeHashtag challengeHashtag = new ChallengeHashtag(challenge, hashtag);
-            challengeRepository.saveChallengeHashtag(challengeHashtag);
-        }
-
-
-        for (String imageUrl : imageUrls) {
-            ChallengeImage challengeImage = ChallengeImage.builder()
-                    .challenge(challenge)
-                    .imageUrl(imageUrl)
-                    .displayOrder(imageUrls.indexOf(imageUrl))
-                    .build();
-            challengeRepository.saveChallengeImage(challengeImage);
-        }
 
         return ChallengeConverter.postChallenge(challenge);
     }
+
+
+
+    private void saveNewImages(Challenge challenge, List<String> imageUrls) {
+        for (int i = 0; i < imageUrls.size(); i++) {
+            ChallengeImage challengeImage = ChallengeImage.builder()
+                    .challenge(challenge)
+                    .imageUrl(imageUrls.get(i))
+                    .displayOrder(i)
+                    .build();
+            challengeRepository.saveChallengeImage(challengeImage);
+        }
+    }
+
+    private void updateChallengeHashtags(Challenge challenge, List<String> newHashtagNames) {
+
+        List<ChallengeHashtag> originChallengeHashtags = challengeRepository.findAllChallengeHashtagByChallengeId(challenge.getId());
+
+
+        for (ChallengeHashtag challengeHashtag : originChallengeHashtags) {
+            if (!newHashtagNames.contains(challengeHashtag.getHashtag().getName())) {
+                challengeRepository.deleteChallengeHashtag(challengeHashtag.getId());
+            }
+        }
+
+
+        Set<String> currentNames = new HashSet<>();
+        for (ChallengeHashtag relation : originChallengeHashtags) {
+            if (newHashtagNames.contains(relation.getHashtag().getName())) {
+                currentNames.add(relation.getHashtag().getName());
+            }
+        }
+
+
+        for (String name : newHashtagNames) {
+            if (!currentNames.contains(name)) {
+                Hashtag hashtag = challengeRepository.findHashtagByName(name)
+                        .orElseGet(() -> challengeRepository.saveHashtag(Hashtag.builder().name(name).build()));
+
+                challengeRepository.saveChallengeHashtag(new ChallengeHashtag(challenge, hashtag));
+            }
+        }
+    }
+
 }

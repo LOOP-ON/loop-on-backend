@@ -8,7 +8,6 @@ import com.loopon.global.exception.AuthorizationException;
 import com.loopon.global.security.jwt.JwtTokenProvider;
 import com.loopon.global.security.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -32,8 +30,6 @@ public class AuthService {
                 .orElseThrow(() -> new AuthorizationException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
         if (!savedRefreshToken.getToken().equals(refreshToken)) {
-            log.warn("AuthService.reissueTokens - 리프레시 토큰 불일치(email: {})", email);
-
             refreshTokenRepository.delete(savedRefreshToken);
             throw new AuthorizationException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
@@ -53,12 +49,11 @@ public class AuthService {
     public void logout(String refreshToken) {
         try {
             jwtTokenValidator.getEmailFromRefreshToken(refreshToken)
-                    .ifPresent(email -> {
-                        refreshTokenRepository.deleteById(email);
-                        log.info("로그아웃 성공 - Refresh Token 삭제 완료 (email: {})", email);
-                    });
+                    .ifPresent(refreshTokenRepository::deleteById);
         } catch (Exception e) {
-            log.warn("로그아웃 처리 중 토큰 파싱 실패 (이미 만료됨): {}", e.getMessage());
+            if (e instanceof AuthorizationException) {
+                return;
+            }
         }
     }
 }
