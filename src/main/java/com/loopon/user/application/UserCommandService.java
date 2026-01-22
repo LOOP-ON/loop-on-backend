@@ -7,7 +7,6 @@ import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j
 public class UserCommandService {
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     public Long signUp(@Valid UserSignUpCommand command) {
@@ -27,8 +24,6 @@ public class UserCommandService {
 
         User user = command.toEntity(passwordEncoder);
         Long userId = userRepository.save(user);
-
-        log.info("UserCommandService.signUp - 회원 가입 완료(email: {}, nickname: {})", user.getEmail(), user.getNickname());
 
         return userId;
     }

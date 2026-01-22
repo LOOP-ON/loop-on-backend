@@ -15,15 +15,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class UserRepositoryImpl implements UserRepository {
     private final UserJpaRepository userJpaRepository;
 
     @Override
     public Long save(User user) {
         User savedUser = userJpaRepository.save(user);
-        log.info("UserRepositoryImpl.save - 사용자 저장 완료(id: {}, email: {}, nickname: {})",
-                savedUser.getId(), savedUser.getEmail(), savedUser.getNickname());
         return savedUser.getId();
     }
 
@@ -40,10 +37,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User findByEmail(String email) {
         return userJpaRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    log.error("UserRepositoryImpl.findByEmail - 사용자 없음(email: {})", email);
-                    return new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.");
-                });
+                .orElseThrow(() ->
+                    new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.")
+                );
     }
 
     @Override
