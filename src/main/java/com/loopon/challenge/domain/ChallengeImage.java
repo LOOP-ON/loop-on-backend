@@ -2,6 +2,8 @@ package com.loopon.challenge.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +11,9 @@ import java.time.LocalDateTime;
 @Table(name = "challenge_images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EnableJpaAuditing
 public class ChallengeImage {
 
     @Id
@@ -27,5 +32,6 @@ public class ChallengeImage {
     private Integer displayOrder;
 
     @Column(nullable = false, updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 }

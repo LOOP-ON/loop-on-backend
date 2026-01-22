@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Friend {
 
     @Id
@@ -50,5 +51,25 @@ public class Friend {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public static Friend request(User requester, User receiver) {
+        return Friend.builder()
+                .requester(requester)
+                .receiver(receiver)
+                .status(FriendStatus.PENDING)
+                .build();
+    }
+    public void accept() {
+        if (this.status != FriendStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING request can be accepted.");
+        }
+        this.status = FriendStatus.ACCEPTED;
+    }
+    public void reject() {
+        if (this.status != FriendStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING request can be rejected.");
+        }
+        this.status = FriendStatus.REJECTED;
     }
 }
