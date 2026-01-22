@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version "${SPRING_BOOT_VERSION}"
+    id 'io.spring.dependency-management' version "${SPRING_BOOT_DEPENDENCY_MANAGEMENT_VERSION}"
+}
+
+group = 'com.loopon'
+version = '0.0.1-SNAPSHOT'
+description = 'loop-on-backend'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(Integer.parseInt(JAVA_VERSION))
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // MySQL Driver
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Liquibase
+    implementation 'org.springframework.boot:spring-boot-starter-liquibase'
+
+    // JJWT
+    implementation "io.jsonwebtoken:jjwt-api:${JJWT_VERSION}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${JJWT_VERSION}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${JJWT_VERSION}"
+
+    // Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SPRINGDOC_OPENAPI_VERSION}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:${SPRINGDOC_OPENAPI_VERSION}"
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // S3
+    implementation platform('software.amazon.awssdk:bom:2.20.160')
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:auth'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+
+    if (project.hasProperty('includeTags')) {
+        def tags = project.property('includeTags').toString()
+                .split(',')
+                .collect { it.trim() }
+                .findAll { it }
+        useJUnitPlatform {
+            includeTags(tags as String[])
+        }
+    }
+
+    if (project.hasProperty('excludeTags')) {
+        def tags = project.property('excludeTags').toString()
+                .split(',')
+                .collect { it.trim() }
+                .findAll { it }
+        useJUnitPlatform {
+            excludeTags(tags as String[])
+        }
+    }
+}
