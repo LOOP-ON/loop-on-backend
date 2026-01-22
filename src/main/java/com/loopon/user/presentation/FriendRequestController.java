@@ -8,6 +8,7 @@ import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.service.FriendRequestService;
+import com.loopon.user.presentation.docs.FriendRequestApiDocs;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/friend-request")
-public class FriendRequestController {
+public class FriendRequestController implements FriendRequestApiDocs {
     private final FriendRequestService friendRequestService;
     @GetMapping("/search")
     @Operation(summary= "새로운 친구 검색", description = "요청을 보낼 새로운 친구를 검색합니다.(닉네임)")

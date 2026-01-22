@@ -4,6 +4,8 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.response.FriendResponse;
 import com.loopon.user.domain.service.FriendService;
+import com.loopon.user.presentation.docs.FriendApiDocs;
+import com.loopon.user.presentation.docs.UserApiDocs;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/friend")
-public class FriendController {
+public class FriendController implements FriendApiDocs {
     private final FriendService friendService;
 
     //내 친구 목록 조회 API
