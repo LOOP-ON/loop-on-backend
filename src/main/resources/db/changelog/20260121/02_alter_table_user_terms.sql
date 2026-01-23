@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset Seungwon-Choi:11
+-- changeset Seungwon-Choi:73
 ALTER TABLE user_terms DROP FOREIGN KEY fk_user_terms_user_id;
 ALTER TABLE user_terms DROP FOREIGN KEY fk_user_terms_terms_id;
 ALTER TABLE user_terms DROP INDEX ux_user_terms_user_terms;
@@ -18,7 +18,7 @@ ALTER TABLE user_term_agreements DROP COLUMN agreed;
 ALTER TABLE user_term_agreements ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NULL COMMENT '수정일';
 
 
--- changeset Seungwon-Choi:12
+-- changeset Seungwon-Choi:74
 ALTER TABLE user_term_agreements
     ADD CONSTRAINT fk_user_term_agreements_user_id
         FOREIGN KEY (user_id) REFERENCES users (user_id);
