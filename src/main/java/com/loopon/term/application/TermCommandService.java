@@ -24,7 +24,7 @@ public class TermCommandService {
         Term term = termRepository.findById(termId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TERM_NOT_FOUND));
 
-        if (term.getMandatory()) {
+        if (!agree && term.getMandatory()) {
             throw new BusinessException(ErrorCode.MANDATORY_TERM_CANNOT_BE_REVOKED);
         }
 
