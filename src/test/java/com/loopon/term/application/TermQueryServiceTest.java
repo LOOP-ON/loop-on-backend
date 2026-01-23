@@ -1,5 +1,8 @@
 package com.loopon.term.application;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
+import com.loopon.term.application.dto.response.TermDetailResponse;
 import com.loopon.term.application.dto.response.TermResponse;
 import com.loopon.term.domain.Term;
 import com.loopon.term.domain.TermsCode;
@@ -14,8 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -55,6 +60,47 @@ class TermQueryServiceTest {
             assertThat(responses.get(1).mandatory()).isFalse();
 
             verify(termRepository).findAllForSignUp();
+        }
+    }
+
+    @Nested
+    @DisplayName("약관 상세 조회")
+    class GetTermDetail {
+
+        @Test
+        @DisplayName("성공: 약관 상세 조회 - 성공 시 상세 내용이 포함된 DTO가 반환되어야 한다")
+        void getTermDetail_Success() {
+            // Given
+            Long termId = 1L;
+            String content = "제1조 목적...";
+            Term term = createTerm(termId, TermsCode.TERMS_OF_SERVICE, "이용약관", true);
+
+            ReflectionTestUtils.setField(term, "content", content);
+
+            given(termRepository.findById(termId)).willReturn(Optional.of(term));
+
+            // When
+            TermDetailResponse response = termQueryService.getTermDetail(termId);
+
+            // Then
+            assertThat(response.termId()).isEqualTo(termId);
+            assertThat(response.content()).isEqualTo(content);
+
+            verify(termRepository).findById(termId);
+        }
+
+        @Test
+        @DisplayName("실패: 약관 상세 조회 - 존재하지 않는 약관 ID 요청 시 BusinessException(TERM_NOT_FOUND)이 발생해야 한다")
+        void getTermDetail_NotFound() {
+            // Given
+            Long invalidId = 999L;
+            given(termRepository.findById(invalidId)).willReturn(Optional.empty());
+
+            // When & Then
+            assertThatThrownBy(() -> termQueryService.getTermDetail(invalidId))
+                    .isInstanceOf(BusinessException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.TERM_NOT_FOUND);
         }
     }
 
