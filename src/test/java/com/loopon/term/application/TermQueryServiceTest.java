@@ -38,8 +38,8 @@ class TermQueryServiceTest {
     class GetTermsForSignUp {
 
         @Test
-        @DisplayName("성공: 회원가입용 약관 목록 조회 - 성공 시 DTO 리스트가 반환되어야 한다")
-        void getTermsForSignUp_Success() {
+        @DisplayName("성공: 회원가입용 약관 목록 조회 시 DTO 리스트가 반환된다")
+        void 정상_수행_약관_목록_반환() {
             // Given
             Term term1 = createTerm(1L, TermsCode.TERMS_OF_SERVICE, "이용약관", true);
             Term term2 = createTerm(2L, TermsCode.MARKETING_CONSENT, "마케팅 동의", false);
@@ -68,8 +68,8 @@ class TermQueryServiceTest {
     class GetTermDetail {
 
         @Test
-        @DisplayName("성공: 약관 상세 조회 - 성공 시 상세 내용이 포함된 DTO가 반환되어야 한다")
-        void getTermDetail_Success() {
+        @DisplayName("성공: 약관 상세 조회 시 내용(content)이 포함된 DTO가 반환된다")
+        void 정상_수행_상세_내용_반환() {
             // Given
             Long termId = 1L;
             String content = "제1조 목적...";
@@ -90,8 +90,8 @@ class TermQueryServiceTest {
         }
 
         @Test
-        @DisplayName("실패: 약관 상세 조회 - 존재하지 않는 약관 ID 요청 시 BusinessException(TERM_NOT_FOUND)이 발생해야 한다")
-        void getTermDetail_NotFound() {
+        @DisplayName("실패: 존재하지 않는 약관 ID 요청 시 예외가 발생한다")
+        void 예외_발생_존재하지_않는_약관() {
             // Given
             Long invalidId = 999L;
             given(termRepository.findById(invalidId)).willReturn(Optional.empty());
