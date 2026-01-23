@@ -4,9 +4,11 @@ import com.loopon.global.docs.error.errors.CommonBadRequestResponseDocs;
 import com.loopon.global.docs.error.errors.CommonInternalServerErrorResponseDocs;
 import com.loopon.global.docs.error.errors.CommonNotFoundResponseDocs;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.term.application.dto.response.TermDetailResponse;
 import com.loopon.term.application.dto.response.TermResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -45,4 +47,14 @@ public interface TermApiDocs {
     @CommonNotFoundResponseDocs
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<TermDetailResponse>> getTermDetail(Long termId);
+
+    @Operation(
+            summary = "약관 동의 상태 수정",
+            description = "사용자가 특정 약관에 대해 동의 또는 비동의 상태를 수정합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonNotFoundResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<Void>> updateTermAgreement(@Parameter(hidden = true) PrincipalDetails principalDetails, Long termId, boolean agree);
 }

@@ -26,6 +26,7 @@ public class TermApiController implements TermApiDocs {
     private final TermQueryService termQueryService;
     private final TermCommandService termCommandService;
 
+    @Override
     @GetMapping
     public ResponseEntity<CommonResponse<List<TermResponse>>> getTermsForSignUp() {
         List<TermResponse> responses = termQueryService.getTermsForSignUp();
@@ -39,13 +40,14 @@ public class TermApiController implements TermApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
+    @Override
     @PatchMapping("/{termId}")
     public ResponseEntity<CommonResponse<Void>> updateTermAgreement(
-            @AuthenticationPrincipal PrincipalDetails principal,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long termId,
             @RequestParam boolean agree
     ) {
-        termCommandService.updateTermAgreement(principal.getUsername(), termId, agree);
+        termCommandService.updateTermAgreement(principalDetails.getUsername(), termId, agree);
         return ResponseEntity.ok(CommonResponse.onSuccess());
     }
 }
