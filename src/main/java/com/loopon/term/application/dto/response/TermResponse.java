@@ -1,11 +1,10 @@
 package com.loopon.term.application.dto.response;
 
 import com.loopon.term.domain.Term;
-import com.loopon.term.domain.TermsCode;
 
 public record TermResponse(
         Long termId,
-        TermsCode code,
+        String code,
         String title,
         boolean mandatory
 ) {
@@ -13,7 +12,7 @@ public record TermResponse(
     public static TermResponse from(Term term) {
         return new TermResponse(
                 term.getId(),
-                term.getCode(),
+                term.getCode().name(),
                 term.getTitle(),
                 term.getMandatory()
         );
