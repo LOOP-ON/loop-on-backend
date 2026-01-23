@@ -26,13 +26,18 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi authApi() {
-        return createGroup("1. 인증(Auth)", "/api/auth/**");
+    public GroupedOpenApi userApi() {
+        return createGroup("1. 사용자(User)", "/api/users/**");
     }
 
     @Bean
-    public GroupedOpenApi userApi() {
-        return createGroup("2. 사용자(User)", "/api/users/**");
+    public GroupedOpenApi authApi() {
+        return createGroup("2. 인증(Auth)", "/api/auth/**");
+    }
+
+    @Bean
+    public GroupedOpenApi termApi() {
+        return createGroup("3. 약관(Term)", "/api/terms/**");
     }
 
     @Bean
