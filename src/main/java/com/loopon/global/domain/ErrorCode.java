@@ -30,6 +30,7 @@ public enum ErrorCode {
 
     TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "해당 약관을 찾을 수 없습니다."),
     MANDATORY_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "T002", "회원가입을 위해 약관 동의가 필요합니다."),
+    MANDATORY_TERM_CANNOT_BE_REVOKED(HttpStatus.BAD_REQUEST, "T003", "필수 약관은 동의 철회가 불가능합니다."),
 
     // RTR(Refresh Token Rotation) 관련 에러
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 리프레시 토큰입니다."),
@@ -41,8 +42,8 @@ public enum ErrorCode {
     HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
 
     // S3 관련 에러
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.");
-
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.")
+    ;
 
     private final HttpStatus status;
     private final String code;

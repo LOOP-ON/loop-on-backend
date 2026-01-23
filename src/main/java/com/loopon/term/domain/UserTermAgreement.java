@@ -45,7 +45,13 @@ public class UserTermAgreement extends BaseTimeEntity {
     private LocalDateTime revokedAt;
 
     public void revoke() {
-        this.revokedAt = LocalDateTime.now();
+        if (this.revokedAt == null) {
+            this.revokedAt = LocalDateTime.now();
+        }
+    }
+
+    public void restore() {
+        this.revokedAt = null;
     }
 
     public boolean isActive() {
