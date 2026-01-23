@@ -14,7 +14,7 @@ public enum TermsCode {
     // [선택]
     PRIVACY_POLICY_OPTIONAL("개인정보 수집·이용 동의 (선택)"),
     THIRD_PARTY_SHARING("개인정보 제 3자 제공 동의"),
-    MARKETING_CONSENT("마케팅 정보 수신 동의");
+    MARKETING_CONSENT("마케팅 정보 수신 동의")
     ;
 
     private final String description;
