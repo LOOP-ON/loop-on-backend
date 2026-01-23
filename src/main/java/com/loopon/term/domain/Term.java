@@ -29,7 +29,7 @@ public class Term extends BaseTimeEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50, unique = true)
+    @Column(nullable = false, length = 50)
     private TermsCode code;
 
     @Column(nullable = false, length = 100)
