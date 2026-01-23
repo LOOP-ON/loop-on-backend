@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import com.loopon.challenge.application.service.*;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,7 +74,7 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
+        given(challengeRepository.findHashtagByName("해시태그1")).willReturn(Optional.of(mock(Hashtag.class)));
 
         // when
         ChallengePostResponse response = challengeCommandService.postChallenge(command);
@@ -95,7 +95,7 @@ class ChallengeCommandServiceTest {
                 .userId(userId)
                 .journeyId(journeyId)
                 .expeditionId(expeditionId)
-                .hashtagList(null)
+                .hashtagList(new ArrayList<>())
                 .imageList(List.of(mock(MultipartFile.class)))
                 .build();
 
@@ -104,8 +104,6 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findAllHashtagByNameIn(Collections.emptyList()))
-                .willReturn(Collections.emptyList());
 
         // when
         ChallengePostResponse response = challengeCommandService.postChallenge(nullCommand);
@@ -114,7 +112,7 @@ class ChallengeCommandServiceTest {
         assertNotNull(response);
 
         // 해시태그 저장 관련 로직이 실행되지 않았거나 빈 리스트로 실행되었는지 검증
-        verify(challengeRepository, never()).saveAllHashtags(anyList());
+        verify(challengeRepository, never()).saveHashtag(any());
         verify(challengeRepository, never()).saveChallengeHashtag(any());
 
         verify(challengeRepository, times(1)).save(any(Challenge.class));
@@ -190,7 +188,7 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
+        given(challengeRepository.findHashtagByName(any())).willReturn(Optional.of(mock(Hashtag.class)));
 
 
         // when
@@ -210,7 +208,7 @@ class ChallengeCommandServiceTest {
         given(userJpaRepository.findById(userId)).willReturn(Optional.of(mock(User.class)));
         given(expeditionJpaRepository.findById(expeditionId)).willReturn(Optional.of(mock(Expedition.class)));
         given(s3Service.uploadFiles(any())).willReturn(List.of("https://s3.url/image.jpg"));
-        given(challengeRepository.findAllHashtagByNameIn(anyList())).willReturn(List.of(mock(Hashtag.class)));
+        given(challengeRepository.findHashtagByName(any())).willReturn(Optional.of(mock(Hashtag.class)));
 
         // when
         challengeCommandService.postChallenge(command);

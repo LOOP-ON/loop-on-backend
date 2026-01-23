@@ -17,7 +17,17 @@ public interface ChallengeRepository {
 
     Long saveChallengeImage(ChallengeImage challengeImage);
 
-    List<Hashtag> findAllHashtagByNameIn(List<String> strings);
+    Hashtag saveHashtag(Hashtag hashtag);
 
-    List<Long> saveAllHashtags(List<Hashtag> newHashtags);
+    List<ChallengeHashtag> findAllChallengeHashtagByChallengeId(Long id);
+
+    List<Hashtag> findAllHashtagByChallengeId(Long id);
+
+    Optional<Hashtag> findHashtagByName(String name);
+
+    List<ChallengeImage> findAllImageByChallengeId(Long challengeId);
+
+    Optional<Challenge> findById(Long challengeId);
+
+    void deleteChallengeHashtag(ChallengeHashtagId challengeHashtagId);
 }

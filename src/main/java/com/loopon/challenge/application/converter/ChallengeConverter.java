@@ -1,6 +1,7 @@
 package com.loopon.challenge.application.converter;
 
 import com.loopon.challenge.application.dto.command.ChallengePostCommand;
+import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
 import com.loopon.challenge.application.dto.response.ChallengePostResponse;
 import com.loopon.challenge.application.dto.request.ChallengePostRequest;
 import com.loopon.challenge.domain.Challenge;
@@ -8,16 +9,20 @@ import com.loopon.expedition.domain.Expedition;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 public class ChallengeConverter {
 
     public static ChallengePostCommand postChallenge(
             ChallengePostRequest requestDto,
+            List<MultipartFile> imageFiles,
             PrincipalDetails principalDetails
     ) {
         return ChallengePostCommand.builder()
-                .imageList(requestDto.imageList())
+                .imageList(imageFiles)
                 .hashtagList(requestDto.hashtagList())
                 .content(requestDto.content())
                 .expeditionId(requestDto.expeditionId())
@@ -45,6 +50,23 @@ public class ChallengeConverter {
     ) {
         return ChallengePostResponse.builder()
                 .challengeId(challenge.getId())
+                .build();
+    }
+
+    public static ChallengeGetResponse getChallenge(
+            Long challengeId,
+            List<String> imageList,
+            List<String> hashtagList,
+            String content,
+            Long expeditionId
+
+    ) {
+        return ChallengeGetResponse.builder()
+                .challengeId(challengeId)
+                .imageList(imageList)
+                .hashtagList(hashtagList)
+                .content(content)
+                .expeditionId(expeditionId)
                 .build();
     }
 

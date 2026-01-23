@@ -3,6 +3,7 @@ package com.loopon.user.application.dto.request;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;

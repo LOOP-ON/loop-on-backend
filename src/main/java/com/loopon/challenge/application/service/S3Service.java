@@ -1,5 +1,7 @@
 package com.loopon.challenge.application.service;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,8 +53,8 @@ public class S3Service {
             s3Client.putObject(putObjectRequest,
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-        } catch (IOException e) {
-            throw new RuntimeException("S3 파일 업로드 중 오류 발생: " + originalFilename, e);
+        } catch (S3Exception | IOException e) {
+            throw new BusinessException(ErrorCode.S3_UPLOAD_FAILED);
         }
 
         return s3Client.utilities()

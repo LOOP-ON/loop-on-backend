@@ -1,7 +1,11 @@
 package com.loopon.challenge.infrastructure.jpa;
 
 import com.loopon.challenge.domain.ChallengeHashtag;
+import com.loopon.challenge.domain.ChallengeHashtagId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChallengeHashtagJpaRepository extends JpaRepository<ChallengeHashtag, Long> {
+import java.util.List;
+
+public interface ChallengeHashtagJpaRepository extends JpaRepository<ChallengeHashtag, ChallengeHashtagId> {
+    List<ChallengeHashtag> findAllByChallengeId(Long challengeId);
 }

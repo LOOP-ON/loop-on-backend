@@ -48,7 +48,7 @@ public record UserSignUpCommand(
                 ", name=" + name +
                 ", nickname=" + nickname +
                 ", birthDate=" + birthDate +
-                ", agreedTermIds=" + agreedTermIds + // ID 리스트는 로그에 남겨도 됨
+                ", agreedTermIds=" + agreedTermIds +
                 ", password=****" +
                 ", confirmPassword=****" +
                 "]";
