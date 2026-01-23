@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Pattern;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record UserSignUpCommand(
         String email,
@@ -22,7 +23,8 @@ public record UserSignUpCommand(
         String confirmPassword,
         String name,
         String nickname,
-        LocalDate birthDate
+        LocalDate birthDate,
+        List<Long> agreedTermIds
 ) {
 
     public User toEntity(PasswordEncoder passwordEncoder) {
@@ -37,5 +39,18 @@ public record UserSignUpCommand(
                 .userStatus(UserStatus.ACTIVE)
                 .role(UserRole.ROLE_USER)
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return "UserSignUpCommand[" +
+                "email=" + email +
+                ", name=" + name +
+                ", nickname=" + nickname +
+                ", birthDate=" + birthDate +
+                ", agreedTermIds=" + agreedTermIds + // ID 리스트는 로그에 남겨도 됨
+                ", password=****" +
+                ", confirmPassword=****" +
+                "]";
     }
 }

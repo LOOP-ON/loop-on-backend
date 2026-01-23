@@ -29,6 +29,7 @@ public enum ErrorCode {
     JWT_MISSING(HttpStatus.UNAUTHORIZED, "A006", "JWT 토큰이 없습니다."),
 
     TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "해당 약관을 찾을 수 없습니다."),
+    MANDATORY_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "T002", "회원가입을 위해 약관 동의가 필요합니다."),
 
     // RTR(Refresh Token Rotation) 관련 에러
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 리프레시 토큰입니다."),
