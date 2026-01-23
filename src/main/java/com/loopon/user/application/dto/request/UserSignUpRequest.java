@@ -48,7 +48,7 @@ public record UserSignUpRequest(
 
         @Schema(description = "동의한 약관 ID 목록", example = "[1, 2, 3, 6]")
         @NotNull(message = "약관 동의 목록은 필수입니다.")
-        @Size(min = 1, message = "최소 하나 이상의 약관에 동의해야 합니다.")
+        @Size(min = 1, message = "필수 약관에 동의해야 합니다.")
         List<Long> agreedTermIds
 ) {
 
