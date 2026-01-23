@@ -39,8 +39,6 @@ public class UserCommandService {
 
         saveUserTermAgreements(user, allTerms, command.agreedTermIds());
 
-        log.info("UserCommandService.signUp - 회원 가입 완료(email: {}, nickname: {})", user.getEmail(), user.getNickname());
-
         return userId;
     }
 
