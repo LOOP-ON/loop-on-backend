@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "1. 인증(Auth)", description = "인증 관련 API")
+@Tag(name = "2. 인증(Auth)", description = "인증 관련 API")
 public interface AuthApiDocs {
 
     @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하여 Access Token 및 Refresh Token을 발급받습니다.")
