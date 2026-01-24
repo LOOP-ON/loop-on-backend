@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -142,7 +144,7 @@ class PasswordResetServiceTest {
             User user = User.builder().email(EMAIL).password("oldPassword").build();
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(passwordEncoder.encode(newPassword)).willReturn("encodedNewPassword");
 
             // when

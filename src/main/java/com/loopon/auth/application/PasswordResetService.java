@@ -65,7 +65,8 @@ public class PasswordResetService {
             throw new BusinessException(ErrorCode.RESET_TOKEN_INVALID);
         }
 
-        User user = userRepository.findByEmail(request.email());
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         user.updatePassword(passwordEncoder.encode(request.newPassword()));
 

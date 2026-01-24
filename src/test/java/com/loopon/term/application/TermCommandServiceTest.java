@@ -107,7 +107,7 @@ class TermCommandServiceTest {
             User user = createUser();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.empty());
 
             // when
@@ -128,7 +128,7 @@ class TermCommandServiceTest {
             existingAgreement.revoke();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.of(existingAgreement));
 
             // when
@@ -149,7 +149,7 @@ class TermCommandServiceTest {
             UserTermAgreement existingAgreement = createAgreement(user, optionalTerm);
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.of(existingAgreement));
 
             // when
@@ -167,7 +167,7 @@ class TermCommandServiceTest {
             User user = createUser();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.empty());
 
             // when
