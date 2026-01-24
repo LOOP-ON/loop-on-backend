@@ -186,5 +186,23 @@ class PasswordResetServiceTest {
 
             verify(userRepository, never()).findByEmail(anyString());
         }
+
+        @Test
+        @DisplayName("실패: 토큰 검증은 통과했으나 유저가 존재하지 않는 경우(중간에 삭제됨) 예외가 발생한다")
+        void 비밀번호_재설정_실패_유저_없음() {
+            // given
+            String token = "valid-token";
+            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "pw123!", "pw123!");
+
+            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
+
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> passwordResetService.resetPassword(request))
+                    .isInstanceOf(BusinessException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+        }
     }
 }

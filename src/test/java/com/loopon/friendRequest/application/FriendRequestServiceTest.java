@@ -210,8 +210,8 @@ class FriendRequestServiceTest {
             given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(false);
             given(friendRequestRepository.existsFriendship(1L, 2L, PENDING)).willReturn(false);
 
-            given(userRepository.findById(1L)).willReturn(user1);
-            given(userRepository.findById(2L)).willReturn(user2);
+            given(userRepository.findById(1L)).willReturn(Optional.ofNullable(user1));
+            given(userRepository.findById(2L)).willReturn(Optional.ofNullable(user2));
 
             given(friendRequestRepository.save(any(Friend.class)))
                     .willAnswer(inv -> inv.getArgument(0));
