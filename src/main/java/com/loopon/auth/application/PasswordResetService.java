@@ -11,6 +11,7 @@ import com.loopon.global.mail.MailService;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PasswordResetService {
     private final UserRepository userRepository;
     private final RedisAuthAdapter redisAuthAdapter;
@@ -29,11 +31,19 @@ public class PasswordResetService {
 
     @Transactional(readOnly = true)
     public void sendAuthCode(PasswordEmailRequest request) {
+        if (redisAuthAdapter.isRateLimitExceeded(request.email())) {
+            log.warn("Password reset rate limit exceeded for email: {}", request.email());
+            throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS);
+        }
+
         if (!userRepository.existsByEmail(request.email())) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+            log.info("Password reset requested for non-existent email: {}", request.email());
+
+            return;
         }
 
         String authCode = String.valueOf(ThreadLocalRandom.current().nextInt(1000, 10000));
+
 
         redisAuthAdapter.saveAuthCode(request.email(), authCode);
         mailService.sendAuthCode(request.email(), authCode);
