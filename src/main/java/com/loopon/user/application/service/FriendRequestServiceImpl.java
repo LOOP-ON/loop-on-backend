@@ -61,8 +61,10 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         }
 
         //새로운 친구 요청 생성(로직 추가 필요)
-    User requester = userRepository.findById(me);
-    User receiver = userRepository.findById(receiverId);
+    User requester = userRepository.findById(me)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    User receiver = userRepository.findById(receiverId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     Friend friendRequest = Friend.request(requester, receiver);
     //친구 요청 저장

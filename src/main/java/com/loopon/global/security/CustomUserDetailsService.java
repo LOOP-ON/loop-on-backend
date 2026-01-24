@@ -1,5 +1,7 @@
 package com.loopon.global.security;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
@@ -20,7 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         log.info("CustomUserDetailsService.loadUserByUsername - 로그인 시도: {}", email);
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return PrincipalDetails.from(user);
     }

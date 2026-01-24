@@ -20,34 +20,49 @@ public class TermCommandService {
     private final UserRepository userRepository;
     private final UserTermAgreementRepository agreementRepository;
 
-    public void updateTermAgreement(String email, Long termId, boolean agree) {
-        Term term = termRepository.findById(termId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TERM_NOT_FOUND));
+    public void updateTermAgreement(String email, Long termId, boolean isAgree) {
+        User user = getUser(email);
+        Term term = getTerm(termId);
 
-        if (!agree && term.getMandatory()) {
+        if (isAgree) {
+            processAgreement(user, term);
+        } else {
+            processRevocation(user, term);
+        }
+    }
+
+    private void processAgreement(User user, Term term) {
+        agreementRepository.findByUserAndTerm(user, term)
+                .ifPresentOrElse(
+                        UserTermAgreement::restore,
+                        () -> agreementRepository.save(
+                                UserTermAgreement.builder()
+                                        .user(user)
+                                        .term(term)
+                                        .build())
+                );
+    }
+
+    private void processRevocation(User user, Term term) {
+        validateRevocation(term);
+
+        agreementRepository.findByUserAndTerm(user, term)
+                .ifPresent(UserTermAgreement::revoke);
+    }
+
+    private void validateRevocation(Term term) {
+        if (term.getMandatory()) {
             throw new BusinessException(ErrorCode.MANDATORY_TERM_CANNOT_BE_REVOKED);
         }
+    }
 
-        User user = userRepository.findByEmail(email);
+    private User getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
 
-        UserTermAgreement agreement = agreementRepository.findByUserAndTerm(user, term)
-                .orElse(null);
-
-        if (agree) {
-            if (agreement == null) {
-                agreementRepository.save(UserTermAgreement.builder()
-                        .user(user)
-                        .term(term)
-                        .build()
-                );
-
-            } else {
-                agreement.restore();
-            }
-        } else {
-            if (agreement != null) {
-                agreement.revoke();
-            }
-        }
+    private Term getTerm(Long termId) {
+        return termRepository.findById(termId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TERM_NOT_FOUND));
     }
 }

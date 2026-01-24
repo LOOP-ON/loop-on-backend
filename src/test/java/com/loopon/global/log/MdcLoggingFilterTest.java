@@ -48,8 +48,8 @@ class MdcLoggingFilterTest {
     }
 
     @Test
-    @DisplayName("성공 케이스: Request ID가 생성되고, 체인 실행 후 MDC가 비워져야 한다.")
-    void doFilter_Success() throws ServletException, IOException {
+    @DisplayName("성공: Request ID가 생성되고, 체인 실행 후 MDC가 비워져야 한다")
+    void 정상_수행_요청ID_생성_및_MDC_정리() throws ServletException, IOException {
         // Given
         doAnswer(invocation -> {
             String requestId = MDC.get(REQUEST_ID);
@@ -69,8 +69,8 @@ class MdcLoggingFilterTest {
     }
 
     @Test
-    @DisplayName("예외 케이스: 필터 체인 도중 예외가 발생해도 MDC는 반드시 비워져야 한다.")
-    void doFilter_Exception() throws ServletException, IOException {
+    @DisplayName("예외: 필터 체인 도중 예외가 발생해도 MDC는 반드시 비워져야 한다")
+    void 예외_발생_시_MDC_정리_보장() throws ServletException, IOException {
         // Given
         doThrow(new RuntimeException("Unexpected Error"))
                 .when(filterChain).doFilter(any(), any());

@@ -40,6 +40,7 @@ public class SecurityConfig {
             "/api/users/**",
             "/api/auth/login",
             "/api/auth/reissue",
+            "/api/auth/password/**"
     };
 
     private static final String[] API_URLS = {

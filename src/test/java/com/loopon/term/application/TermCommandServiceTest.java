@@ -78,9 +78,10 @@ class TermCommandServiceTest {
         @DisplayName("실패: 존재하지 않는 약관 ID 요청 시 예외 발생")
         void 실패_존재하지_않는_약관() {
             // given
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(mock(User.class)));
+
             given(termRepository.findById(TERM_ID)).willReturn(Optional.empty());
 
-            // when & then
             assertThatThrownBy(() -> termCommandService.updateTermAgreement(EMAIL, TERM_ID, true))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TERM_NOT_FOUND);
@@ -90,8 +91,11 @@ class TermCommandServiceTest {
         @DisplayName("실패: 필수 약관을 철회하려고 하면 예외 발생")
         void 실패_필수_약관_철회_시도() {
             // given
+            User mockUser = mock(User.class);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(mockUser));
+
             Term mandatoryTerm = createTerm(true);
-            given(termRepository.findById(TERM_ID)).willReturn(Optional.of(mandatoryTerm));
+            given(termRepository.findById(TERM_ID)).willReturn(Optional.ofNullable(mandatoryTerm));
 
             // when & then
             assertThatThrownBy(() -> termCommandService.updateTermAgreement(EMAIL, TERM_ID, false))
@@ -107,7 +111,7 @@ class TermCommandServiceTest {
             User user = createUser();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.empty());
 
             // when
@@ -128,7 +132,7 @@ class TermCommandServiceTest {
             existingAgreement.revoke();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.of(existingAgreement));
 
             // when
@@ -149,7 +153,7 @@ class TermCommandServiceTest {
             UserTermAgreement existingAgreement = createAgreement(user, optionalTerm);
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.of(existingAgreement));
 
             // when
@@ -167,7 +171,7 @@ class TermCommandServiceTest {
             User user = createUser();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(user);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
             given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.empty());
 
             // when
