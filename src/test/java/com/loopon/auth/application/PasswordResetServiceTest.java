@@ -71,17 +71,21 @@ class PasswordResetServiceTest {
         }
 
         @Test
-        @DisplayName("실패: 가입되지 않은 이메일이면 예외가 발생한다")
-        void 인증코드_발송_실패_미가입_이메일() {
+        @DisplayName("성공(보안): 가입되지 않은 이메일이어도 예외를 던지지 않고 조용히 종료된다 (계정 열거 방지)")
+        void 인증코드_발송_미가입_이메일_SilentFail() {
             // given
-            PasswordEmailRequest request = new PasswordEmailRequest("unknown@loopon.com");
-            given(userRepository.existsByEmail(anyString())).willReturn(false);
+            String unknownEmail = "unknown@loopon.com";
+            PasswordEmailRequest request = new PasswordEmailRequest(unknownEmail);
 
-            // when & then
-            assertThatThrownBy(() -> passwordResetService.sendAuthCode(request))
-                    .isInstanceOf(BusinessException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+            given(redisAuthAdapter.isRateLimitExceeded(unknownEmail)).willReturn(false);
+
+            given(userRepository.existsByEmail(unknownEmail)).willReturn(false);
+
+            // when
+            passwordResetService.sendAuthCode(request);
+
+            // then
+            verify(userRepository).existsByEmail(unknownEmail);
 
             verify(redisAuthAdapter, never()).saveAuthCode(anyString(), anyString());
             verify(mailService, never()).sendAuthCode(anyString(), anyString());
