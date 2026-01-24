@@ -95,7 +95,7 @@ public class User {
         return this.role.name();
     }
 
-    public void updatePassword(String encode) {
-        this.password = encode;
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }
