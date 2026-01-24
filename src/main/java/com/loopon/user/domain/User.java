@@ -1,5 +1,6 @@
 package com.loopon.user.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,8 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -32,8 +31,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-public class User {
+@Builder(access = AccessLevel.PRIVATE)
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,9 +42,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "provider", length = 20, nullable = false)
     private UserProvider provider;
-
-    @Column(name = "name", length = 20, nullable = false)
-    private String name;
 
     @Column(name = "nickname", length = 30, nullable = false)
     private String nickname;
@@ -75,21 +71,6 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    //TODO: PrePersist로 둘지 global Entity로 뺄지 결정하기
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        if (this.userStatus == null) {
-            this.userStatus = UserStatus.ACTIVE;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     public String getUserRole() {
         return this.role.name();
