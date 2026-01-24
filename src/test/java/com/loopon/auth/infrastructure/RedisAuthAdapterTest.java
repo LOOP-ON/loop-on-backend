@@ -103,6 +103,6 @@ class RedisAuthAdapterTest {
         // then
         assertThat(actualToken).isNull();
 
-         verify(redisTemplate, never()).delete(key);
+        verify(redisTemplate, never()).delete(key);
     }
 }

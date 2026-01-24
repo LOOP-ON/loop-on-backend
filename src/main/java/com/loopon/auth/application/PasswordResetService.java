@@ -70,6 +70,6 @@ public class PasswordResetService {
 
         user.updatePassword(passwordEncoder.encode(request.newPassword()));
 
-         refreshTokenRepository.deleteById(request.email());
+        refreshTokenRepository.deleteById(request.email());
     }
 }
