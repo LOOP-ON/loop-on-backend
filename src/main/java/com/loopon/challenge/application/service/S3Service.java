@@ -38,7 +38,6 @@ public class S3Service {
         return urlList;
     }
 
-
     public String uploadFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String storedFileName = UUID.randomUUID() + "_" + originalFilename;
