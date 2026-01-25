@@ -8,15 +8,15 @@ import lombok.Builder;
 public record FriendRequestCreateResponse (
     @NotNull Long requesterId,
     @NotNull Long receiverId,
-    @NotNull String requesterName,
-    @NotNull String receiverName
+    @NotNull String requesterNickname,
+    @NotNull String receiverNickname
     ){
     public static FriendRequestCreateResponse from(Friend friend) {
         return FriendRequestCreateResponse.builder()
                 .requesterId(friend.getRequester().getId())
                 .receiverId(friend.getReceiver().getId())
-                .requesterName(friend.getRequester().getName())
-                .receiverName(friend.getReceiver().getName())
+                .requesterNickname(friend.getRequester().getNickname())
+                .receiverNickname(friend.getReceiver().getNickname())
                 .build();
     }
 }

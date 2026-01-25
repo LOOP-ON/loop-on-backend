@@ -32,7 +32,6 @@ public record UserSignUpCommand(
                 .provider(UserProvider.LOCAL)
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .name(name)
                 .nickname(nickname)
                 .birthDate(birthDate)
                 .profileImageUrl(null)
