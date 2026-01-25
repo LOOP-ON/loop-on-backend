@@ -61,7 +61,6 @@ class TermCommandServiceTest {
         private User createUser() {
             User user = User.builder()
                     .email(EMAIL)
-                    .name("테스터")
                     .build();
             ReflectionTestUtils.setField(user, "id", 100L);
             return user;
