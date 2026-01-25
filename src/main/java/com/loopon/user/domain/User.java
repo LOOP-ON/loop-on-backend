@@ -66,6 +66,12 @@ public class User extends BaseTimeEntity {
     @Column(name = "role", length = 20, nullable = false)
     private UserRole role;
 
+    @Column(name = "bio", length = 100)
+    private String bio;
+
+    @Column(name = "status_message", length = 100)
+    private String statusMessage;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -78,5 +84,11 @@ public class User extends BaseTimeEntity {
 
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateProfile(String nickname, String bio, String statusMessage) {
+        this.nickname = nickname;
+        this.bio = bio;
+        this.statusMessage = statusMessage;
     }
 }
