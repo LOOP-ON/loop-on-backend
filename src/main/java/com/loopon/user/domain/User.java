@@ -42,17 +42,20 @@ public class User extends BaseTimeEntity {
     @Column(name = "provider", length = 20, nullable = false)
     private UserProvider provider;
 
-    @Column(name = "nickname", length = 30, nullable = false)
-    private String nickname;
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "social_id", length = 200, nullable = false)
+    private String socialId;
 
     @Column(name = "email", length = 254, nullable = false)
     private String email;
 
+    @Column(name = "nickname", length = 30, nullable = false)
+    private String nickname;
+
     @Column(name = "password", length = 255)
     private String password;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
