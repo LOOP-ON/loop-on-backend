@@ -41,7 +41,8 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/reissue",
             "/api/auth/logout",
-            "/api/auth/password/**"
+            "/api/auth/password/**",
+            "/api/auth/login/kakao"
     };
 
     private static final String[] API_URLS = {

@@ -22,7 +22,8 @@ import lombok.NoArgsConstructor;
         //제약조건 추가
         uniqueConstraints = {
                 @UniqueConstraint(name = "ux_users_email", columnNames = "email"),
-                @UniqueConstraint(name = "ux_users_nickname", columnNames = "nickname")
+                @UniqueConstraint(name = "ux_users_nickname", columnNames = "nickname"),
+                @UniqueConstraint(name = "ux_users_provider_social_id", columnNames = {"provider", "social_id"}),
         }
 )
 @Getter
@@ -89,6 +90,20 @@ public class User extends BaseTimeEntity {
                 .socialId(email)
                 .email(email)
                 .password(encodedPassword)
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
+                .bio("")
+                .statusMessage("")
+                .build();
+    }
+
+    public static User createSocialUser(String socialId, UserProvider provider, String email, String nickname, String profileImageUrl) {
+        return User.builder()
+                .provider(provider)
+                .socialId(socialId)
+                .email(email)
                 .nickname(nickname)
                 .profileImageUrl(profileImageUrl)
                 .userStatus(UserStatus.ACTIVE)

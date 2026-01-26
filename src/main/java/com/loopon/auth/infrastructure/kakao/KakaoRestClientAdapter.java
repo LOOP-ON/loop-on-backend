@@ -16,21 +16,29 @@ public class KakaoRestClientAdapter {
     private final RestClient kakaoRestClient;
 
     public KakaoUserResponse getUserInfo(String accessToken) {
+        String tokenHeader = accessToken.startsWith("Bearer ")
+                ? accessToken
+                : "Bearer " + accessToken;
+
         try {
             return kakaoRestClient.get()
                     .uri("/v2/user/me")
-                    .header("Authorization", accessToken)
+                    .header("Authorization", tokenHeader)
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                        log.error("Kakao Client Error: Status Code = {}", response.getStatusCode());
                         throw new BusinessException(ErrorCode.SOCIAL_LOGIN_FAILED);
                     })
                     .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                        log.error("Kakao Server Error: Status Code = {}", response.getStatusCode());
                         throw new BusinessException(ErrorCode.EXTERNAL_SERVER_ERROR);
                     })
                     .body(KakaoUserResponse.class);
 
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("Kakao API Call Failed: {}", e.getMessage());
+            log.error("Kakao API Unhandled Exception: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.SOCIAL_LOGIN_FAILED);
         }
     }

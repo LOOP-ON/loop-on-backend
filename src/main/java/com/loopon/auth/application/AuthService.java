@@ -1,26 +1,53 @@
 package com.loopon.auth.application;
 
-import com.loopon.auth.application.dto.response.ReissueTokensResponse;
+import com.loopon.auth.application.dto.response.AuthResult;
+import com.loopon.auth.application.dto.response.SocialInfoResponse;
+import com.loopon.auth.application.strategy.SocialLoadStrategy;
 import com.loopon.auth.domain.RefreshToken;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.AuthorizationException;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.jwt.JwtTokenProvider;
 import com.loopon.global.security.jwt.JwtTokenValidator;
+import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
+    private final List<SocialLoadStrategy> socialLoadStrategies;
 
-    public ReissueTokensResponse reissueTokens(String refreshToken) {
+    public AuthResult loginSocial(UserProvider provider, String accessToken) {
+        SocialLoadStrategy strategy = socialLoadStrategies.stream()
+                .filter(s -> s.support(provider))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_PROVIDER));
+
+        SocialInfoResponse socialInfo = strategy.loadSocialInfo(accessToken);
+
+        User user = userRepository.findBySocialIdAndProvider(socialInfo.id(), provider)
+                .orElseGet(() -> registerSocialUser(socialInfo, provider));
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getEmail(), Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole())));
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+        return AuthResult.of(newAccessToken, refreshToken);
+    }
+
+    public AuthResult reissueTokens(String refreshToken) {
         jwtTokenValidator.validateToken(refreshToken);
 
         String email = jwtTokenValidator.getEmailFromRefreshToken(refreshToken)
@@ -43,7 +70,7 @@ public class AuthService {
         RefreshToken newRefreshTokenEntity = savedRefreshToken.rotate(newRefreshToken);
         refreshTokenRepository.save(newRefreshTokenEntity);
 
-        return ReissueTokensResponse.of(newAccessToken, newRefreshToken);
+        return AuthResult.of(newAccessToken, newRefreshToken);
     }
 
     public void logout(String refreshToken) {
@@ -55,5 +82,26 @@ public class AuthService {
                 return;
             }
         }
+    }
+
+    private User registerSocialUser(SocialInfoResponse info, UserProvider provider) {
+        String randomSuffix = UUID.randomUUID().toString().substring(0, 4);
+        String tempNickname = info.nickname() + "#" + randomSuffix;
+
+        if (tempNickname.length() > 30) {
+            tempNickname = tempNickname.substring(0, 30);
+        }
+
+        User newUser = User.createSocialUser(
+                info.id(),
+                provider,
+                info.email(),
+                tempNickname,
+                info.profileImage()
+        );
+
+        userRepository.save(newUser);
+
+        return newUser;
     }
 }
