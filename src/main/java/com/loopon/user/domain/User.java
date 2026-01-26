@@ -16,8 +16,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(
         name = "users",
@@ -30,7 +28,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public class User extends BaseTimeEntity {
 
     @Id
@@ -83,5 +81,20 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
         this.bio = bio;
         this.statusMessage = statusMessage;
+    }
+
+    public static User createLocalUser(String email, String nickname, String encodedPassword, String profileImageUrl) {
+        return User.builder()
+                .provider(UserProvider.LOCAL)
+                .socialId(email)
+                .email(email)
+                .password(encodedPassword)
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
+                .bio("")
+                .statusMessage("")
+                .build();
     }
 }

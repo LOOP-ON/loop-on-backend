@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,7 +51,7 @@ class UserCommandServiceTest {
 
         private UserSignUpCommand createCommand(String email, String password, String confirmPassword, String nickname, List<Long> agreedTermIds) {
             return new UserSignUpCommand(
-                    email, password, confirmPassword, "홍길동", nickname, LocalDate.of(2000, 1, 1), agreedTermIds
+                    email, password, confirmPassword, "홍길동", nickname , agreedTermIds
             );
         }
 
