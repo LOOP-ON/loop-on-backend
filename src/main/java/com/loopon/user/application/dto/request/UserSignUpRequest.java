@@ -41,11 +41,6 @@ public record UserSignUpRequest(
         @Pattern(regexp = "^[가-힣a-zA-Z0-9]+$", message = "닉네임은 특수문자를 사용할 수 없습니다.")
         String nickname,
 
-        @Schema(description = "생년월일", example = "2000-01-01")
-        @NotNull(message = "생년월일은 필수 입력 값입니다.")
-        @Past(message = "생년월일은 과거 날짜여야 합니다.")
-        LocalDate birthDate,
-
         @Schema(description = "동의한 약관 ID 목록", example = "[1, 2, 3, 6]")
         @NotNull(message = "약관 동의 목록은 필수입니다.")
         @Size(min = 1, message = "필수 약관에 동의해야 합니다.")
@@ -59,7 +54,6 @@ public record UserSignUpRequest(
                         confirmPassword,
                         name,
                         nickname,
-                        birthDate,
                         agreedTermIds
                 );
         }
@@ -70,7 +64,6 @@ public record UserSignUpRequest(
                         "email=" + email +
                         ", name=" + name +
                         ", nickname=" + nickname +
-                        ", birthDate=" + birthDate +
                         ", agreedTermIds=" + agreedTermIds +
                         ", password=****" +
                         ", confirmPassword=****" +

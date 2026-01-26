@@ -23,7 +23,6 @@ public record UserSignUpCommand(
         String confirmPassword,
         String name,
         String nickname,
-        LocalDate birthDate,
         List<Long> agreedTermIds
 ) {
 
@@ -33,7 +32,6 @@ public record UserSignUpCommand(
                 .email(email)
                 .password(passwordEncoder.encode(password))
                 .nickname(nickname)
-                .birthDate(birthDate)
                 .profileImageUrl(null)
                 .userStatus(UserStatus.ACTIVE)
                 .role(UserRole.ROLE_USER)
@@ -46,7 +44,6 @@ public record UserSignUpCommand(
                 "email=" + email +
                 ", name=" + name +
                 ", nickname=" + nickname +
-                ", birthDate=" + birthDate +
                 ", agreedTermIds=" + agreedTermIds +
                 ", password=****" +
                 ", confirmPassword=****" +

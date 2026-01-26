@@ -54,9 +54,6 @@ public class User extends BaseTimeEntity {
     @Column(name = "password", length = 255)
     private String password;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
-
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
