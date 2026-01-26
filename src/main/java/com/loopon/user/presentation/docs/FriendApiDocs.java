@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@Tag(name = "3. 친구(Friend)", description = "친구 목록 조회 및 친구 삭제 API")
+@Tag(name = "4. 친구(Friend)", description = "친구 목록 조회 및 친구 삭제 API")
 public interface FriendApiDocs {
     @Operation(summary = "친구 목록 조회", description = "친구 목록을 가져옵니다.")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
