@@ -16,12 +16,14 @@ import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
@@ -30,6 +32,7 @@ public class AuthService {
     private final JwtTokenValidator jwtTokenValidator;
     private final List<SocialLoadStrategy> socialLoadStrategies;
 
+    @Transactional
     public AuthResult loginSocial(UserProvider provider, String accessToken) {
         SocialLoadStrategy strategy = socialLoadStrategies.stream()
                 .filter(s -> s.support(provider))
@@ -41,12 +44,10 @@ public class AuthService {
         User user = userRepository.findBySocialIdAndProvider(socialInfo.id(), provider)
                 .orElseGet(() -> registerSocialUser(socialInfo, provider));
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getEmail(), Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole())));
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
-
-        return AuthResult.of(newAccessToken, refreshToken);
+        return processLoginSuccess(user);
     }
 
+    @Transactional
     public AuthResult reissueTokens(String refreshToken) {
         jwtTokenValidator.validateToken(refreshToken);
 
@@ -103,5 +104,21 @@ public class AuthService {
         userRepository.save(newUser);
 
         return newUser;
+    }
+
+    private AuthResult processLoginSuccess(User user) {
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getEmail(), Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole())));
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+        RefreshToken newRefreshToken = RefreshToken.builder()
+                .email(user.getEmail())
+                .userId(user.getId())
+                .role(user.getUserRole())
+                .token(refreshToken)
+                .build();
+
+        refreshTokenRepository.save(newRefreshToken);
+
+        return AuthResult.of(accessToken, refreshToken);
     }
 }
