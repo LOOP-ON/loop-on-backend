@@ -63,13 +63,16 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         if (friendRequestRepository.existsFriendship(me, receiverId, PENDING)) {
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
         }
-        User requester = userRepository.findById(me);
-        User receiver = userRepository.findById(receiverId);
+        //새로운 친구 요청 생성(로직 추가 필요)
+    User requester = userRepository.findById(me)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    User receiver = userRepository.findById(receiverId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Friend friendRequest = Friend.request(requester, receiver);
-        //친구 요청 저장
-        Friend saved = friendRequestRepository.save(friendRequest);
-        //이벤트 발생
+    Friend friendRequest = Friend.request(requester, receiver);
+    //친구 요청 저장
+    Friend saved = friendRequestRepository.save(friendRequest);
+    //이벤트 발생
 //    applicationEventPublisher.publishEvent(new FriendRequestCreatedEvent(saved.getId(), receiverId));
         return FriendRequestCreateResponse.from(saved);
     }

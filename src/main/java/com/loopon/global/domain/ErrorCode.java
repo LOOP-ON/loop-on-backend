@@ -28,6 +28,13 @@ public enum ErrorCode {
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "A004", "만료된 JWT 토큰입니다."),
     JWT_INVALID(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 JWT 토큰입니다."),
     JWT_MISSING(HttpStatus.UNAUTHORIZED, "A006", "JWT 토큰이 없습니다."),
+    AUTH_CODE_INVALID(HttpStatus.BAD_REQUEST, "A007", "유효하지 않은 인증 코드입니다."),
+    RESET_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "A008", "유효하지 않은 비밀번호 재설정 토큰입니다."),
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "A009", "요청 횟수가 너무 많습니다. 잠시 후 다시 시도해주세요."),
+
+    TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "해당 약관을 찾을 수 없습니다."),
+    MANDATORY_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "T002", "회원가입을 위해 약관 동의가 필요합니다."),
+    MANDATORY_TERM_CANNOT_BE_REVOKED(HttpStatus.BAD_REQUEST, "T003", "필수 약관은 동의 철회가 불가능합니다."),
 
     // RTR(Refresh Token Rotation) 관련 에러
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 리프레시 토큰입니다."),
@@ -51,6 +58,7 @@ public enum ErrorCode {
 
     //디바이스 토큰 관련 에러
     DEVICE_TOKEN_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "D001", "해당 디바이스 토큰을 찾을 수 없습니다.");
+
 
     private final HttpStatus status;
     private final String code;

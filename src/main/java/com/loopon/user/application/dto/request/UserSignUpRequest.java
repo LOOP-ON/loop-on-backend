@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Schema(description = "회원가입 요청 DTO")
 public record UserSignUpRequest(
@@ -43,29 +44,36 @@ public record UserSignUpRequest(
         @Schema(description = "생년월일", example = "2000-01-01")
         @NotNull(message = "생년월일은 필수 입력 값입니다.")
         @Past(message = "생년월일은 과거 날짜여야 합니다.")
-        LocalDate birthDate
+        LocalDate birthDate,
+
+        @Schema(description = "동의한 약관 ID 목록", example = "[1, 2, 3, 6]")
+        @NotNull(message = "약관 동의 목록은 필수입니다.")
+        @Size(min = 1, message = "필수 약관에 동의해야 합니다.")
+        List<Long> agreedTermIds
 ) {
 
-    public UserSignUpCommand toCommand() {
-        return new UserSignUpCommand(
-                email,
-                password,
-                confirmPassword,
-                name,
-                nickname,
-                birthDate
-        );
-    }
+        public UserSignUpCommand toCommand() {
+                return new UserSignUpCommand(
+                        email,
+                        password,
+                        confirmPassword,
+                        name,
+                        nickname,
+                        birthDate,
+                        agreedTermIds
+                );
+        }
 
-    @Override
-    public String toString() {
-        return "UserSignUpRequest[" +
-                "email=" + email +
-                ", name=" + name +
-                ", nickname=" + nickname +
-                ", birthDate=" + birthDate +
-                ", password=****" +
-                ", confirmPassword=****" +
-                "]";
-    }
+        @Override
+        public String toString() {
+                return "UserSignUpRequest[" +
+                        "email=" + email +
+                        ", name=" + name +
+                        ", nickname=" + nickname +
+                        ", birthDate=" + birthDate +
+                        ", agreedTermIds=" + agreedTermIds +
+                        ", password=****" +
+                        ", confirmPassword=****" +
+                        "]";
+        }
 }

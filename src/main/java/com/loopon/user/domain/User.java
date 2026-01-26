@@ -1,7 +1,20 @@
 package com.loopon.user.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.loopon.global.domain.BaseTimeEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,7 +32,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,9 +42,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "provider", length = 20, nullable = false)
     private UserProvider provider;
-
-    @Column(name = "name", length = 20, nullable = false)
-    private String name;
 
     @Column(name = "nickname", length = 30, nullable = false)
     private String nickname;
@@ -56,28 +66,29 @@ public class User {
     @Column(name = "role", length = 20, nullable = false)
     private UserRole role;
 
+    @Column(name = "bio", length = 100)
+    private String bio;
+
+    @Column(name = "status_message", length = 100)
+    private String statusMessage;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    //TODO: PrePersist로 둘지 global Entity로 뺄지 결정하기
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        if (this.userStatus == null) {
-            this.userStatus = UserStatus.ACTIVE;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
     public String getUserRole() {
         return this.role.name();
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void updateProfile(String nickname, String bio, String statusMessage) {
+        this.nickname = nickname;
+        this.bio = bio;
+        this.statusMessage = statusMessage;
     }
 }

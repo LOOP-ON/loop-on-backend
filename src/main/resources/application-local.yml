@@ -49,6 +49,10 @@ spring:
     enabled: true
     change-log: classpath:db/db.changelog-master.yaml
 
+  mail:
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
 logging:
   level:
     org.hibernate.SQL: debug

@@ -31,8 +31,8 @@ class LogAspectTest {
     private MethodSignature methodSignature;
 
     @Test
-    @DisplayName("성공 케이스: 정상 수행 시 파라미터와 결과값, 소요시간이 로그에 남아야 한다.")
-    void logExecution_Success(CapturedOutput output) throws Throwable {
+    @DisplayName("성공: 정상 수행 시 파라미터, 결과값, 소요시간이 로그에 남아야 한다")
+    void 정상_수행_로그_기록(CapturedOutput output) throws Throwable {
         // Given
         setupJoinPoint(UserCommandService.class, "signUp",
                 new String[]{"email", "nickname"},
@@ -55,8 +55,8 @@ class LogAspectTest {
     }
 
     @Test
-    @DisplayName("마스킹 케이스: 민감한 키워드(password, token 등)는 ****로 가려져야 한다.")
-    void logExecution_SensitiveData_Masking(CapturedOutput output) throws Throwable {
+    @DisplayName("마스킹: 민감한 키워드(password, token 등)는 ****로 가려져야 한다")
+    void 민감_정보_마스킹_처리(CapturedOutput output) throws Throwable {
         // Given
         setupJoinPoint(AuthService.class, "login",
                 new String[]{"email", "password", "refreshToken"},
@@ -77,8 +77,8 @@ class LogAspectTest {
     }
 
     @Test
-    @DisplayName("예외 케이스: 예외 발생 시 에러 로그가 남고 예외가 다시 던져져야 한다.")
-    void logExecution_Exception(CapturedOutput output) throws Throwable {
+    @DisplayName("예외: 예외 발생 시 에러 로그가 남고 예외가 다시 던져져야 한다")
+    void 예외_발생_시_에러_로그_기록(CapturedOutput output) throws Throwable {
         // Given
         setupJoinPoint(UserQueryService.class, "getUser",
                 new String[]{"userId"},
@@ -99,8 +99,8 @@ class LogAspectTest {
     }
 
     @Test
-    @DisplayName("결과값 길이 제한: 결과값이 100자를 넘으면 잘라서(...) 로깅해야 한다.")
-    void logExecution_LongResult_Truncation(CapturedOutput output) throws Throwable {
+    @DisplayName("말줄임: 결과값이 100자를 넘으면 잘라서(...) 로깅해야 한다")
+    void 긴_결과값_말줄임_처리(CapturedOutput output) throws Throwable {
         // Given
         setupJoinPoint(BoardService.class, "getContent", new String[]{}, new Object[]{});
 

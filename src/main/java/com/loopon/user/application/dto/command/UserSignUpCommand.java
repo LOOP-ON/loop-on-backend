@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Pattern;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record UserSignUpCommand(
         String email,
@@ -22,7 +23,8 @@ public record UserSignUpCommand(
         String confirmPassword,
         String name,
         String nickname,
-        LocalDate birthDate
+        LocalDate birthDate,
+        List<Long> agreedTermIds
 ) {
 
     public User toEntity(PasswordEncoder passwordEncoder) {
@@ -30,7 +32,6 @@ public record UserSignUpCommand(
                 .provider(UserProvider.LOCAL)
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .name(name)
                 .nickname(nickname)
                 .birthDate(birthDate)
                 .profileImageUrl(null)
@@ -46,6 +47,7 @@ public record UserSignUpCommand(
                 ", name=" + name +
                 ", nickname=" + nickname +
                 ", birthDate=" + birthDate +
+                ", agreedTermIds=" + agreedTermIds +
                 ", password=****" +
                 ", confirmPassword=****" +
                 "]";
