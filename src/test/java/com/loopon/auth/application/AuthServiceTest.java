@@ -1,6 +1,6 @@
 package com.loopon.auth.application;
 
-import com.loopon.auth.application.dto.response.ReissueTokensResponse;
+import com.loopon.auth.application.dto.response.AuthResult;
 import com.loopon.auth.domain.RefreshToken;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.domain.ErrorCode;
@@ -75,7 +75,7 @@ class AuthServiceTest {
                     .willReturn(newRefresh);
 
             // when
-            ReissueTokensResponse response = authService.reissueTokens(oldRefreshToken);
+            AuthResult response = authService.reissueTokens(oldRefreshToken);
 
             // then
             assertThat(response.accessToken()).isEqualTo(newAccess);
