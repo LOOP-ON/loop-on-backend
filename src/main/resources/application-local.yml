@@ -70,3 +70,9 @@ springdoc:
     display-request-duration: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+apns:
+  team-id: "YOUR_TEAM_ID"
+  key-id: "YOUR_KEY_ID"
+  topic: "com.loopon.app"   # iOS Bundle ID
+  p8-path: "keys/AuthKey_XXXXXX.p8"  # classpath 또는 절대경로

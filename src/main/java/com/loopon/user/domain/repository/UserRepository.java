@@ -17,4 +17,5 @@ public interface UserRepository {
     User findById(Long id);
 
     Page<User> searchByNickname(Long me, String query, Pageable pageable);
+
 }

@@ -47,8 +47,10 @@ public enum ErrorCode {
     HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
 
     // S3 관련 에러
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.");
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다."),
 
+    //디바이스 토큰 관련 에러
+    DEVICE_TOKEN_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "D001", "해당 디바이스 토큰을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
