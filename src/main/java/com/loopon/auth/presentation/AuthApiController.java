@@ -40,19 +40,13 @@ public class AuthApiController implements AuthApiDocs {
     public ResponseEntity<CommonResponse<LoginSuccessResponse>> loginKakao(
             @RequestBody KakaoLoginRequest request
     ) {
-        AuthResult result = authService.loginSocial(UserProvider.KAKAO, request.accessToken());
+        AuthResult authResult = authService.loginSocial(UserProvider.KAKAO, request.accessToken());
 
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", result.refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(60 * 60 * 24 * 14)
-                .sameSite("None")
-                .build();
+        ResponseCookie cookie = tokenCookieFactory.createRefreshTokenCookie(authResult.refreshToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(CommonResponse.onSuccess(LoginSuccessResponse.of(result.accessToken())));
+                .body(CommonResponse.onSuccess(LoginSuccessResponse.of(authResult.accessToken())));
     }
 
     @Override
