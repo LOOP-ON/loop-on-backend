@@ -51,7 +51,7 @@ class UserCommandServiceTest {
 
         private UserSignUpCommand createCommand(String email, String password, String confirmPassword, String nickname, List<Long> agreedTermIds) {
             return new UserSignUpCommand(
-                    email, password, confirmPassword, "홍길동", nickname , agreedTermIds
+                    email, password, confirmPassword, "홍길동", nickname, agreedTermIds
             );
         }
 
@@ -82,7 +82,12 @@ class UserCommandServiceTest {
             given(userRepository.existsByNickname(command.nickname())).willReturn(false);
             given(passwordEncoder.encode(command.password())).willReturn("encodedPassword");
 
-            User savedUser = User.builder().email("test@loopon.com").build();
+            User savedUser = User.createLocalUser(
+                    "test@loopon.com",
+                    "loopon",
+                    "encodedPassword",
+                    null
+            );
             ReflectionTestUtils.setField(savedUser, "id", 1L);
 
             // when

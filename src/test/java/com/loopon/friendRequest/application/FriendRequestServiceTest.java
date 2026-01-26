@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,17 +57,21 @@ class FriendRequestServiceTest {
 
     @BeforeEach
     void setUp() {
-        user1 = User.builder()
-                .id(1L)
-                .email("test1@loopon.com")
-                .nickname("loopon1")
-                .build();
+        user1 = User.createLocalUser(
+                "test1@loopon.com",
+                "loopon1",
+                "password123!",
+                null
+        );
+        ReflectionTestUtils.setField(user1, "id", 1L);
 
-        user2 = User.builder()
-                .id(2L)
-                .email("test2@loopon.com")
-                .nickname("loopon2")
-                .build();
+        user2 = User.createLocalUser(
+                "test1@loopon.com",
+                "loopon2",
+                "password123!",
+                null
+        );
+        ReflectionTestUtils.setField(user2, "id", 2L);
 
         friendRequest = Friend.builder()
                 .id(1L)
@@ -245,11 +250,12 @@ class FriendRequestServiceTest {
         @DisplayName("수신자가 아닌 사용자가 응답하면 예외가 발생한다")
         void respondOneFriendRequest_Forbidden_ThrowsException() {
             // given
-            User user3 = User.builder()
-                    .id(3L)
-                    .email("test3@loopon.com")
-                    .nickname("loopon3")
-                    .build();
+            User user3 = User.createLocalUser(
+                            "test3@loopon.com",
+                            "loopon3",
+                            "password123!",
+                            null
+                    );
 
             FriendRequestRespondRequest request = new FriendRequestRespondRequest(1L, ACCEPTED);
             Friend wrongReceiverRequest = Friend.builder()
@@ -323,11 +329,12 @@ class FriendRequestServiceTest {
         @DisplayName("모든 친구 요청을 일괄 수락한다")
         void respondAllFriendRequests_AcceptAll_Success() {
             // given
-            User user3 = User.builder()
-                    .id(3L)
-                    .email("test3@loopon.com")
-                    .nickname("loopon3")
-                    .build();
+            User user3 = User.createLocalUser(
+                    "test3@loopon.com",
+                    "loopon3",
+                    "password123!",
+                    null
+            );
 
             Friend request1 = Friend.builder()
                     .id(1L)

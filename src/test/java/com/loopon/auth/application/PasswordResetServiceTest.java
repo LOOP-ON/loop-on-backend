@@ -145,7 +145,12 @@ class PasswordResetServiceTest {
             String token = "valid-token-uuid";
 
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, newPassword, newPassword);
-            User user = User.builder().email(EMAIL).password("oldPassword").build();
+            User user = User.createLocalUser(
+                    EMAIL,
+                    "loopon",
+                    "oldEncodedPassword",
+                    null
+            );
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
             given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
