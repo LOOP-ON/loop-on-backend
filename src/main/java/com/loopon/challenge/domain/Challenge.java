@@ -33,7 +33,6 @@ public class Challenge {
     @JoinColumn(name = "journey_id", nullable = false)
     private Journey journey;
 
-    // 탐험대 설정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expedition_id")
     @Builder.Default
