@@ -21,11 +21,21 @@ public class KakaoLoadStrategy implements SocialLoadStrategy {
     public SocialInfoResponse loadSocialInfo(String accessToken) {
         KakaoUserResponse response = kakaoAdapter.getUserInfo(accessToken);
 
+        String email = response.kakaoAccount() != null
+                ? response.kakaoAccount().email()
+                : null;
+        String nickname = (response.kakaoAccount() != null && response.kakaoAccount().profile() != null)
+                ? response.kakaoAccount().profile().nickname()
+                : null;
+        String profileImageUrl = (response.kakaoAccount() != null && response.kakaoAccount().profile() != null)
+                ? response.kakaoAccount().profile().profileImageUrl()
+                : null;
+        
         return new SocialInfoResponse(
                 String.valueOf(response.id()),
-                response.kakaoAccount().email(),
-                response.kakaoAccount().profile().nickname(),
-                response.kakaoAccount().profile().profileImageUrl()
+                email,
+                nickname,
+                profileImageUrl
         );
     }
 }

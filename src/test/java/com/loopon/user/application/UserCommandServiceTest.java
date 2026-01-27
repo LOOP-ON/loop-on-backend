@@ -50,7 +50,7 @@ class UserCommandServiceTest {
     class SignUp {
 
         private UserSignUpCommand createCommand(String email, String password, String confirmPassword, String nickname, List<Long> agreedTermIds) {
-            return new UserSignUpCommand(
+            return UserSignUpCommand.of(
                     email, password, confirmPassword, "홍길동", nickname, agreedTermIds
             );
         }
