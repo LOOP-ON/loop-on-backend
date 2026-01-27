@@ -10,11 +10,11 @@ public enum ErrorCode {
 
     // Global (공통, G-xxx)
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G001", "예상치 못한 서버 오류입니다. 관리자에게 문의해주세요."),
-    EXTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "G001", "외부 서비스와의 통신 중 오류가 발생했습니다."),
-    BAD_REQUEST(HttpStatus.BAD_REQUEST, "G002", "잘못된 요청입니다."),
-    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G003", "잘못된 입력입니다."),
-    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G004", "허용되지 않은 HTTP 메소드입니다."),
-    NOT_FOUND(HttpStatus.NOT_FOUND, "G005", "요청하신 리소스를 찾을 수 없습니다."),
+    EXTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "G002", "외부 서비스와의 통신 중 오류가 발생했습니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "G003", "잘못된 요청입니다."),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G004", "잘못된 입력입니다."),
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G005", "허용되지 않은 HTTP 메소드입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "G006", "요청하신 리소스를 찾을 수 없습니다."),
 
     // User (사용자, U-xxx)
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "U001", "이미 존재하는 이메일입니다."),
@@ -64,8 +64,7 @@ public enum ErrorCode {
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F006", "허용되지 않는 파일 확장자입니다."),
 
     // S3 관련 에러
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.")
-    ;
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;
