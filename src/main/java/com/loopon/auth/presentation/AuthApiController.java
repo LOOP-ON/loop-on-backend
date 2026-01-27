@@ -11,6 +11,7 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.jwt.TokenCookieFactory;
 import com.loopon.user.domain.UserProvider;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -38,7 +39,7 @@ public class AuthApiController implements AuthApiDocs {
     @Override
     @PostMapping("/login/kakao")
     public ResponseEntity<CommonResponse<LoginSuccessResponse>> loginKakao(
-            @RequestBody KakaoLoginRequest request
+            @Valid @RequestBody KakaoLoginRequest request
     ) {
         AuthResult authResult = authService.loginSocial(UserProvider.KAKAO, request.accessToken());
 

@@ -1,6 +1,8 @@
 package com.loopon.auth.application.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record KakaoLoginRequest(
-        String accessToken
+        @NotBlank String accessToken
 ) {
 }
