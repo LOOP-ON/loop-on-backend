@@ -86,12 +86,19 @@ public class AuthService {
     }
 
     private User registerSocialUser(SocialInfoResponse info, UserProvider provider) {
-        String randomSuffix = UUID.randomUUID().toString().substring(0, 4);
-        String tempNickname = info.nickname() + "#" + randomSuffix;
+        String nickname = info.nickname();
+        String tempNickname;
 
-        if (tempNickname.length() > 30) {
-            tempNickname = tempNickname.substring(0, 30);
-        }
+        do {
+            String randomSuffix = UUID.randomUUID().toString().substring(0, 4);
+
+            if (nickname.length() > 25) {
+                nickname = nickname.substring(0, 25);
+            }
+
+            tempNickname = nickname + "#" + randomSuffix;
+
+        } while (userRepository.existsByNickname(tempNickname));
 
         User newUser = User.createSocialUser(
                 info.id(),
