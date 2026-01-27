@@ -66,7 +66,7 @@ class FriendRequestServiceTest {
         ReflectionTestUtils.setField(user1, "id", 1L);
 
         user2 = User.createLocalUser(
-                "test1@loopon.com",
+                "test2@loopon.com",
                 "loopon2",
                 "password123!",
                 null
