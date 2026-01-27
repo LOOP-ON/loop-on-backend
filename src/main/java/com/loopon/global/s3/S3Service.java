@@ -1,4 +1,4 @@
-package com.loopon.challenge.application.service;
+package com.loopon.global.s3;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;

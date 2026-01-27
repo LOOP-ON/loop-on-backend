@@ -56,6 +56,13 @@ public enum ErrorCode {
     CHALLENGE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C001", "해당 여정은 이미 챌린지가 존재합니다."),
     HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
 
+    // 파일 업로드 관련 에러
+    FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "업로드할 파일이 없습니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "F003", "파일 크기가 허용된 최대 크기를 초과했습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "F004", "허용되지 않는 파일 형식입니다."),
+    INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "F005", "유효하지 않은 파일 이름입니다."),
+    INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F006", "허용되지 않는 파일 확장자입니다."),
+
     // S3 관련 에러
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.")
     ;
