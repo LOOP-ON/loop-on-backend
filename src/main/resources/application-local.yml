@@ -76,7 +76,8 @@ springdoc:
   default-produces-media-type: application/json
 
 apns:
-  team-id: "YOUR_TEAM_ID"
-  key-id: "YOUR_KEY_ID"
-  topic: "com.loopon.app"   # iOS Bundle ID
-  p8-path: "keys/AuthKey_XXXXXX.p8"  # classpath 또는 절대경로
+  environment: sandbox   # 또는 production
+  team-id: ...
+  key-id: ...
+  p8-path: keys/AuthKey_XXXXXX.p8
+  topic: com.loopon.app  # iOS bundle id

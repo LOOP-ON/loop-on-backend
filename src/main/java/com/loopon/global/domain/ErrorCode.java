@@ -57,9 +57,12 @@ public enum ErrorCode {
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다."),
 
     //디바이스 토큰 관련 에러
-    DEVICE_TOKEN_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "D001", "해당 디바이스 토큰을 찾을 수 없습니다.");
+    DEVICE_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "해당 디바이스 토큰을 찾을 수 없습니다."),
 
 
+    //설정-알림
+    NOTIFICATION_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "유저에 해당하는 알림 설정 목록을 찾을 수 없습니다."),
+    INVALID_REMINDER_TIME(HttpStatus.NO_CONTENT, "S002", "미완료 리만인더의 시간을 설정해주세요.");
     private final HttpStatus status;
     private final String code;
     private final String message;
