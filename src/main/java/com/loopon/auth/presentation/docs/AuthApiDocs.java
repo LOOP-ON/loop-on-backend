@@ -1,5 +1,6 @@
 package com.loopon.auth.presentation.docs;
 
+import com.loopon.auth.application.dto.request.KakaoLoginRequest;
 import com.loopon.auth.application.dto.request.LoginRequest;
 import com.loopon.auth.application.dto.response.AccessTokenResponse;
 import com.loopon.auth.application.dto.response.LoginSuccessResponse;
@@ -25,6 +26,12 @@ public interface AuthApiDocs {
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<LoginSuccessResponse>> login(@RequestBody LoginRequest request);
+
+    @Operation(summary = "카카오 로그인", description = "카카오 액세스 토큰으로 로그인하여 Access Token 및 Refresh Token을 발급받습니다.")
+    @ApiResponse(responseCode = "200", description = "로그인 성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<LoginSuccessResponse>> loginKakao(@RequestBody KakaoLoginRequest request);
 
     @Operation(summary = "토큰 재발급 (RTR)", description = "쿠키에 담긴 Refresh Token을 이용하여 Access Token을 재발급받습니다.")
     @ApiResponse(responseCode = "200", description = "재발급 성공 (새로운 Access Token 반환)", useReturnTypeSchema = true)

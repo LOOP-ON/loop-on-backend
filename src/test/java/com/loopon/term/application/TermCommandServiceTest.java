@@ -59,9 +59,12 @@ class TermCommandServiceTest {
         }
 
         private User createUser() {
-            User user = User.builder()
-                    .email(EMAIL)
-                    .build();
+            User user = User.createLocalUser(
+                    EMAIL,
+                    "testuser",
+                    "encryptedPassword",
+                    null
+            );
             ReflectionTestUtils.setField(user, "id", 100L);
             return user;
         }
