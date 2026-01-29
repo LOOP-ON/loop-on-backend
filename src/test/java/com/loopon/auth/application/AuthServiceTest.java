@@ -85,8 +85,8 @@ class AuthServiceTest {
         private User createMockUser(String email, String encodedPassword) {
             User user = User.createLocalUser(
                     email,
-                    encodedPassword,
                     "nickname",
+                    encodedPassword,
                     "profile_img_url"
                     );
 
