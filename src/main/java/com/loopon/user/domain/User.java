@@ -1,5 +1,6 @@
 package com.loopon.user.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,8 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -17,23 +16,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Entity
 @Table(
         name = "users",
         //제약조건 추가
         uniqueConstraints = {
                 @UniqueConstraint(name = "ux_users_email", columnNames = "email"),
-                @UniqueConstraint(name = "ux_users_nickname", columnNames = "nickname")
+                @UniqueConstraint(name = "ux_users_nickname", columnNames = "nickname"),
+                @UniqueConstraint(name = "ux_users_provider_social_id", columnNames = {"provider", "social_id"}),
         }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-public class User {
+@Builder(access = AccessLevel.PRIVATE)
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,17 +41,14 @@ public class User {
     @Column(name = "provider", length = 20, nullable = false)
     private UserProvider provider;
 
-    @Column(name = "name", length = 20, nullable = false)
-    private String name;
-
-    @Column(name = "nickname", length = 30, nullable = false)
-    private String nickname;
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "social_id", length = 200, nullable = false)
+    private String socialId;
 
     @Column(name = "email", length = 254, nullable = false)
     private String email;
+
+    @Column(name = "nickname", length = 30, nullable = false)
+    private String nickname;
 
     @Column(name = "password", length = 255)
     private String password;
@@ -70,26 +64,11 @@ public class User {
     @Column(name = "role", length = 20, nullable = false)
     private UserRole role;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "bio", length = 100)
+    private String bio;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    //TODO: PrePersist로 둘지 global Entity로 뺄지 결정하기
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        if (this.userStatus == null) {
-            this.userStatus = UserStatus.ACTIVE;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "status_message", length = 100)
+    private String statusMessage;
 
     public String getUserRole() {
         return this.role.name();
@@ -97,5 +76,40 @@ public class User {
 
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateProfile(String nickname, String bio, String statusMessage) {
+        this.nickname = nickname;
+        this.bio = bio;
+        this.statusMessage = statusMessage;
+    }
+
+    public static User createLocalUser(String email, String nickname, String encodedPassword, String profileImageUrl) {
+        return User.builder()
+                .provider(UserProvider.LOCAL)
+                .socialId(email)
+                .email(email)
+                .password(encodedPassword)
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
+                .bio("")
+                .statusMessage("")
+                .build();
+    }
+
+    public static User createSocialUser(String socialId, UserProvider provider, String email, String nickname, String profileImageUrl) {
+        return User.builder()
+                .provider(provider)
+                .socialId(socialId)
+                .email(email)
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
+                .bio("")
+                .statusMessage("")
+                .build();
     }
 }

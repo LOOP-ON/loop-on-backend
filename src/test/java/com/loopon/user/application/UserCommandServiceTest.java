@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,8 +50,8 @@ class UserCommandServiceTest {
     class SignUp {
 
         private UserSignUpCommand createCommand(String email, String password, String confirmPassword, String nickname, List<Long> agreedTermIds) {
-            return new UserSignUpCommand(
-                    email, password, confirmPassword, "홍길동", nickname, LocalDate.of(2000, 1, 1), agreedTermIds
+            return UserSignUpCommand.of(
+                    email, password, confirmPassword, "홍길동", nickname, agreedTermIds
             );
         }
 
@@ -83,7 +82,12 @@ class UserCommandServiceTest {
             given(userRepository.existsByNickname(command.nickname())).willReturn(false);
             given(passwordEncoder.encode(command.password())).willReturn("encodedPassword");
 
-            User savedUser = User.builder().email("test@loopon.com").build();
+            User savedUser = User.createLocalUser(
+                    "test@loopon.com",
+                    "loopon",
+                    "encodedPassword",
+                    null
+            );
             ReflectionTestUtils.setField(savedUser, "id", 1L);
 
             // when

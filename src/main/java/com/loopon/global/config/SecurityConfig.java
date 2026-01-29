@@ -1,6 +1,5 @@
 package com.loopon.global.config;
 
-import com.loopon.global.security.filter.JsonLoginProcessingFilter;
 import com.loopon.global.security.filter.JwtAuthenticationFilter;
 import com.loopon.global.security.filter.SecurityAuditLogger;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ public class SecurityConfig {
 
     private final SecurityAuditLogger securityAuditLogger;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JsonLoginProcessingFilter jsonLoginProcessingFilter;
 
     private static final String[] PUBLIC_URLS = {
             "/",
@@ -40,7 +38,9 @@ public class SecurityConfig {
             "/api/users/**",
             "/api/auth/login",
             "/api/auth/reissue",
-            "/api/auth/password/**"
+            "/api/auth/logout",
+            "/api/auth/password/**",
+            "/api/auth/login/kakao"
     };
 
     private static final String[] API_URLS = {
@@ -88,8 +88,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(securityExceptionConfig::configure)
-                .addFilterAt(jsonLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, JsonLoginProcessingFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(securityAuditLogger, JwtAuthenticationFilter.class)
         ;
 

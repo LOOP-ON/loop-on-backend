@@ -1,6 +1,7 @@
 package com.loopon.user.infrastructure;
 
 import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,5 +44,10 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Page<User> searchByNickname(Long me, String q, Pageable pageable) {
         return userJpaRepository.searchByNickname(me, q, pageable);
+    }
+
+    @Override
+    public Optional<User> findBySocialIdAndProvider(String id, UserProvider provider) {
+        return userJpaRepository.findBySocialIdAndProvider(id, provider);
     }
 }
