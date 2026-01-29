@@ -18,7 +18,7 @@
 
 ### Core
 
-- **Language**: Java 25+
+- **Language**: Java 25
 - **Framework**: Spring Boot 4.x
 - **Build Tool**: Gradle 9.x
 
