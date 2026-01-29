@@ -32,8 +32,14 @@ public class AuthApiController implements AuthApiDocs {
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<CommonResponse<LoginSuccessResponse>> login(LoginRequest request) {
-        throw new UnsupportedOperationException("이 메서드는 Spring Security의 JsonLoginProcessingFilter에서 처리됩니다.");
+    public ResponseEntity<CommonResponse<LoginSuccessResponse>> login(@RequestBody @Valid LoginRequest request) {
+        AuthResult authResult = authService.login(request);
+
+        ResponseCookie cookie = tokenCookieFactory.createRefreshTokenCookie(authResult.refreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(CommonResponse.onSuccess(LoginSuccessResponse.of(authResult.accessToken())));
     }
 
     @Override
