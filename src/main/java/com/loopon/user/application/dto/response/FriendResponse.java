@@ -11,7 +11,6 @@ public record FriendResponse (
     @NotNull Long friend_id,
     @NotNull FriendStatus friendStatus,
     @NotNull String friend_image_url,//추가 건의
-    @NotNull String friend_name,
     @NotNull String friend_nickname,
     @NotNull LocalDateTime created_at,
     @NotNull LocalDateTime updated_at
@@ -31,11 +30,9 @@ public record FriendResponse (
                 friend.getId(),                 // friend_id = 관계 PK
                 friend.getStatus(),             // friendStatus
                 opponent.getProfileImageUrl(),  // friend_image_url = 상대방 이미지 (판단 필요)
-                opponent.getName(),
                 opponent.getNickname(),
                 friend.getCreatedAt(),          // created_at
                 friend.getUpdatedAt()           // updated_at
-
         );
     }
 }

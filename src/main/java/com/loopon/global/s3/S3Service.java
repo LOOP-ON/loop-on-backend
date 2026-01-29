@@ -1,4 +1,4 @@
-package com.loopon.challenge.application.service;
+package com.loopon.global.s3;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
@@ -37,7 +37,6 @@ public class S3Service {
 
         return urlList;
     }
-
 
     public String uploadFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();

@@ -19,10 +19,10 @@ CREATE UNIQUE INDEX ux_terms_code_version ON terms (code, version);
 ALTER TABLE terms
     ADD CONSTRAINT ck_terms_code
         CHECK (code IN (
-                        'TERMS_SERVICE',
-                        'PRIVACY_REQUIRED',
-                        'PRIVACY_OPTIONAL',
-                        'SERVICE_NOTICE',
+                        'TERMS_OF_SERVICE',
+                        'PRIVACY_POLICY_REQUIRED',
+                        'SERVICE_NATURE_NOTICE',
+                        'PRIVACY_POLICY_OPTIONAL',
                         'THIRD_PARTY_SHARING',
                         'MARKETING_CONSENT'
             ));

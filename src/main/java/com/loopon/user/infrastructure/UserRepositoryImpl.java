@@ -1,14 +1,14 @@
 package com.loopon.user.infrastructure;
 
-import com.loopon.global.domain.ErrorCode;
-import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,23 +32,22 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userJpaRepository.findByEmail(email)
-                .orElseThrow(() ->
-                    new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.")
-                );
+    public Optional<User> findByEmail(String email) {
+        return userJpaRepository.findByEmail(email);
     }
 
     @Override
-    public User findById(Long id) {
-        return userJpaRepository.findById(id)
-                .orElseThrow(() ->
-                    new UsernameNotFoundException("해당 이메일의 사용자가 존재하지 않습니다.")
-                );
+    public Optional<User> findById(Long id) {
+        return userJpaRepository.findById(id);
     }
 
     @Override
     public Page<User> searchByNickname(Long me, String q, Pageable pageable) {
         return userJpaRepository.searchByNickname(me, q, pageable);
+    }
+
+    @Override
+    public Optional<User> findBySocialIdAndProvider(String id, UserProvider provider) {
+        return userJpaRepository.findBySocialIdAndProvider(id, provider);
     }
 }

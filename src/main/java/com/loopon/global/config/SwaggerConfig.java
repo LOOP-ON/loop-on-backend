@@ -26,20 +26,29 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi authApi() {
-        return createGroup("1. 인증(Auth)", "/api/auth/**");
-    }
-
-    @Bean
     public GroupedOpenApi userApi() {
-        return createGroup("2. 사용자(User)", "/api/users/**");
+        return createGroup("1. 사용자(User)", "/api/users/**");
     }
 
     @Bean
-    public GroupedOpenApi friendApi() {return createGroup("3. 친구(Friend)", "/api/friend/**" );}
+    public GroupedOpenApi authApi() {
+        return createGroup("2. 인증(Auth)", "/api/auth/**");
+    }
 
     @Bean
-    public GroupedOpenApi friendRequestApi() {return createGroup("4. 친구요청(FriendRequest)", "/api/friend-request/**" );}
+    public GroupedOpenApi termApi() {
+        return createGroup("3. 약관(Term)", "/api/terms/**");
+    }
+
+    @Bean
+    public GroupedOpenApi friendApi() {
+        return createGroup("4. 친구(Friend)", "/api/friend/**" );
+    }
+
+    @Bean
+    public GroupedOpenApi friendRequestApi() {
+        return createGroup("5. 친구요청(FriendRequest)", "/api/friend-request/**" );
+    }
 
     @Bean
     public GroupedOpenApi allApi() {
