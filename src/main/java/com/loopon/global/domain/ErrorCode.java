@@ -66,7 +66,7 @@ public enum ErrorCode {
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F006", "허용되지 않는 파일 확장자입니다."),
 
     // S3 관련 에러
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다.");
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다."),
 
     // Expedition (탐험대, E-xxx)
     EXPEDITION_ABOVE_LIMIT(HttpStatus.BAD_REQUEST, "E001", "탐험대 제한 개수를 초과했습니다."),
