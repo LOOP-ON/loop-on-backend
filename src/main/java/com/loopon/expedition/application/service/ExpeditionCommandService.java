@@ -129,7 +129,7 @@ public class ExpeditionCommandService {
         checkAdmin(user, expedition);
 
         ExpeditionUser expeditionUser =
-                expeditionRepository.findExpeditionUserByUserIdAndId(expedition.getId(), expelledUser.getId())
+                expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
                         .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionUser.expelUser();
