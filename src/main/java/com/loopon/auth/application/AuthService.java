@@ -1,5 +1,6 @@
 package com.loopon.auth.application;
 
+import com.loopon.auth.application.dto.request.LoginRequest;
 import com.loopon.auth.application.dto.response.AuthResult;
 import com.loopon.auth.application.dto.response.SocialInfoResponse;
 import com.loopon.auth.application.strategy.SocialLoadStrategy;
@@ -15,6 +16,7 @@ import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,20 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
+    private final PasswordEncoder passwordEncoder;
     private final List<SocialLoadStrategy> socialLoadStrategies;
+
+    @Transactional
+    public AuthResult login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+
+        return processLoginSuccess(user);
+    }
 
     @Transactional
     public AuthResult loginSocial(UserProvider provider, String accessToken) {

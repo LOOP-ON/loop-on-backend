@@ -1,5 +1,6 @@
 package com.loopon.auth.application;
 
+import com.loopon.auth.application.dto.request.LoginRequest;
 import com.loopon.auth.application.dto.response.AuthResult;
 import com.loopon.auth.application.dto.response.SocialInfoResponse;
 import com.loopon.auth.application.strategy.SocialLoadStrategy;
@@ -23,6 +24,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +57,9 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
     private SocialLoadStrategy socialLoadStrategy;
 
     @BeforeEach
@@ -63,8 +69,94 @@ class AuthServiceTest {
                 userRepository,
                 jwtTokenProvider,
                 jwtTokenValidator,
+                passwordEncoder,
                 List.of(socialLoadStrategy)
         );
+    }
+
+    @Nested
+    @DisplayName("일반 로그인")
+    class Login {
+
+        private LoginRequest createLoginRequest() {
+            return new LoginRequest("test@loopon.com", "password1234");
+        }
+
+        private User createMockUser(String email, String encodedPassword) {
+            User user = User.createLocalUser(
+                    email,
+                    encodedPassword,
+                    "nickname",
+                    "profile_img_url"
+                    );
+
+            ReflectionTestUtils.setField(user, "id", 1L);
+            return user;
+        }
+
+        @Test
+        @DisplayName("성공: 이메일과 비밀번호가 일치하면 토큰을 발급하고 리프레시 토큰을 저장한다")
+        void 성공_로그인() {
+            // given
+            LoginRequest request = createLoginRequest();
+            String encodedPassword = "encoded_password_1234";
+
+            User user = createMockUser(request.email(), encodedPassword);
+
+            given(userRepository.findByEmail(request.email()))
+                    .willReturn(Optional.of(user));
+
+            given(passwordEncoder.matches(request.password(), user.getPassword()))
+                    .willReturn(true);
+
+            given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any()))
+                    .willReturn("access_token");
+            given(jwtTokenProvider.createRefreshToken(anyString()))
+                    .willReturn("refresh_token");
+
+            // when
+            AuthResult result = authService.login(request);
+
+            // then
+            assertThat(result.accessToken()).isEqualTo("access_token");
+            assertThat(result.refreshToken()).isEqualTo("refresh_token");
+
+            verify(refreshTokenRepository).save(any(RefreshToken.class));
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 이메일로 요청 시 예외가 발생한다")
+        void 실패_이메일_없음() {
+            // given
+            LoginRequest request = createLoginRequest();
+
+            given(userRepository.findByEmail(request.email()))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> authService.login(request))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패: 비밀번호가 일치하지 않으면 예외가 발생한다")
+        void 실패_비밀번호_불일치() {
+            // given
+            LoginRequest request = createLoginRequest();
+            User user = createMockUser(request.email(), "encoded_password");
+
+            given(userRepository.findByEmail(request.email()))
+                    .willReturn(Optional.of(user));
+
+            given(passwordEncoder.matches(request.password(), user.getPassword()))
+                    .willReturn(false);
+
+            // when & then
+            assertThatThrownBy(() -> authService.login(request))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PASSWORD_NOT_MATCH);
+        }
     }
 
     @Nested
@@ -81,6 +173,7 @@ class AuthServiceTest {
                     userRepository,
                     jwtTokenProvider,
                     jwtTokenValidator,
+                    passwordEncoder,
                     List.of(socialLoadStrategy)
             );
         }

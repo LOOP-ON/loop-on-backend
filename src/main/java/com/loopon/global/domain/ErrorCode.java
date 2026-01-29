@@ -34,6 +34,7 @@ public enum ErrorCode {
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "A009", "요청 횟수가 너무 많습니다. 잠시 후 다시 시도해주세요."),
     SOCIAL_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "A010", "소셜 로그인에 실패했습니다."),
     INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "A011", "지원하지 않는 소셜 로그인 제공자입니다."),
+    PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "A012", "비밀번호가 일치하지 않습니다."),
 
     TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "해당 약관을 찾을 수 없습니다."),
     MANDATORY_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "T002", "회원가입을 위해 약관 동의가 필요합니다."),
