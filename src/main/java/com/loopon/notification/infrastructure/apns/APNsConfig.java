@@ -18,11 +18,10 @@ public class APNsConfig {
 
     @Bean
     public WebClient apnsWebClient() throws SSLException {
+        //환경에 따라 APNs 서버 선택
         String baseUrl = "sandbox".equalsIgnoreCase(environment)
                 ? "https://api.sandbox.push.apple.com"
                 : "https://api.push.apple.com";
-
-        SslContext sslContext = SslContextBuilder.forClient().build();
 
         return WebClient.builder()
                 .baseUrl(baseUrl)
