@@ -3,8 +3,8 @@ package com.loopon.challenge.application.service;
 import com.loopon.challenge.application.converter.ChallengeConverter;
 import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
 import com.loopon.challenge.domain.Challenge;
+import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
-import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
@@ -29,7 +29,7 @@ public class ChallengeQueryService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
         List<ChallengeImage> tempList = challengeRepository.findAllImageByChallengeId(challengeId);
-        List<Hashtag> tagList = challengeRepository.findAllHashtagByChallengeId(challengeId);
+        List<ChallengeHashtag> tagList = challengeRepository.findAllChallengeHashtagWithHashtagByChallengeId(challengeId);
 
         List<ChallengeImage> imageList = new ArrayList<>(tempList);
         for (ChallengeImage challengeImage : tempList) {
@@ -43,8 +43,8 @@ public class ChallengeQueryService {
         }
 
         List<String> hashtagList = new ArrayList<>();
-        for (Hashtag hashtag : tagList){
-            hashtagList.add(hashtag.getName());
+        for (ChallengeHashtag hashtag : tagList){
+            hashtagList.add(hashtag.getHashtag().getName());
         }
 
         return ChallengeConverter.getChallenge(

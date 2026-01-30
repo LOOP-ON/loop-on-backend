@@ -2,15 +2,13 @@ package com.loopon.challenge.infrastructure;
 
 import com.loopon.challenge.domain.*;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
-import com.loopon.challenge.infrastructure.jpa.ChallengeHashtagJpaRepository;
-import com.loopon.challenge.infrastructure.jpa.ChallengeImageJpaRepository;
-import com.loopon.challenge.infrastructure.jpa.ChallengeJpaRepository;
-import com.loopon.challenge.infrastructure.jpa.HashtagJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +20,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     private final ChallengeImageJpaRepository challengeImageJpaRepository;
     private final HashtagJpaRepository hashtagJpaRepository;
     private final ChallengeHashtagJpaRepository challengeHashtagJpaRepository;
+    private final ChallengeLikeJpaRepository challengeLikeJpaRepository;
 
     @Override
     public Boolean existsByJourneyId(Long journeyId){
@@ -65,16 +64,8 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public List<Hashtag> findAllHashtagByChallengeId(Long challengeId) {
-        List<ChallengeHashtag> challengeHashtagList
-                = findAllChallengeHashtagByChallengeId(challengeId);
-
-        List<Hashtag> hashtagList = new ArrayList<>();
-        for  (ChallengeHashtag tag : challengeHashtagList) {
-            hashtagList.add(tag.getHashtag());
-        }
-
-        return hashtagList;
+    public List<ChallengeHashtag> findAllChallengeHashtagWithHashtagByChallengeId(Long challengeId) {
+        return challengeHashtagJpaRepository.findAllWithHashtagByChallengeId(challengeId);
     }
 
     @Override
@@ -85,5 +76,20 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public void deleteChallengeHashtag(ChallengeHashtagId challengeHashtagId) {
         challengeHashtagJpaRepository.deleteById(challengeHashtagId);
+    }
+
+    @Override
+    public void deleteAllByExpeditionId(Long expeditionId) {
+        challengeJpaRepository.deleteAllByExpeditionId(expeditionId);
+    }
+
+    @Override
+    public Slice<Challenge> findAllWithJourneyAndUserByExpeditionId(Long expeditionId, Pageable pageable){
+        return challengeJpaRepository.findAllWithJourneyAndUserByExpeditionId(expeditionId, pageable);
+    }
+
+    @Override
+    public Boolean existsChallengeLikeByIdAndUserId(Long challengeId, Long userId) {
+        return challengeLikeJpaRepository.existsByChallengeIdAndUserId(challengeId, userId);
     }
 }

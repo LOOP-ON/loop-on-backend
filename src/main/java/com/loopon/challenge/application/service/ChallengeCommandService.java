@@ -6,7 +6,7 @@ import com.loopon.challenge.application.dto.response.ChallengePostResponse;
 import com.loopon.challenge.domain.*;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.domain.Expedition;
-import com.loopon.expedition.infrastructure.ExpeditionJpaRepository;
+import com.loopon.expedition.infrastructure.jpa.ExpeditionJpaRepository;
 import com.loopon.global.s3.S3Service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
