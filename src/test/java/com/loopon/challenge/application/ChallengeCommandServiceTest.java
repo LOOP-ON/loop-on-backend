@@ -10,6 +10,7 @@ import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.infrastructure.ExpeditionJpaRepository;
+import com.loopon.global.s3.S3Service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.domain.Journey;
@@ -24,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
-import com.loopon.challenge.application.service.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,22 +16,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Entity
 @Table(
         name = "users",
         //제약조건 추가
         uniqueConstraints = {
                 @UniqueConstraint(name = "ux_users_email", columnNames = "email"),
-                @UniqueConstraint(name = "ux_users_nickname", columnNames = "nickname")
+                @UniqueConstraint(name = "ux_users_nickname", columnNames = "nickname"),
+                @UniqueConstraint(name = "ux_users_provider_social_id", columnNames = {"provider", "social_id"}),
         }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public class User extends BaseTimeEntity {
 
     @Id
@@ -43,14 +41,14 @@ public class User extends BaseTimeEntity {
     @Column(name = "provider", length = 20, nullable = false)
     private UserProvider provider;
 
-    @Column(name = "nickname", length = 30, nullable = false)
-    private String nickname;
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "social_id", length = 200, nullable = false)
+    private String socialId;
 
     @Column(name = "email", length = 254, nullable = false)
     private String email;
+
+    @Column(name = "nickname", length = 30, nullable = false)
+    private String nickname;
 
     @Column(name = "password", length = 255)
     private String password;
@@ -72,12 +70,6 @@ public class User extends BaseTimeEntity {
     @Column(name = "status_message", length = 100)
     private String statusMessage;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     public String getUserRole() {
         return this.role.name();
     }
@@ -90,5 +82,34 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
         this.bio = bio;
         this.statusMessage = statusMessage;
+    }
+
+    public static User createLocalUser(String email, String nickname, String encodedPassword, String profileImageUrl) {
+        return User.builder()
+                .provider(UserProvider.LOCAL)
+                .socialId(email)
+                .email(email)
+                .password(encodedPassword)
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
+                .bio("")
+                .statusMessage("")
+                .build();
+    }
+
+    public static User createSocialUser(String socialId, UserProvider provider, String email, String nickname, String profileImageUrl) {
+        return User.builder()
+                .provider(provider)
+                .socialId(socialId)
+                .email(email)
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .userStatus(UserStatus.ACTIVE)
+                .role(UserRole.ROLE_USER)
+                .bio("")
+                .statusMessage("")
+                .build();
     }
 }

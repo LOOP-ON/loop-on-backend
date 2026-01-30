@@ -1,12 +1,21 @@
 package com.loopon.auth.application;
 
-import com.loopon.auth.application.dto.response.ReissueTokensResponse;
+import com.loopon.auth.application.dto.request.LoginRequest;
+import com.loopon.auth.application.dto.response.AuthResult;
+import com.loopon.auth.application.dto.response.SocialInfoResponse;
+import com.loopon.auth.application.strategy.SocialLoadStrategy;
 import com.loopon.auth.domain.RefreshToken;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.AuthorizationException;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.jwt.JwtTokenProvider;
 import com.loopon.global.security.jwt.JwtTokenValidator;
+import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.UserRole;
+import com.loopon.user.domain.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,7 +24,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,10 +37,10 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
-
     @InjectMocks
     private AuthService authService;
 
@@ -40,6 +52,243 @@ class AuthServiceTest {
 
     @Mock
     private JwtTokenValidator jwtTokenValidator;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private SocialLoadStrategy socialLoadStrategy;
+
+    @BeforeEach
+    void setUp() {
+        authService = new AuthService(
+                refreshTokenRepository,
+                userRepository,
+                jwtTokenProvider,
+                jwtTokenValidator,
+                passwordEncoder,
+                List.of(socialLoadStrategy)
+        );
+    }
+
+    @Nested
+    @DisplayName("일반 로그인")
+    class Login {
+
+        private LoginRequest createLoginRequest() {
+            return new LoginRequest("test@loopon.com", "password1234");
+        }
+
+        private User createMockUser(String email, String encodedPassword) {
+            User user = User.createLocalUser(
+                    email,
+                    "nickname",
+                    encodedPassword,
+                    "profile_img_url"
+                    );
+
+            ReflectionTestUtils.setField(user, "id", 1L);
+            return user;
+        }
+
+        @Test
+        @DisplayName("성공: 이메일과 비밀번호가 일치하면 토큰을 발급하고 리프레시 토큰을 저장한다")
+        void 성공_로그인() {
+            // given
+            LoginRequest request = createLoginRequest();
+            String encodedPassword = "encoded_password_1234";
+
+            User user = createMockUser(request.email(), encodedPassword);
+
+            given(userRepository.findByEmail(request.email()))
+                    .willReturn(Optional.of(user));
+
+            given(passwordEncoder.matches(request.password(), user.getPassword()))
+                    .willReturn(true);
+
+            given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any()))
+                    .willReturn("access_token");
+            given(jwtTokenProvider.createRefreshToken(anyString()))
+                    .willReturn("refresh_token");
+
+            // when
+            AuthResult result = authService.login(request);
+
+            // then
+            assertThat(result.accessToken()).isEqualTo("access_token");
+            assertThat(result.refreshToken()).isEqualTo("refresh_token");
+
+            verify(refreshTokenRepository).save(any(RefreshToken.class));
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 이메일로 요청 시 예외가 발생한다")
+        void 실패_이메일_없음() {
+            // given
+            LoginRequest request = createLoginRequest();
+
+            given(userRepository.findByEmail(request.email()))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> authService.login(request))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패: 비밀번호가 일치하지 않으면 예외가 발생한다")
+        void 실패_비밀번호_불일치() {
+            // given
+            LoginRequest request = createLoginRequest();
+            User user = createMockUser(request.email(), "encoded_password");
+
+            given(userRepository.findByEmail(request.email()))
+                    .willReturn(Optional.of(user));
+
+            given(passwordEncoder.matches(request.password(), user.getPassword()))
+                    .willReturn(false);
+
+            // when & then
+            assertThatThrownBy(() -> authService.login(request))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PASSWORD_NOT_MATCH);
+        }
+    }
+
+    @Nested
+    @DisplayName("소셜 로그인")
+    class LoginSocial {
+
+        @Mock
+        private SocialLoadStrategy socialLoadStrategy;
+
+        @BeforeEach
+        void setUp() {
+            authService = new AuthService(
+                    refreshTokenRepository,
+                    userRepository,
+                    jwtTokenProvider,
+                    jwtTokenValidator,
+                    passwordEncoder,
+                    List.of(socialLoadStrategy)
+            );
+        }
+
+        @Test
+        @DisplayName("성공: 기존 회원이 로그인하면 토큰을 발급하고 저장한다")
+        void 성공_기존_회원_로그인() {
+            // given
+            UserProvider provider = UserProvider.KAKAO;
+            String socialToken = "token";
+            String socialId = "12345";
+            String email = "old@loopon.com";
+
+            given(socialLoadStrategy.support(provider)).willReturn(true);
+            given(socialLoadStrategy.loadSocialInfo(socialToken)).willReturn(
+                    new SocialInfoResponse(socialId, "nick", email, "img")
+            );
+
+            User existingUser = User.createSocialUser(socialId, provider, email, "nick", "img");
+            org.springframework.test.util.ReflectionTestUtils.setField(existingUser, "id", 1L);
+            org.springframework.test.util.ReflectionTestUtils.setField(existingUser, "role", UserRole.ROLE_USER);
+
+            given(userRepository.findBySocialIdAndProvider(socialId, provider))
+                    .willReturn(Optional.of(existingUser));
+
+            given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any())).willReturn("access");
+            given(jwtTokenProvider.createRefreshToken(anyString())).willReturn("refresh");
+
+            // when
+            AuthResult result = authService.loginSocial(provider, socialToken);
+
+            // then
+            assertThat(result.accessToken()).isEqualTo("access");
+            verify(userRepository, times(0)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("성공: 신규 회원이면 회원가입을 진행 후 토큰을 발급한다")
+        void 성공_신규_회원_가입() {
+            // given
+            UserProvider provider = UserProvider.KAKAO;
+            String email = "new@loopon.com";
+            SocialInfoResponse socialInfo = new SocialInfoResponse("999", "new", email, "img");
+
+            given(socialLoadStrategy.support(provider)).willReturn(true);
+            given(socialLoadStrategy.loadSocialInfo(anyString())).willReturn(socialInfo);
+
+            given(userRepository.findBySocialIdAndProvider(anyString(), any())).willReturn(Optional.empty());
+            given(userRepository.existsByNickname(anyString())).willReturn(false);
+
+            given(userRepository.save(any(User.class))).willAnswer(invocation -> {
+                User savingUser = invocation.getArgument(0);
+
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "id", 2L);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "role", UserRole.ROLE_USER);
+
+                return 2L;
+            });
+
+            given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any())).willReturn("access");
+            given(jwtTokenProvider.createRefreshToken(anyString())).willReturn("refresh");
+
+            // when
+            AuthResult result = authService.loginSocial(provider, "token");
+
+            // then
+            assertThat(result.accessToken()).isEqualTo("access");
+            verify(userRepository).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("성공: 닉네임 중복 시 난수 접미사를 재생성하여 가입한다")
+        void 성공_닉네임_중복_재시도() {
+            // given
+            given(socialLoadStrategy.support(any())).willReturn(true);
+            given(socialLoadStrategy.loadSocialInfo(anyString())).willReturn(
+                    new SocialInfoResponse("888", "dup", "dup@loopon.com", "img")
+            );
+            given(userRepository.findBySocialIdAndProvider(anyString(), any())).willReturn(Optional.empty());
+
+            given(userRepository.existsByNickname(anyString()))
+                    .willReturn(true)
+                    .willReturn(false);
+
+            given(userRepository.save(any(User.class))).willAnswer(invocation -> {
+                User savingUser = invocation.getArgument(0);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "id", 3L);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "role", UserRole.ROLE_USER);
+                return 3L; // Long 반환
+            });
+
+            given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any())).willReturn("access");
+            given(jwtTokenProvider.createRefreshToken(anyString())).willReturn("refresh");
+
+            // when
+            authService.loginSocial(UserProvider.KAKAO, "token");
+
+            // then
+            verify(userRepository, times(2)).existsByNickname(anyString());
+            verify(userRepository).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("실패: 지원하지 않는 Provider 요청 시 예외가 발생한다")
+        void 실패_지원하지_않는_Provider() {
+            // given
+            UserProvider unsupportedProvider = UserProvider.APPLE;
+            given(socialLoadStrategy.support(unsupportedProvider)).willReturn(false);
+
+            // when & then
+            assertThatThrownBy(() -> authService.loginSocial(unsupportedProvider, "token"))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_PROVIDER);
+        }
+    }
 
     @Nested
     @DisplayName("토큰 재발급")
@@ -75,7 +324,7 @@ class AuthServiceTest {
                     .willReturn(newRefresh);
 
             // when
-            ReissueTokensResponse response = authService.reissueTokens(oldRefreshToken);
+            AuthResult response = authService.reissueTokens(oldRefreshToken);
 
             // then
             assertThat(response.accessToken()).isEqualTo(newAccess);

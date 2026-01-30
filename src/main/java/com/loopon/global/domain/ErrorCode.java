@@ -10,10 +10,11 @@ public enum ErrorCode {
 
     // Global (공통, G-xxx)
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G001", "예상치 못한 서버 오류입니다. 관리자에게 문의해주세요."),
-    BAD_REQUEST(HttpStatus.BAD_REQUEST, "G002", "잘못된 요청입니다."),
-    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G003", "잘못된 입력입니다."),
-    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G004", "허용되지 않은 HTTP 메소드입니다."),
-    NOT_FOUND(HttpStatus.NOT_FOUND, "G005", "요청하신 리소스를 찾을 수 없습니다."),
+    EXTERNAL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "G002", "외부 서비스와의 통신 중 오류가 발생했습니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "G003", "잘못된 요청입니다."),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G004", "잘못된 입력입니다."),
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G005", "허용되지 않은 HTTP 메소드입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "G006", "요청하신 리소스를 찾을 수 없습니다."),
 
     // User (사용자, U-xxx)
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "U001", "이미 존재하는 이메일입니다."),
@@ -31,6 +32,9 @@ public enum ErrorCode {
     AUTH_CODE_INVALID(HttpStatus.BAD_REQUEST, "A007", "유효하지 않은 인증 코드입니다."),
     RESET_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "A008", "유효하지 않은 비밀번호 재설정 토큰입니다."),
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "A009", "요청 횟수가 너무 많습니다. 잠시 후 다시 시도해주세요."),
+    SOCIAL_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "A010", "소셜 로그인에 실패했습니다."),
+    INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "A011", "지원하지 않는 소셜 로그인 제공자입니다."),
+    PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "A012", "비밀번호가 일치하지 않습니다."),
 
     TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "해당 약관을 찾을 수 없습니다."),
     MANDATORY_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "T002", "회원가입을 위해 약관 동의가 필요합니다."),
@@ -52,6 +56,13 @@ public enum ErrorCode {
     // Challenge (챌린지, C-xxx)
     CHALLENGE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C001", "해당 여정은 이미 챌린지가 존재합니다."),
     HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
+
+    // 파일 업로드 관련 에러
+    FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "업로드할 파일이 없습니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "F003", "파일 크기가 허용된 최대 크기를 초과했습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "F004", "허용되지 않는 파일 형식입니다."),
+    INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "F005", "유효하지 않은 파일 이름입니다."),
+    INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F006", "허용되지 않는 파일 확장자입니다."),
 
     // S3 관련 에러
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다."),
