@@ -20,4 +20,9 @@ public class VerificationRepositoryImpl implements VerificationRepository {
                 .stream()
                 .findFirst();
     }
+
+    @Override
+    public void save(Verification verification) {
+        verificationJpaRepository.save(verification);
+    }
 }

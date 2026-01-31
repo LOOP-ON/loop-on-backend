@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface VerificationRepository {
 
     Optional<Verification> findLatest(String target, VerificationPurpose purpose, Pageable pageable);
+
+    void save(Verification verification);
 }
