@@ -9,7 +9,7 @@ CREATE TABLE verifications
     target          VARCHAR(100)                        NOT NULL COMMENT '인증 대상 (이메일/전화번호)',
     code            VARCHAR(6)                          NOT NULL COMMENT '인증 코드',
     status          VARCHAR(20)                         NOT NULL COMMENT '인증 상태',
-    attempt_count   INT        DEFAULT 0                NOT NULL COMMENT '인증 시도 횟수',
+    attempt_count   INT       DEFAULT 0                 NOT NULL COMMENT '인증 시도 횟수',
     expires_at      TIMESTAMP                           NOT NULL COMMENT '만료 시각',
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '생성일'
 ) COMMENT '인증 테이블';
@@ -18,25 +18,24 @@ CREATE TABLE verifications
 ALTER TABLE verifications
     ADD CONSTRAINT ck_verifications_channel
         CHECK (channel IN (
-                            'EMAIL',
-                            'SMS'
+                           'EMAIL',
+                           'SMS'
             ));
 
 -- changeset Seungwon-Choi:52
 ALTER TABLE verifications
     ADD CONSTRAINT ck_verifications_purpose
         CHECK (purpose IN (
-                           'SIGN_UP',
-                           'FIND_EMAIL',
-                           'FIND_PASSWORD'
+            'PASSWORD_RESET'
             ));
 
 -- changeset Seungwon-Choi:53
 ALTER TABLE verifications
     ADD CONSTRAINT ck_verifications_status
         CHECK (status IN (
-                           'PENDING',
-                           'VERIFIED',
-                           'EXPIRED',
-                           'FAILED'
+                          'PENDING',
+                          'VERIFIED',
+                          'EXPIRED',
+                          'FAILED',
+                          'USED'
             ));
