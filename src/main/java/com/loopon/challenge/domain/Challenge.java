@@ -5,11 +5,14 @@ import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "challenges")
@@ -40,6 +43,21 @@ public class Challenge {
 
     @Column(nullable = false, length = 500)
     private String content;
+
+    @Column(name = "like_count", nullable = false)
+    @Builder.Default
+    private Integer likeCount = 0;
+
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    @OrderBy("displayOrder ASC")
+    @Builder.Default
+    private List<ChallengeImage> challengeImages = new ArrayList<>();
+
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<ChallengeHashtag> challengeHashtags = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     @CreatedDate
