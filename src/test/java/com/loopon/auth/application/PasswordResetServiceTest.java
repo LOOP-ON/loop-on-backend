@@ -1,12 +1,12 @@
 package com.loopon.auth.application;
 
 import com.loopon.auth.application.dto.request.PasswordResetRequest;
-import com.loopon.auth.application.dto.request.VerificationVerifyRequest;
+import com.loopon.auth.domain.Verification;
+import com.loopon.auth.domain.VerificationPurpose;
+import com.loopon.auth.domain.repository.VerificationRepository;
 import com.loopon.auth.infrastructure.RedisAuthAdapter;
-import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.global.mail.EmailService;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -22,11 +22,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordResetServiceTest {
@@ -38,180 +36,77 @@ class PasswordResetServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private RedisAuthAdapter redisAuthAdapter;
+    private VerificationRepository verificationRepository;
 
     @Mock
-    private EmailService emailService;
+    private RedisAuthAdapter redisAuthAdapter;
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private RefreshTokenRepository refreshTokenRepository;
-
     private static final String EMAIL = "test@loopon.com";
-
-    @Nested
-    @DisplayName("인증 코드 발송")
-    class SendAuthCode {
-
-        @Test
-        @DisplayName("성공: 가입된 이메일이면 인증 코드를 저장하고 메일을 발송한다")
-        void 인증코드_발송_성공() {
-            // given
-            PasswordEmailRequest request = new PasswordEmailRequest(EMAIL);
-            given(userRepository.existsByEmail(EMAIL)).willReturn(true);
-
-            // when
-            passwordResetService.sendAuthCode(request);
-
-            // then
-            verify(redisAuthAdapter).saveAuthCode(eq(EMAIL), anyString());
-            verify(emailService).sendAuthCode(eq(EMAIL), anyString());
-        }
-
-        @Test
-        @DisplayName("성공(보안): 가입되지 않은 이메일이어도 예외를 던지지 않고 조용히 종료된다 (계정 열거 방지)")
-        void 인증코드_발송_미가입_이메일_SilentFail() {
-            // given
-            String unknownEmail = "unknown@loopon.com";
-            PasswordEmailRequest request = new PasswordEmailRequest(unknownEmail);
-
-            given(redisAuthAdapter.isRateLimitExceeded(unknownEmail)).willReturn(false);
-
-            given(userRepository.existsByEmail(unknownEmail)).willReturn(false);
-
-            // when
-            passwordResetService.sendAuthCode(request);
-
-            // then
-            verify(userRepository).existsByEmail(unknownEmail);
-
-            verify(redisAuthAdapter, never()).saveAuthCode(anyString(), anyString());
-            verify(emailService, never()).sendAuthCode(anyString(), anyString());
-        }
-    }
-
-    @Nested
-    @DisplayName("인증 코드 검증")
-    class VerifyAuthCode {
-
-        @Test
-        @DisplayName("성공: 인증 코드가 일치하면 리셋 토큰을 발급하고 인증 코드를 삭제한다")
-        void 인증코드_검증_성공() {
-            // given
-            String code = "1234";
-            VerificationVerifyRequest request = new VerificationVerifyRequest(EMAIL, code);
-
-            given(redisAuthAdapter.getAuthCode(EMAIL)).willReturn(code);
-
-            // when
-            String resetToken = passwordResetService.verifyAuthCode(request);
-
-            // then
-            assertThat(resetToken).isNotNull();
-            verify(redisAuthAdapter).saveResetToken(eq(EMAIL), anyString());
-            verify(redisAuthAdapter).deleteAuthCode(EMAIL);
-        }
-
-        @Test
-        @DisplayName("실패: 인증 코드가 만료되었거나(null) 일치하지 않으면 예외가 발생한다")
-        void 인증코드_검증_실패_코드_불일치() {
-            // given
-            String wrongCode = "9999";
-            VerificationVerifyRequest request = new VerificationVerifyRequest(EMAIL, wrongCode);
-
-            given(redisAuthAdapter.getAuthCode(EMAIL)).willReturn("1234");
-
-            // when & then
-            assertThatThrownBy(() -> passwordResetService.verifyAuthCode(request))
-                    .isInstanceOf(BusinessException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.AUTH_CODE_INVALID);
-
-            verify(redisAuthAdapter, never()).saveResetToken(anyString(), anyString());
-        }
-    }
 
     @Nested
     @DisplayName("비밀번호 재설정")
     class ResetPassword {
 
         @Test
-        @DisplayName("성공: 토큰이 유효하고 비밀번호가 일치하면 비밀번호를 변경하고 모든 세션을 만료시킨다")
+        @DisplayName("성공: 리셋 토큰이 유효하면 비밀번호를 변경하고 인증 내역을 사용 처리(USED)한다")
         void 비밀번호_재설정_성공() {
             // given
-            String newPassword = "newPassword123!";
             String token = "valid-token-uuid";
+            String newPassword = "newPassword123!";
+            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, newPassword);
 
-            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, newPassword, newPassword);
-            User user = User.createLocalUser(
-                    EMAIL,
-                    "loopon",
-                    "oldEncodedPassword",
-                    null
-            );
+            User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
 
-            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
-            given(passwordEncoder.encode(newPassword)).willReturn("encodedNewPassword");
+            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token); // 토큰 일치
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+            given(passwordEncoder.encode(newPassword)).willReturn("newEncoded");
+
+            Verification mockVerification = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET);
+            org.springframework.test.util.ReflectionTestUtils.setField(mockVerification, "status", com.loopon.auth.domain.VerificationStatus.VERIFIED);
+
+            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET), any()))
+                    .willReturn(Optional.of(mockVerification));
 
             // when
             passwordResetService.resetPassword(request);
 
             // then
-            assertThat(user.getPassword()).isEqualTo("encodedNewPassword");
-
-            verify(refreshTokenRepository).deleteById(EMAIL);
+            assertThat(user.getPassword()).isEqualTo("newEncoded");
+            assertThat(mockVerification.getStatus()).isEqualTo(com.loopon.auth.domain.VerificationStatus.USED);
         }
 
         @Test
-        @DisplayName("실패: 새 비밀번호와 확인 비밀번호가 다르면 예외가 발생한다")
-        void 비밀번호_재설정_실패_비밀번호_불일치() {
-            // given
-            PasswordResetRequest request = new PasswordResetRequest(EMAIL, "token", "pw1", "pw2");
-
-            // when & then
-            assertThatThrownBy(() -> passwordResetService.resetPassword(request))
-                    .isInstanceOf(BusinessException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.PASSWORD_MISMATCH);
-        }
-
-        @Test
-        @DisplayName("실패: 재설정 토큰이 없거나 일치하지 않으면 예외가 발생한다")
-        void 비밀번호_재설정_실패_토큰_유효하지_않음() {
+        @DisplayName("실패: 리셋 토큰이 없거나 일치하지 않으면 예외가 발생한다")
+        void 비밀번호_재설정_실패_토큰불일치() {
             // given
             String token = "invalid-token";
-            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "pw123", "pw123");
+            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "pw123");
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn("other-token");
 
             // when & then
             assertThatThrownBy(() -> passwordResetService.resetPassword(request))
                     .isInstanceOf(BusinessException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.RESET_TOKEN_INVALID);
-
-            verify(userRepository, never()).findByEmail(anyString());
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_RESET_TOKEN);
         }
 
         @Test
-        @DisplayName("실패: 토큰 검증은 통과했으나 유저가 존재하지 않는 경우(중간에 삭제됨) 예외가 발생한다")
-        void 비밀번호_재설정_실패_유저_없음() {
+        @DisplayName("실패: 유저가 존재하지 않으면 예외가 발생한다")
+        void 비밀번호_재설정_실패_유저없음() {
             // given
             String token = "valid-token";
-            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "pw123!", "pw123!");
+            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "pw123");
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
-
             given(userRepository.findByEmail(EMAIL)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> passwordResetService.resetPassword(request))
                     .isInstanceOf(BusinessException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
         }
     }
 }
