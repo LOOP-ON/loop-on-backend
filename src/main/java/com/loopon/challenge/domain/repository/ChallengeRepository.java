@@ -1,6 +1,8 @@
 package com.loopon.challenge.domain.repository;
 
 import com.loopon.challenge.domain.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public interface ChallengeRepository {
 
     List<ChallengeHashtag> findAllChallengeHashtagByChallengeId(Long id);
 
-    List<Hashtag> findAllHashtagByChallengeId(Long id);
+    List<ChallengeHashtag> findAllChallengeHashtagWithHashtagByChallengeId(Long id);
 
     Optional<Hashtag> findHashtagByName(String name);
 
@@ -30,4 +32,10 @@ public interface ChallengeRepository {
     Optional<Challenge> findById(Long challengeId);
 
     void deleteChallengeHashtag(ChallengeHashtagId challengeHashtagId);
+
+    void deleteAllByExpeditionId(Long expeditionId);
+
+    Slice<Challenge> findAllWithJourneyAndUserByExpeditionId(Long expeditionId, Pageable pageable);
+
+    Boolean existsChallengeLikeByIdAndUserId(Long challengeId, Long userId);
 }

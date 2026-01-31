@@ -39,4 +39,7 @@ public class ExpeditionUser {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void expelUser() {
+        this.status = ExpeditionUserStatus.EXPELLED;
+    }
 }

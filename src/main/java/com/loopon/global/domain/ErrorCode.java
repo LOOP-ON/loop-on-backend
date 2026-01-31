@@ -56,6 +56,7 @@ public enum ErrorCode {
     // Challenge (챌린지, C-xxx)
     CHALLENGE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C001", "해당 여정은 이미 챌린지가 존재합니다."),
     HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
+    CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "C003", "챌린지를 찾을 수 없습니다."),
 
     // 파일 업로드 관련 에러
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "업로드할 파일이 없습니다."),
@@ -66,6 +67,16 @@ public enum ErrorCode {
 
     // S3 관련 에러
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다."),
+
+
+    // Expedition (탐험대, E-xxx)
+    EXPEDITION_ABOVE_LIMIT(HttpStatus.BAD_REQUEST, "E001", "탐험대 제한 개수를 초과했습니다."),
+    EXPEDITION_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "E002", "탐험대 비밀번호가 일치하지 않습니다."),
+    EXPEDITION_NOT_FOUND(HttpStatus.NOT_FOUND, "E003", "해당 탐험대를 찾을 수 없습니다."),
+    EXPEDITION_EXPELLED(HttpStatus.BAD_REQUEST, "E004", "해당 탐험대에서 퇴출되어서 재가입에 실패했습니다."),
+    EXPEDITION_USER_ABOVE_LIMIT(HttpStatus.BAD_REQUEST, "E005", "해당 탐험대의 사용자 수 제한을 초과했습니다."),
+    EXPEDITION_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "해당 탐험대에 등록되어있지 않습니다."),
+    NOT_ADMIN_USER(HttpStatus.BAD_REQUEST, "E007", "탐험대 방장이 아니라 권한이 없습니다."),
 
     //디바이스 토큰 관련 에러
     DEVICE_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "해당 디바이스 토큰을 찾을 수 없습니다."),
