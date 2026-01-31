@@ -3,6 +3,7 @@ package com.loopon.user.application.service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.exception.BusinessException;
+import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.domain.Friend;
@@ -13,6 +14,7 @@ import com.loopon.user.domain.repository.FriendRequestRepository;
 import com.loopon.user.domain.repository.UserRepository;
 import com.loopon.user.domain.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     private final FriendRequestRepository friendRequestRepository;
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable) {
@@ -71,7 +74,9 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     //친구 요청 저장
     Friend saved = friendRequestRepository.save(friendRequest);
     //이벤트 발생
-//    applicationEventPublisher.publishEvent(new FriendRequestCreatedEvent(saved.getId(), receiverId));
+        applicationEventPublisher.publishEvent(
+                new FriendRequestCreatedEvent(saved.getId(), me, receiverId)
+        );
         return FriendRequestCreateResponse.from(saved);
     }
 

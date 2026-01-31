@@ -5,6 +5,7 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.setting.application.dto.request.NotificationSettingPatchRequest;
 import com.loopon.setting.application.dto.response.NotificationSettingResponse;
 import com.loopon.setting.domain.service.NotificationSettingService;
+import com.loopon.setting.presentation.docs.NotificationSettingDocs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users/me/notification-settings")
-public class NotificationSettingController {
+public class NotificationSettingController implements NotificationSettingDocs {
 
     private final NotificationSettingService notificationSettingService;
 

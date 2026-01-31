@@ -1,4 +1,8 @@
 package com.loopon.notification.application.event;
 
-public class FriendRequestCreatedEvent {
+public record FriendRequestCreatedEvent(
+        Long friendRequestId,
+        Long fromUserId,
+        Long toUserId
+) {
 }
