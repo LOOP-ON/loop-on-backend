@@ -137,7 +137,26 @@ public class ExpeditionCommandService {
         return ExpeditionConverter.expelExpedition(expeditionUser.getId());
     }
 
+    @Transactional
+    public ExpeditionCancelExpelResponse cancelExpelExpedition(
+            ExpeditionCancelExpelCommand commandDto
+    ) {
+        User myself = userRepository.findById(commandDto.myUserId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
+        checkAdmin(myself, expedition);
+
+        User expelledUser = userRepository.findById(commandDto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
+                .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
+
+        expeditionRepository.deleteExpeditionUser(expeditionUser);
+
+        return ExpeditionConverter.cancelExpelExpedition(expeditionUser.getId());
+    }
 
 
     // -------------------------- helper methods-------------------------------

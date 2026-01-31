@@ -2,6 +2,7 @@ package com.loopon.expedition.presentation;
 
 import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.*;
+import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
@@ -123,7 +124,7 @@ public class ExpeditionApiController {
         );
     }
 
-    @DeleteMapping("/api/expeditions/{expeditionId}/expel")
+    @PatchMapping("/api/expeditions/{expeditionId}/expel")
     public CommonResponse<ExpeditionExpelResponse> expelExpedition (
             @PathVariable Long expeditionId,
             @RequestParam Long userId,
@@ -148,6 +149,20 @@ public class ExpeditionApiController {
 
         return CommonResponse.onSuccess(
                 expeditionQueryService.challengesExpedition(commandDto)
+        );
+    }
+
+    @DeleteMapping("/api/expeditions/{expeditionId}/expel")
+    public CommonResponse<ExpeditionCancelExpelResponse> cancelExpelExpedition (
+            @PathVariable Long expeditionId,
+            @RequestBody ExpeditionCancelExpelRequest requestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        ExpeditionCancelExpelCommand commandDto
+                = ExpeditionConverter.cancelExpelExpedition(expeditionId, requestDto, principalDetails.getUserId());
+
+        return CommonResponse.onSuccess(
+                expeditionCommandService.cancelExpelExpedition(commandDto)
         );
     }
 }
