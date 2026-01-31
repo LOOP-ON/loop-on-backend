@@ -16,6 +16,5 @@ public class DeviceTokenInvalidatorImpl implements DeviceTokenInvalidator {
     @Transactional
     public void invalidate(String deviceToken, String reason) {
         deviceTokenRepository.deleteByToken(deviceToken);
-        // 또는 update status = INACTIVE
     }
 }
