@@ -58,6 +58,10 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
 
+  threads:
+    virtual:
+      enabled: true
+
 logging:
   level:
     org.hibernate.SQL: debug
