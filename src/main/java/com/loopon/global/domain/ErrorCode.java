@@ -35,6 +35,10 @@ public enum ErrorCode {
     SOCIAL_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "A010", "소셜 로그인에 실패했습니다."),
     INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "A011", "지원하지 않는 소셜 로그인 제공자입니다."),
     PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "A012", "비밀번호가 일치하지 않습니다."),
+    VERIFICATION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "A013", "이미 인증이 완료된 상태입니다."),
+    VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "A014", "인증 시간이 만료되었습니다. 다시 시도해주세요."),
+    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "A015", "인증 코드가 일치하지 않습니다."),
+    VERIFICATION_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "A016", "인증되지 않은 상태입니다."),
 
     TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "해당 약관을 찾을 수 없습니다."),
     MANDATORY_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "T002", "회원가입을 위해 약관 동의가 필요합니다."),

@@ -1,7 +1,20 @@
 package com.loopon.auth.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +22,8 @@ import java.time.LocalDateTime;
 @Table(name = "verifications")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public class Verification {
 
     @Id
@@ -42,4 +57,42 @@ public class Verification {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public static Verification of(String email, String code, VerificationPurpose purpose) {
+        return Verification.builder()
+                .target(email)
+                .code(code)
+                .channel(VerificationChannel.EMAIL)
+                .purpose(purpose)
+                .status(VerificationStatus.PENDING)
+                .attemptCount(0)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .build();
+    }
+
+    public void verify(String inputCode) {
+        if (this.status != VerificationStatus.PENDING) {
+            throw new BusinessException(ErrorCode.VERIFICATION_ALREADY_COMPLETED);
+        }
+
+        if (LocalDateTime.now().isAfter(this.expiresAt)) {
+            this.status = VerificationStatus.EXPIRED;
+            throw new BusinessException(ErrorCode.VERIFICATION_EXPIRED);
+        }
+
+        if (!this.code.equals(inputCode)) {
+            this.attemptCount++;
+            throw new BusinessException(ErrorCode.VERIFICATION_CODE_MISMATCH);
+        }
+
+        this.status = VerificationStatus.VERIFIED;
+    }
+
+    public void markAsUsed() {
+        if (this.status != VerificationStatus.VERIFIED) {
+            throw new BusinessException(ErrorCode.VERIFICATION_NOT_VERIFIED);
+        }
+        this.status = VerificationStatus.USED;
+    }
 }
