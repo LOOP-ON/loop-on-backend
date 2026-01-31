@@ -32,4 +32,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             @Param("friendId") Long friendId,
             @Param("me") Long me
     );
+
+    Long countByReceiver_IdAndStatus(Long me, FriendStatus friendStatus);
 }

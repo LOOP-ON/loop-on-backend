@@ -20,11 +20,6 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
             Pageable pageable
     );
 
-    boolean existsByStatusAndRequesterIdAndReceiverId(
-            FriendStatus status,
-            Long requesterId,
-            Long receiverId
-    );
 
     @EntityGraph(attributePaths = {"receiver", "requester"})
     Optional<Friend> findByRequesterIdAndReceiverIdAndStatus(
@@ -56,4 +51,7 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
             @Param("userId2") Long userId2,
             @Param("status") FriendStatus status
     );
+
+    Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus);
+
 }

@@ -79,3 +79,10 @@ springdoc:
     display-request-duration: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+apns:
+  environment: sandbox   # 또는 production
+  team-id: ...
+  key-id: ...
+  p8-path: keys/AuthKey_XXXXXX.p8
+  topic: com.loopon.app  # iOS bundle id

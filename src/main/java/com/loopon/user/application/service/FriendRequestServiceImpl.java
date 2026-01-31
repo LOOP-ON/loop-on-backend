@@ -3,6 +3,7 @@ package com.loopon.user.application.service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.exception.BusinessException;
+import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.domain.Friend;
@@ -13,12 +14,12 @@ import com.loopon.user.domain.repository.FriendRequestRepository;
 import com.loopon.user.domain.repository.UserRepository;
 import com.loopon.user.domain.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     private final FriendRequestRepository friendRequestRepository;
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     @Override
     public PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable) {
         if (query == null || query.trim().length() < 2) {
@@ -39,27 +42,28 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         Page<User> newFriend = userRepository.searchByNickname(me, query, pageable);
         return PageResponse.of(newFriend.map(FriendSearchResponse::from));
     }
+
     @Override
-    public PageResponse<FriendRequestReceivedResponse> getFriendRequests(Long me, Pageable pageable){
+    public PageResponse<FriendRequestReceivedResponse> getFriendRequests(Long me, Pageable pageable) {
         Page<Friend> friendRequests =
                 friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(me, PENDING, pageable);
         return PageResponse.of(friendRequests.map(FriendRequestReceivedResponse::from));
     }
+
     @Override
-    public FriendRequestCreateResponse sendFriendRequest(Long me, Long receiverId){
-    //자기 자신 요청 방지
-    if(me.equals(receiverId)){
-        throw new BusinessException(ErrorCode.FRIEND_REQUEST_SELF);
-    }
+    public FriendRequestCreateResponse sendFriendRequest(Long me, Long receiverId) {
+        //자기 자신 요청 방지
+        if (me.equals(receiverId)) {
+            throw new BusinessException(ErrorCode.FRIEND_REQUEST_SELF);
+        }
         // 양방향 체크를 한 번에 (Repository 메서드 추가)
-        if(friendRequestRepository.existsFriendship(me, receiverId, ACCEPTED)){
+        if (friendRequestRepository.existsFriendship(me, receiverId, ACCEPTED)) {
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_FRIEND);
         }
 
-        if(friendRequestRepository.existsFriendship(me, receiverId, PENDING)){
+        if (friendRequestRepository.existsFriendship(me, receiverId, PENDING)) {
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
         }
-
         //새로운 친구 요청 생성(로직 추가 필요)
     User requester = userRepository.findById(me)
             .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -70,33 +74,34 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     //친구 요청 저장
     Friend saved = friendRequestRepository.save(friendRequest);
     //이벤트 발생
-//    applicationEventPublisher.publishEvent(new FriendRequestCreatedEvent(saved.getId(), receiverId));
-    return FriendRequestCreateResponse.from(saved);
+        applicationEventPublisher.publishEvent(
+                new FriendRequestCreatedEvent(saved.getId(), me, receiverId)
+        );
+        return FriendRequestCreateResponse.from(saved);
     }
+
     @Override
     @Transactional
-    public FriendRequestRespondResponse respondOneFriendRequest(Long me, FriendRequestRespondRequest friendRequestRespondRequest){
-    Friend friendRequest = friendRequestRepository
-            .findByRequesterIdAndReceiverIdAndStatus(friendRequestRespondRequest.requesterId(), me, PENDING)
-            .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
+    public FriendRequestRespondResponse respondOneFriendRequest(Long me, FriendRequestRespondRequest friendRequestRespondRequest) {
+        Friend friendRequest = friendRequestRepository
+                .findByRequesterIdAndReceiverIdAndStatus(friendRequestRespondRequest.requesterId(), me, PENDING)
+                .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
 
-    if(!friendRequest.getReceiver().getId().equals(me)){
-        throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
-    }
+        if (!friendRequest.getReceiver().getId().equals(me)) {
+            throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
+        }
         FriendStatus requestedStatus = friendRequestRespondRequest.friendStatus();
-    if(requestedStatus == ACCEPTED){
-        friendRequest.accept();
-    }
-    else if(requestedStatus == REJECTED){
-        friendRequest.reject();
-    }
-    else{
-        throw new BusinessException(ErrorCode.FRIEND_REQUEST_INVALID_STATUS);
-    }
+        if (requestedStatus == ACCEPTED) {
+            friendRequest.accept();
+        } else if (requestedStatus == REJECTED) {
+            friendRequest.reject();
+        } else {
+            throw new BusinessException(ErrorCode.FRIEND_REQUEST_INVALID_STATUS);
+        }
         Friend saved = friendRepository.save(friendRequest);
-        //여기에 각 Friend 리턴 타입으로 변환 하는 로직
-    return FriendRequestRespondResponse.from(saved);
+        return FriendRequestRespondResponse.from(saved);
     }
+
     @Override
     @Transactional
     public FriendRequestBulkRespondResponse respondAllFriendRequests(Long me, FriendStatus friendStatus) {
@@ -132,4 +137,10 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         return new FriendRequestBulkRespondResponse(processedCount);
     }
 
+    @Override
+    public Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus) {
+        return friendRepository.countByReceiver_IdAndStatus(
+                me, FriendStatus.PENDING
+        );
+    }
 }
