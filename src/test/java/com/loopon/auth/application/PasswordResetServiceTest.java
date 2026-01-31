@@ -1,13 +1,12 @@
 package com.loopon.auth.application;
 
-import com.loopon.auth.application.dto.request.PasswordEmailRequest;
 import com.loopon.auth.application.dto.request.PasswordResetRequest;
-import com.loopon.auth.application.dto.request.PasswordVerifyRequest;
+import com.loopon.auth.application.dto.request.VerificationVerifyRequest;
 import com.loopon.auth.infrastructure.RedisAuthAdapter;
 import com.loopon.auth.infrastructure.RefreshTokenRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.global.mail.MailService;
+import com.loopon.global.mail.EmailService;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +25,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordResetServiceTest {
@@ -41,7 +41,7 @@ class PasswordResetServiceTest {
     private RedisAuthAdapter redisAuthAdapter;
 
     @Mock
-    private MailService mailService;
+    private EmailService emailService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -67,7 +67,7 @@ class PasswordResetServiceTest {
 
             // then
             verify(redisAuthAdapter).saveAuthCode(eq(EMAIL), anyString());
-            verify(mailService).sendAuthCode(eq(EMAIL), anyString());
+            verify(emailService).sendAuthCode(eq(EMAIL), anyString());
         }
 
         @Test
@@ -88,7 +88,7 @@ class PasswordResetServiceTest {
             verify(userRepository).existsByEmail(unknownEmail);
 
             verify(redisAuthAdapter, never()).saveAuthCode(anyString(), anyString());
-            verify(mailService, never()).sendAuthCode(anyString(), anyString());
+            verify(emailService, never()).sendAuthCode(anyString(), anyString());
         }
     }
 
@@ -101,7 +101,7 @@ class PasswordResetServiceTest {
         void 인증코드_검증_성공() {
             // given
             String code = "1234";
-            PasswordVerifyRequest request = new PasswordVerifyRequest(EMAIL, code);
+            VerificationVerifyRequest request = new VerificationVerifyRequest(EMAIL, code);
 
             given(redisAuthAdapter.getAuthCode(EMAIL)).willReturn(code);
 
@@ -119,7 +119,7 @@ class PasswordResetServiceTest {
         void 인증코드_검증_실패_코드_불일치() {
             // given
             String wrongCode = "9999";
-            PasswordVerifyRequest request = new PasswordVerifyRequest(EMAIL, wrongCode);
+            VerificationVerifyRequest request = new VerificationVerifyRequest(EMAIL, wrongCode);
 
             given(redisAuthAdapter.getAuthCode(EMAIL)).willReturn("1234");
 
