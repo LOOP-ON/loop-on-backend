@@ -17,10 +17,10 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class JavaMailServiceTest {
+class EmailServiceImplTest {
 
     @InjectMocks
-    private JavaMailService javaMailService;
+    private EmailServiceImpl javaMailService;
 
     @Mock
     private JavaMailSender javaMailSender;
@@ -39,7 +39,7 @@ class JavaMailServiceTest {
         ReflectionTestUtils.setField(javaMailService, "senderEmail", senderEmail);
 
         // when
-        javaMailService.sendAuthCode(toEmail, authCode);
+        javaMailService.sendVerificationEmail(toEmail, authCode);
 
         // then
         verify(javaMailSender).send(mimeMessage);
@@ -61,7 +61,7 @@ class JavaMailServiceTest {
         ReflectionTestUtils.setField(javaMailService, "senderEmail", "admin@loopon.com");
 
         // when
-        javaMailService.sendAuthCode(toEmail, authCode);
+        javaMailService.sendVerificationEmail(toEmail, authCode);
 
         // then
         verify(javaMailSender, never()).send(any(MimeMessage.class));
