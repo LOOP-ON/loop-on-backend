@@ -1,6 +1,7 @@
 package com.loopon.global.mail;
 
-import jakarta.mail.MessagingException;
+import com.loopon.auth.domain.VerificationPurpose;
+import jakarta.mail.Message;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,61 +10,44 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class EmailServiceImplTest {
 
     @InjectMocks
-    private EmailServiceImpl javaMailService;
+    private EmailServiceImpl emailService;
 
     @Mock
     private JavaMailSender javaMailSender;
 
     @Test
-    @DisplayName("성공: 인증 코드가 담긴 이메일을 생성하고 발송한다")
-    void 이메일_발송_성공() {
+    @DisplayName("성공: HTML 템플릿이 적용된 이메일을 생성하고 발송한다")
+    void 이메일_발송_성공() throws Exception {
         // given
-        String toEmail = "user@loopon.com";
-        String authCode = "1234";
-        String senderEmail = "admin@loopon.com";
+        String to = "test@loopon.com";
+        String code = "1234";
+        VerificationPurpose purpose = VerificationPurpose.PASSWORD_RESET;
 
-        MimeMessage mimeMessage = mock(MimeMessage.class);
-        given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
-
-        ReflectionTestUtils.setField(javaMailService, "senderEmail", senderEmail);
+        MimeMessage realMimeMessage = new JavaMailSenderImpl().createMimeMessage();
+        given(javaMailSender.createMimeMessage()).willReturn(realMimeMessage);
 
         // when
-        javaMailService.sendVerificationEmail(toEmail, authCode);
+        emailService.sendVerificationEmail(to, code, purpose);
 
         // then
-        verify(javaMailSender).send(mimeMessage);
-    }
+        verify(javaMailSender).send(realMimeMessage);
 
-    @Test
-    @DisplayName("실패: 메일 생성 중 예외가 발생하면 로그를 남기고 중단된다")
-    void 이메일_발송_실패_예외처리() throws MessagingException {
-        // given
-        String toEmail = "user@loopon.com";
-        String authCode = "1234";
+        assertThat(realMimeMessage.getRecipients(Message.RecipientType.TO)[0].toString()).isEqualTo(to);
+        assertThat(realMimeMessage.getSubject()).isEqualTo("[LOOP:ON] 인증 번호를 확인해주세요");
 
-        MimeMessage mimeMessage = mock(MimeMessage.class);
-        given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
-
-        willThrow(new MessagingException("Mail Error"))
-                .given(mimeMessage).setSubject(any(), any());
-
-        ReflectionTestUtils.setField(javaMailService, "senderEmail", "admin@loopon.com");
-
-        // when
-        javaMailService.sendVerificationEmail(toEmail, authCode);
-
-        // then
-        verify(javaMailSender, never()).send(any(MimeMessage.class));
+        String content = (String) realMimeMessage.getContent();
+        assertThat(content).contains("비밀번호 재설정");
+        assertThat(content).contains(code);
+        assertThat(content).contains("<html>");
     }
 }
