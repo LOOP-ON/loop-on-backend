@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -27,6 +30,7 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @BatchSize(size = 100)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,6 +42,10 @@ public class Comment {
 
     @Column(nullable = false)
     private Integer likeCount = 0;
+
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "parent")
+    private List<Comment> children = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
