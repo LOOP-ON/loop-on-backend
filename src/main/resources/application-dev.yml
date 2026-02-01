@@ -7,4 +7,4 @@ spring:
         bucket: ${S3_BUCKET}
 
   liquibase:
-    enabled: false  # 지금처럼 dev에서 끄는 게 안전 (원하면 나중에 다시 켜도 됨)
+    enabled: true
