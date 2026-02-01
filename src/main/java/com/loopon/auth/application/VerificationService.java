@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -52,7 +53,7 @@ public class VerificationService {
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VERIFICATION_NOT_FOUND));
 
-        verification.verify(code);
+        verification.verify(code, LocalDateTime.now());
 
         if (purpose == VerificationPurpose.PASSWORD_RESET) {
             String resetToken = UUID.randomUUID().toString();

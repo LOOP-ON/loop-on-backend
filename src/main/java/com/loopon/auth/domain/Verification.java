@@ -71,12 +71,12 @@ public class Verification {
                 .build();
     }
 
-    public void verify(String inputCode) {
+    public void verify(String inputCode, LocalDateTime currentDateTime) {
         if (this.status != VerificationStatus.PENDING) {
             throw new BusinessException(ErrorCode.VERIFICATION_ALREADY_COMPLETED);
         }
 
-        if (LocalDateTime.now().isAfter(this.expiresAt)) {
+        if (currentDateTime.isAfter(this.expiresAt)) {
             this.status = VerificationStatus.EXPIRED;
             throw new BusinessException(ErrorCode.VERIFICATION_EXPIRED);
         }
