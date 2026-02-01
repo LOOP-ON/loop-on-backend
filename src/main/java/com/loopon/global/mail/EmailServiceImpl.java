@@ -13,6 +13,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async("mailExecutor")
-    public void sendVerificationEmail(String to, String code, VerificationPurpose purpose) {
+    public CompletableFuture<Void> sendVerificationEmail(String to, String code, VerificationPurpose purpose) {
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
@@ -70,8 +72,11 @@ public class EmailServiceImpl implements EmailService {
             javaMailSender.send(message);
             log.info("[EmailService] Email sent successfully to {}", to);
 
-        } catch (MessagingException e) {
+            return CompletableFuture.completedFuture(null);
+
+        } catch (MessagingException | BusinessException e) {
             log.error("[EmailService] Failed to send email to {}", to, e);
+            return CompletableFuture.failedFuture(e);
         }
     }
 }

@@ -2,7 +2,9 @@ package com.loopon.global.mail;
 
 import com.loopon.auth.domain.VerificationPurpose;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface EmailService {
 
-    void sendVerificationEmail(String to, String code, VerificationPurpose purpose);
+    CompletableFuture<Void> sendVerificationEmail(String to, String code, VerificationPurpose purpose);
 }

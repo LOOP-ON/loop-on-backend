@@ -39,7 +39,17 @@ public class VerificationService {
         Verification verification = Verification.of(email, code, purpose, LocalDateTime.now().plusMinutes(5));
         verificationRepository.save(verification);
 
-        emailService.sendVerificationEmail(email, code, purpose);
+        emailService.sendVerificationEmail(email, code, purpose)
+                .thenAccept(v -> {
+                    log.info("[Verification] Mail sent confirmed for {}", email);
+                })
+                .exceptionally(ex -> {
+                    log.error("[Verification] Mail sending FAILED asynchronously. Cause: {}", ex.getMessage());
+
+                    // TODO: 알림 서비스 연동 고려
+
+                    return null;
+                });
     }
 
     @Transactional
