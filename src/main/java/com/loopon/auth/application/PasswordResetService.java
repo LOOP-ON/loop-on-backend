@@ -1,6 +1,7 @@
 package com.loopon.auth.application;
 
 import com.loopon.auth.application.dto.request.PasswordResetRequest;
+import com.loopon.auth.domain.Verification;
 import com.loopon.auth.domain.VerificationPurpose;
 import com.loopon.auth.domain.repository.VerificationRepository;
 import com.loopon.auth.infrastructure.RedisAuthAdapter;
@@ -47,12 +48,6 @@ public class PasswordResetService {
                 email,
                 VerificationPurpose.PASSWORD_RESET,
                 PageRequest.of(0, 1)
-        ).stream().findFirst().ifPresent(verification -> {
-            try {
-                verification.markAsUsed();
-            } catch (Exception e) {
-                log.warn("[PasswordReset] Failed to mark verification as USED: {}", e.getMessage());
-            }
-        });
+        ).stream().findFirst().ifPresent(Verification::markAsUsed);
     }
 }
