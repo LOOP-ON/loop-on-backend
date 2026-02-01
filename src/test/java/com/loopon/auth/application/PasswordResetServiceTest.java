@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ class PasswordResetServiceTest {
     class ResetPassword {
 
         @Test
-        @DisplayName("성공: 리셋 토큰이 유효하면 비밀번호를 변경하고 인증 내역을 사용 처리(USED)한다")
+        @DisplayName("성공: 리셋 토큰이 유효하고 인증 내역이 존재하면 비밀번호를 변경한다")
         void 비밀번호_재설정_성공() {
             // given
             String token = "valid-token-uuid";
@@ -58,13 +59,13 @@ class PasswordResetServiceTest {
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, newPassword);
 
             User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
+            Verification mockVerification = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET);
 
-            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token); // 토큰 일치
+            ReflectionTestUtils.setField(mockVerification, "status", com.loopon.auth.domain.VerificationStatus.VERIFIED);
+
+            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
             given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
             given(passwordEncoder.encode(newPassword)).willReturn("newEncoded");
-
-            Verification mockVerification = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET);
-            org.springframework.test.util.ReflectionTestUtils.setField(mockVerification, "status", com.loopon.auth.domain.VerificationStatus.VERIFIED);
 
             given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
                     .willReturn(Optional.of(mockVerification));
@@ -89,7 +90,8 @@ class PasswordResetServiceTest {
             // when & then
             assertThatThrownBy(() -> passwordResetService.resetPassword(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_RESET_TOKEN);
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INVALID_RESET_TOKEN);
         }
 
         @Test
@@ -105,7 +107,54 @@ class PasswordResetServiceTest {
             // when & then
             assertThatThrownBy(() -> passwordResetService.resetPassword(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패: 인증 내역(Verification)을 찾을 수 없으면 예외가 발생한다 (엄격한 일관성)")
+        void 비밀번호_재설정_실패_인증내역_없음() {
+            // given
+            String token = "valid-token";
+            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "newPw");
+            User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
+
+            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+            given(passwordEncoder.encode("newPw")).willReturn("newEncoded");
+
+            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> passwordResetService.resetPassword(request))
+                    .isInstanceOf(BusinessException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.VERIFICATION_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패: 인증 상태가 VERIFIED가 아니면 markAsUsed 호출 시 예외가 발생한다")
+        void 비밀번호_재설정_실패_상태이상() {
+            // given
+            String token = "valid-token";
+            PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "newPw");
+            User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
+
+            Verification notVerified = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET);
+            ReflectionTestUtils.setField(notVerified, "status", com.loopon.auth.domain.VerificationStatus.PENDING);
+
+            given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+            given(passwordEncoder.encode("newPw")).willReturn("newEncoded");
+            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
+                    .willReturn(Optional.of(notVerified));
+
+            // when & then
+            assertThatThrownBy(() -> passwordResetService.resetPassword(request))
+                    .isInstanceOf(BusinessException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.VERIFICATION_NOT_VERIFIED);
         }
     }
 }
