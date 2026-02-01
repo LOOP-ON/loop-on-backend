@@ -1,6 +1,8 @@
 package com.loopon.global.mail;
 
 import com.loopon.auth.domain.VerificationPurpose;
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class EmailServiceImpl implements EmailService {
                     title = "비밀번호 재설정";
                     description = "요청하신 비밀번호 재설정을 위한 인증 코드를 보내드립니다.";
                 }
+                default -> throw new BusinessException(ErrorCode.INVALID_VERIFICATION_PURPOSE);
             }
 
             String htmlContent = """
