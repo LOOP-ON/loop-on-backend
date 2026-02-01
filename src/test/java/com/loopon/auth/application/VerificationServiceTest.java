@@ -56,6 +56,9 @@ class VerificationServiceTest {
             // given
             given(redisAuthAdapter.isRateLimitExceeded(EMAIL)).willReturn(false);
 
+            given(emailService.sendVerificationEmail(anyString(), anyString(), any()))
+                    .willReturn(java.util.concurrent.CompletableFuture.completedFuture(null));
+
             // when
             verificationService.sendCode(EMAIL, VerificationPurpose.PASSWORD_RESET);
 
