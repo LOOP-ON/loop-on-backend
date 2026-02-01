@@ -1,5 +1,6 @@
 package com.loopon.auth.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import jakarta.persistence.Column;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Verification {
+public class Verification extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,10 +56,7 @@ public class Verification {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    public static Verification of(String email, String code, VerificationPurpose purpose) {
+    public static Verification of(String email, String code, VerificationPurpose purpose, LocalDateTime expiresAt) {
         return Verification.builder()
                 .target(email)
                 .code(code)
@@ -66,8 +64,7 @@ public class Verification {
                 .purpose(purpose)
                 .status(VerificationStatus.PENDING)
                 .attemptCount(0)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .expiresAt(expiresAt)
                 .build();
     }
 

@@ -59,7 +59,7 @@ class PasswordResetServiceTest {
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, newPassword);
 
             User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
-            Verification mockVerification = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET);
+            Verification mockVerification = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET, null);
 
             ReflectionTestUtils.setField(mockVerification, "status", com.loopon.auth.domain.VerificationStatus.VERIFIED);
 
@@ -141,7 +141,7 @@ class PasswordResetServiceTest {
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "newPw");
             User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
 
-            Verification notVerified = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET);
+            Verification notVerified = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET, null);
             ReflectionTestUtils.setField(notVerified, "status", com.loopon.auth.domain.VerificationStatus.PENDING);
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);

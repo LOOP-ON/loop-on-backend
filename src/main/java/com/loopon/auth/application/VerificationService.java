@@ -36,7 +36,7 @@ public class VerificationService {
 
         String code = generateCode();
 
-        Verification verification = Verification.of(email, code, purpose);
+        Verification verification = Verification.of(email, code, purpose, LocalDateTime.now().plusMinutes(5));
         verificationRepository.save(verification);
 
         emailService.sendVerificationEmail(email, code, purpose);

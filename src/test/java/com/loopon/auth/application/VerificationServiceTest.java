@@ -90,7 +90,7 @@ class VerificationServiceTest {
             // given
             String code = "1234";
 
-            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
+            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET, LocalDateTime.now().plusMinutes(5));
             ReflectionTestUtils.setField(mockVerification, "id", 1L);
             ReflectionTestUtils.setField(mockVerification, "createdAt", LocalDateTime.now().minusMinutes(1));
 
@@ -124,7 +124,7 @@ class VerificationServiceTest {
             // given
             String realCode = "1234";
             String wrongCode = "9999";
-            Verification mockVerification = Verification.of(EMAIL, realCode, VerificationPurpose.PASSWORD_RESET);
+            Verification mockVerification = Verification.of(EMAIL, realCode, VerificationPurpose.PASSWORD_RESET, LocalDateTime.now().plusMinutes(5));
 
             given(verificationRepository.findLatest(anyString(), any()))
                     .willReturn(Optional.of(mockVerification));
@@ -140,7 +140,7 @@ class VerificationServiceTest {
         void 인증코드_검증_실패_만료됨() {
             // given
             String code = "1234";
-            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
+            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET, null);
 
             ReflectionTestUtils.setField(mockVerification, "expiresAt", LocalDateTime.now().minusSeconds(1));
 
@@ -160,7 +160,7 @@ class VerificationServiceTest {
         void 인증코드_검증_실패_이미완료됨() {
             // given
             String code = "1234";
-            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
+            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET, null);
 
             ReflectionTestUtils.setField(mockVerification, "status", VerificationStatus.VERIFIED);
 
