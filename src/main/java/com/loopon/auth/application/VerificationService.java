@@ -49,8 +49,6 @@ public class VerificationService {
                         email,
                         purpose,
                         PageRequest.of(0, 1))
-                .stream()
-                .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCode.VERIFICATION_NOT_FOUND));
 
         verification.verify(code, LocalDateTime.now());
