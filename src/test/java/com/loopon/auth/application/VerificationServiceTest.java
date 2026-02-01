@@ -2,6 +2,7 @@ package com.loopon.auth.application;
 
 import com.loopon.auth.domain.Verification;
 import com.loopon.auth.domain.VerificationPurpose;
+import com.loopon.auth.domain.VerificationStatus;
 import com.loopon.auth.domain.repository.VerificationRepository;
 import com.loopon.auth.infrastructure.RedisAuthAdapter;
 import com.loopon.global.domain.ErrorCode;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,13 +85,14 @@ class VerificationServiceTest {
     class VerifyCode {
 
         @Test
-        @DisplayName("성공: 코드가 일치하면 검증 처리하고, 비밀번호 변경용 티켓(ResetToken)을 반환한다")
+        @DisplayName("성공: 코드가 일치하고 만료되지 않았으면 검증 처리하고, 리셋 토큰을 반환한다")
         void 인증코드_검증_성공() {
             // given
             String code = "1234";
 
             Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
             ReflectionTestUtils.setField(mockVerification, "id", 1L);
+            ReflectionTestUtils.setField(mockVerification, "createdAt", LocalDateTime.now().minusMinutes(1));
 
             given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
                     .willReturn(Optional.of(mockVerification));
@@ -130,6 +133,44 @@ class VerificationServiceTest {
             assertThatThrownBy(() -> verificationService.verifyCode(EMAIL, wrongCode, VerificationPurpose.PASSWORD_RESET))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.VERIFICATION_CODE_MISMATCH);
+        }
+
+        @Test
+        @DisplayName("실패: 인증 코드의 유효 시간(5분)이 지났으면 예외가 발생한다")
+        void 인증코드_검증_실패_만료됨() {
+            // given
+            String code = "1234";
+            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
+
+            ReflectionTestUtils.setField(mockVerification, "expiresAt", LocalDateTime.now().minusSeconds(1));
+
+
+            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
+                    .willReturn(Optional.of(mockVerification));
+
+            // when & then
+            assertThatThrownBy(() -> verificationService.verifyCode(EMAIL, code, VerificationPurpose.PASSWORD_RESET))
+                    .isInstanceOf(BusinessException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.VERIFICATION_EXPIRED);
+        }
+
+        @Test
+        @DisplayName("실패: 이미 검증이 완료된(VERIFIED) 코드를 다시 요청하면 예외가 발생한다")
+        void 인증코드_검증_실패_이미완료됨() {
+            // given
+            String code = "1234";
+            Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
+
+            ReflectionTestUtils.setField(mockVerification, "status", VerificationStatus.VERIFIED);
+
+            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
+                    .willReturn(Optional.of(mockVerification));
+
+            // when & then
+            assertThatThrownBy(() -> verificationService.verifyCode(EMAIL, code, VerificationPurpose.PASSWORD_RESET))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.VERIFICATION_ALREADY_COMPLETED);
         }
     }
 }
