@@ -28,7 +28,7 @@ public class VerificationService {
     private final RedisAuthAdapter redisAuthAdapter;
 
     @Transactional
-    public Long sendCode(String email, VerificationPurpose purpose) {
+    public void sendCode(String email, VerificationPurpose purpose) {
         if (redisAuthAdapter.isRateLimitExceeded(email)) {
             log.warn("[Verification] Rate limit exceeded for email: {}", email);
             throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS);
@@ -40,8 +40,6 @@ public class VerificationService {
         verificationRepository.save(verification);
 
         emailService.sendVerificationEmail(email, code, purpose);
-
-        return verification.getId();
     }
 
     @Transactional
