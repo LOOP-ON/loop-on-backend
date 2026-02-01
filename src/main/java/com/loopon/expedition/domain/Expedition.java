@@ -29,6 +29,9 @@ public class Expedition {
     @Column(name = "user_limit", nullable = false)
     private int userLimit;
 
+    @Column(name = "current_users", nullable = false)
+    private int currentUsers;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ExpeditionCategory category;
@@ -39,10 +42,6 @@ public class Expedition {
 
     @Column(length = 100)
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private ExpeditionStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
