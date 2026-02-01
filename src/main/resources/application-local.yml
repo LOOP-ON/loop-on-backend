@@ -79,3 +79,6 @@ springdoc:
     display-request-duration: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
