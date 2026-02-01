@@ -9,7 +9,6 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.global.mail.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +46,7 @@ public class VerificationService {
     public String verifyCode(String email, String code, VerificationPurpose purpose) {
         Verification verification = verificationRepository.findLatest(
                         email,
-                        purpose,
-                        PageRequest.of(0, 1))
+                        purpose)
                 .orElseThrow(() -> new BusinessException(ErrorCode.VERIFICATION_NOT_FOUND));
 
         verification.verify(code, LocalDateTime.now());

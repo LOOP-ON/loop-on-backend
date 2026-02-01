@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -92,7 +91,7 @@ class VerificationServiceTest {
             Verification mockVerification = Verification.of(EMAIL, code, VerificationPurpose.PASSWORD_RESET);
             ReflectionTestUtils.setField(mockVerification, "id", 1L);
 
-            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET), any(Pageable.class)))
+            given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
                     .willReturn(Optional.of(mockVerification));
 
             // when
@@ -107,7 +106,7 @@ class VerificationServiceTest {
         @DisplayName("실패: 인증 내역이 없으면 예외가 발생한다")
         void 인증코드_검증_실패_내역없음() {
             // given
-            given(verificationRepository.findLatest(anyString(), any(), any()))
+            given(verificationRepository.findLatest(anyString(), any()))
                     .willReturn(Optional.empty());
 
             // when & then
@@ -124,7 +123,7 @@ class VerificationServiceTest {
             String wrongCode = "9999";
             Verification mockVerification = Verification.of(EMAIL, realCode, VerificationPurpose.PASSWORD_RESET);
 
-            given(verificationRepository.findLatest(anyString(), any(), any()))
+            given(verificationRepository.findLatest(anyString(), any()))
                     .willReturn(Optional.of(mockVerification));
 
             // when & then

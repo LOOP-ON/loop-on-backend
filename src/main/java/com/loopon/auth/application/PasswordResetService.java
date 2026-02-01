@@ -11,7 +11,6 @@ import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,10 +43,11 @@ public class PasswordResetService {
     }
 
     private void markVerificationAsUsed(String email) {
-        verificationRepository.findLatest(
+        Verification verification = verificationRepository.findLatest(
                 email,
-                VerificationPurpose.PASSWORD_RESET,
-                PageRequest.of(0, 1)
-        ).stream().findFirst().ifPresent(Verification::markAsUsed);
+                VerificationPurpose.PASSWORD_RESET
+        ).orElseThrow(() -> new BusinessException(ErrorCode.VERIFICATION_NOT_FOUND));
+
+        verification.markAsUsed();
     }
 }
