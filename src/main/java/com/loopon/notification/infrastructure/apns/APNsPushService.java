@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestClient;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class APNsPushService {
 
-    private final WebClient apnsWebClient;
+    private final RestClient apnsRestClient;
     private final APNsTokenProvider tokenProvider;
     private final ObjectMapper objectMapper;
     private final ObjectProvider<DeviceTokenInvalidator> invalidatorProvider;
@@ -31,72 +33,58 @@ public class APNsPushService {
     private String topic;
 
     public CompletableFuture<APNsSendResponse> send(String deviceToken, String title, String body, Map<String, String> data) {
-        CompletableFuture<APNsSendResponse> future = new CompletableFuture<>();
         final String masked = maskToken(deviceToken);
-        try {
-            String payload = buildPayload(title, body, data);
-            String authToken = tokenProvider.getToken();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String payload = buildPayload(title, body, data);
+                String authToken = tokenProvider.getToken();
 
-            apnsWebClient.post()
-                    .uri("/3/device/" + deviceToken)
-                    .header(HttpHeaders.AUTHORIZATION, "bearer " + authToken)
-                    .header("apns-topic", topic)
-                    .header("apns-push-type", "alert")
-                    .header("apns-priority", "10")
-                    .header("apns-expiration", String.valueOf(System.currentTimeMillis() / 1000 + 60))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(payload)
-                    .exchangeToMono(resp -> {
-                        int status = resp.statusCode().value();
-                        String apnsId = resp.headers().header("apns-id").stream().findFirst().orElse(null);
+                APNsSendResponse result = apnsRestClient.post()
+                        .uri("/3/device/" + deviceToken)
+                        .header(HttpHeaders.AUTHORIZATION, "bearer " + authToken)
+                        .header("apns-topic", topic)
+                        .header("apns-push-type", "alert")
+                        .header("apns-priority", "10")
+                        .header("apns-expiration", String.valueOf(System.currentTimeMillis() / 1000 + 60))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(payload)
+                        .exchange((req, res) -> {
+                            int status = res.getStatusCode().value();
+                            String apnsId = res.getHeaders().getFirst("apns-id");
 
-                        // 성공(일반적으로 200)
-                        if (status >= 200 && status < 300) {
-                            return resp.toBodilessEntity()
-                                    .thenReturn(APNsSendResponse.ok(apnsId));
-                        }
-
-                        // 실패: APNs는 보통 body에 {"reason": "..."}를 줌
-                        return resp.bodyToMono(String.class)
-                                .defaultIfEmpty("")
-                                .map(bodyStr -> {
-                                    String reason = extractReason(bodyStr);
-                                    return APNsSendResponse.fail(status, apnsId, reason);
-                                });
-                    })
-                    .subscribe(
-                            result -> {
-                                if (result.success()) {
-                                    log.info("APNs 전송 성공 token={}, apnsId={}", masked, result.apnsId());
-                                } else {
-                                    log.warn("APNs 전송 실패 token={}, status={}, apnsId={}, reason={}",
-                                            masked, result.status(), result.apnsId(), result.reason());
-
-                                    // 대표 처리: 410 Gone = token invalid/unregistered
-                                    if (result.status() == 410) {
-                                        DeviceTokenInvalidator invalidator = invalidatorProvider.getIfAvailable();
-                                        if (invalidator != null) {
-                                            invalidator.invalidate(deviceToken, result.reason());
-                                        } else {
-                                            log.warn("DeviceTokenInvalidator 미구현: token={} reason={}", masked, result.reason());
-                                        }
-                                    }
-                                }
-                                future.complete(result);
-                            },
-                            error -> {
-                                // 네트워크/타임아웃/SSL/HTTP2 등 클라이언트 레벨 에러
-                                log.error("APNs 호출 자체 실패 token={}, error={}", masked, error.toString());
-                                future.complete(APNsSendResponse.fail(-1, null, error.getClass().getSimpleName()));
+                            // 성공(일반적으로 200)
+                            if (status >= 200 && status < 300) {
+                                return APNsSendResponse.ok(apnsId);
                             }
-                    );
 
-        } catch (Exception e) {
-            log.error("APNs 전송 중 코드 레벨 오류 token={}", masked, e);
-            future.complete(APNsSendResponse.fail(-1, null, "Exception:" + e.getClass().getSimpleName()));
-        }
+                            // 실패: APNs는 보통 body에 {"reason": "..."}를 줌
+                            String bodyStr = "";
+                            if (res.getBody() != null) {
+                                bodyStr = StreamUtils.copyToString(res.getBody(), StandardCharsets.UTF_8);
+                            }
+                            String reason = extractReason(bodyStr);
+                            return APNsSendResponse.fail(status, apnsId, reason);
+                        });
+                if (result.success()) {
+                    log.info("APNs 전송 성공 token={}, apnsId={}", masked, result.apnsId());
+                } else {
+                    log.warn("APNs 전송 실패 token={}, status={}, apnsId={}, reason={}",
+                            masked, result.status(), result.apnsId(), result.reason());
 
-        return future;
+                    if (result.status() == 410) {
+                        DeviceTokenInvalidator invalidator = invalidatorProvider.getIfAvailable();
+                        if (invalidator != null) invalidator.invalidate(deviceToken, result.reason());
+                        else log.warn("DeviceTokenInvalidator 미구현: token={} reason={}", masked, result.reason());
+                    }
+                }
+
+                return result;
+
+            } catch (Exception e) {
+                log.error("APNs 전송 중 코드 레벨 오류 token={}", masked, e);
+                return APNsSendResponse.fail(-1, null, "Exception:" + e.getClass().getSimpleName());
+            }
+        });
     }
 
     private String extractReason(String body) {
@@ -106,7 +94,6 @@ public class APNsPushService {
             JsonNode reason = node.get("reason");
             return reason != null && !reason.isNull() ? reason.asText() : null;
         } catch (Exception ignore) {
-            // body가 JSON이 아닐 수도 있으니 원문 일부라도 남김
             return body.length() <= 200 ? body : body.substring(0, 200);
         }
     }

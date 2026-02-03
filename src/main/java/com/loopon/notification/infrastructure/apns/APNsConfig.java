@@ -1,14 +1,16 @@
 package com.loopon.notification.infrastructure.apns;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import javax.net.ssl.SSLException;
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 @Configuration
 public class APNsConfig {
@@ -17,19 +19,29 @@ public class APNsConfig {
     private String environment;
 
     @Bean
-    public WebClient apnsWebClient() throws SSLException {
-        //환경에 따라 APNs 서버 선택
+    public RestClient apnsRestClient() {
         String baseUrl = "sandbox".equalsIgnoreCase(environment)
                 ? "https://api.sandbox.push.apple.com"
                 : "https://api.push.apple.com";
 
-        return WebClient.builder()
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+
+        ClientHttpRequestFactory requestFactory =
+                new JdkClientHttpRequestFactory(httpClient);
+
+        return RestClient.builder()
                 .baseUrl(baseUrl)
+                .requestFactory(requestFactory)
                 .build();
     }
+
     @Bean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+        return JsonMapper.builder()
+                .findAndAddModules()
+                .build();
     }
-
 }
