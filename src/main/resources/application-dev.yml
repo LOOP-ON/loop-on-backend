@@ -1,10 +1,18 @@
 spring:
-  cloud:
-    aws:
-      region:
-        static: ${AWS_REGION}
-      s3:
-        bucket: ${S3_BUCKET}
-
   liquibase:
-    enabled: false  # 지금처럼 dev에서 끄는 게 안전 (원하면 나중에 다시 켜도 됨)
+    enabled: true
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_BUCKET}

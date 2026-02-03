@@ -32,7 +32,6 @@ public class ChallengeCommandService {
 
     private final S3Service s3Service;
 
-
     @Transactional
     public ChallengePostResponse postChallenge(
             ChallengePostCommand dto

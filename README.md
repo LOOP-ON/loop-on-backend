@@ -8,7 +8,7 @@
 
 ## 👥 팀 멤버
 
-| 항목 | 최승원 / 레이드 | 장예은 / 옌찌                                                  | 김경주 / 갱주                                                  | 박재호 / 조조                                                  | 박창현 / 조조                                                  |
+| 항목 | 최승원 / 레이드 | 장예은 / 옌찌                                                  | 김경주 / 갱주                                                  | 박재호 / 조조                                                  | 박창현 / 혀니                                                  |
 |------|----------------|-----------------------------------------------------------|-----------------------------------------------------------|-----------------------------------------------------------|-----------------------------------------------------------|
 | GitHub | [Seungwon-Choi](https://github.com/chltjsdl0119) | [jangyeeunee](https://github.com/jangyeeunee)                 | [StarvingOrange](https://github.com/starvingorange)                 | [joeeepark](https://github.com/joeeepark)                 | [shining-b-02](https://github.com/shining-b-02)                 |
 | 프로필 | <img src="https://github.com/chltjsdl0119.png" width="100"/> | <img src="https://github.com/jangyeeunee.png" width="100"/> | <img src="https://github.com/starvingorange.png" width="100"/> | <img src="https://github.com/joeeepark.png" width="100"/> | <img src="https://github.com/shining-b-02.png" width="100"/> |
