@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +16,9 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
     private static final String JWT_SCHEME_NAME = "JWT-Auth";
+
+    @Value("${loopon.server.url:https://api.loopon.cloud}")
+    private String serverUrl;
 
     @Bean
     public OpenAPI openAPI() {
@@ -85,8 +89,8 @@ public class SwaggerConfig {
 
     private List<Server> servers() {
         return List.of(
+                new Server().url(serverUrl).description("Loop:ON Prod Server (HTTPS)"),
                 new Server().url("http://localhost:8080").description("Local Server")
-                // TODO 배포 환경 등록
         );
     }
 

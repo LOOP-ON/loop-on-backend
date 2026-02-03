@@ -16,3 +16,7 @@ cloud:
       static: ${AWS_REGION}
     s3:
       bucket: ${AWS_BUCKET}
+
+loopon:
+  server:
+    url: https://api.loopon.cloud
