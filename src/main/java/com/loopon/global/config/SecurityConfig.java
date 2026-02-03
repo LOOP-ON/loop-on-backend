@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +27,7 @@ public class SecurityConfig {
 
     private final SecurityAuditLogger securityAuditLogger;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     private static final String[] PUBLIC_URLS = {
             "/",
@@ -39,7 +41,7 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/reissue",
             "/api/auth/logout",
-            "/api/auth/password/**",
+            "/api/auth/verification/**",
             "/api/auth/login/kakao"
     };
 
@@ -50,6 +52,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 // CSRF 보호 비활성화:
                 // 1. 세션 기반이 아닌, JWT 기반의 Stateless 인증을 사용함.
                 // 2. Access Token은 헤더(Authorization)에 담겨 전송되므로 브라우저 자동 전송에 의한 공격에서 안전함.
