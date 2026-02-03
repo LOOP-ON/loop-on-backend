@@ -15,8 +15,6 @@ import com.loopon.user.domain.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -34,16 +32,16 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     @Override
     public PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable) {
         if (query == null || query.trim().length() < 2) {
-            return PageResponse.of(Page.empty(pageable));
+            return PageResponse.from(Page.empty(pageable));
         }
         Page<User> newFriend = userRepository.searchByNickname(me, query, pageable);
-        return PageResponse.of(newFriend.map(FriendSearchResponse::from));
+        return PageResponse.from(newFriend.map(FriendSearchResponse::from));
     }
     @Override
     public PageResponse<FriendRequestReceivedResponse> getFriendRequests(Long me, Pageable pageable){
         Page<Friend> friendRequests =
                 friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(me, PENDING, pageable);
-        return PageResponse.of(friendRequests.map(FriendRequestReceivedResponse::from));
+        return PageResponse.from(friendRequests.map(FriendRequestReceivedResponse::from));
     }
     @Override
     public FriendRequestCreateResponse sendFriendRequest(Long me, Long receiverId){
