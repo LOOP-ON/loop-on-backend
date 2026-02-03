@@ -1,5 +1,6 @@
-package com.loopon.journey.domain;
+package com.loopon.Routine.domain;
 
+import com.loopon.journey.domain.ProgressStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Journey {
 
     @Id
@@ -41,4 +42,22 @@ public class Journey {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    private void prePersist() {
+        LocalDate today = LocalDate.now();
+
+        if (this.status == null) {
+            this.status = JourneyStatus.IN_PROGRESS;
+        }
+        if (this.startDate == null) {
+            this.startDate = today;
+        }
+        if (this.endDate == null) {
+            this.endDate = today.plusDays(3);
+        }
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
 }
