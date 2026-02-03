@@ -5,6 +5,7 @@ import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.challenge.infrastructure.jpa.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
@@ -91,5 +92,10 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public Boolean existsChallengeLikeByIdAndUserId(Long challengeId, Long userId) {
         return challengeLikeJpaRepository.existsByChallengeIdAndUserId(challengeId, userId);
+    }
+
+    @Override
+    public Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable) {
+        return challengeImageJpaRepository.findThumbnailsByUserId(userId, pageable);
     }
 }

@@ -1,17 +1,24 @@
 package com.loopon.user.presentation;
 
-import com.loopon.global.s3.S3Service;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.s3.S3Service;
+import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.UserQueryService;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
+import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.application.validator.ProfileImageValidator;
 import com.loopon.user.presentation.docs.UserApiDocs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,5 +64,15 @@ public class UserApiController implements UserApiDocs {
         profileImageValidator.validate(file);
         String imageUrl = s3Service.uploadFile(file);
         return ResponseEntity.ok(CommonResponse.onSuccess(imageUrl));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<CommonResponse<UserProfileResponse>> getUserProfile(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        UserProfileResponse response = userQueryService.getUserProfile(principalDetails.getUserId(), pageable);
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 }
