@@ -5,6 +5,7 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.notification.application.dto.request.DeviceTokenRequest;
 import com.loopon.notification.application.dto.response.DeviceTokenResponse;
 import com.loopon.notification.domain.service.DeviceTokenService;
+import com.loopon.notification.presentation.docs.DeviceTokenDocs;
 import com.loopon.notification.presentation.docs.NotificationDocs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/deviceToken")
-public class DeviceTokenController implements NotificationDocs {
+public class DeviceTokenController implements DeviceTokenDocs {
     private final DeviceTokenService deviceTokenService;
 
     @PostMapping()

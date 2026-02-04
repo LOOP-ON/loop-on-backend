@@ -4,12 +4,10 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.request.FriendRequestCreateRequest;
-import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.service.FriendRequestService;
 import com.loopon.user.presentation.docs.FriendRequestApiDocs;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -56,18 +54,31 @@ public class FriendRequestController implements FriendRequestApiDocs {
     }
 
     //내가 받은 친구 요청에 대해 수락/거절/차단 API
-    @PatchMapping("/respond")
-    public ResponseEntity<CommonResponse<FriendRequestRespondResponse>> friendRequestResponse(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody FriendRequestRespondRequest friendRequestRespondRequest) {
+    @PatchMapping("/{requesterId}/accept-one")
+    public ResponseEntity<CommonResponse<FriendRequestRespondResponse>> acceptOneFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long requesterId) {
         Long me = principalDetails.getUserId();
-        FriendRequestRespondResponse res = friendRequestService.respondOneFriendRequest(me, friendRequestRespondRequest);
+        FriendRequestRespondResponse res = friendRequestService.acceptOneFriendRequest(me, requesterId);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
 
-    @PatchMapping("/respond-all")
-    public ResponseEntity<CommonResponse<FriendRequestBulkRespondResponse>> friendRequestResponseAll(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam FriendStatus friendStatus) {
+    @PatchMapping("/accept-all")
+    public ResponseEntity<CommonResponse<FriendRequestBulkRespondResponse>> acceptAllFriendRequests(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long me = principalDetails.getUserId();
-        FriendRequestBulkRespondResponse res = friendRequestService.respondAllFriendRequests(me, friendStatus);
+        FriendRequestBulkRespondResponse res = friendRequestService.acceptAllFriendRequests(me);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
 
+    @DeleteMapping("/{requesterId}/delete-one")
+    public ResponseEntity<CommonResponse<Void>> deleteOneFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long requesterId) {
+        Long me = principalDetails.getUserId();
+        friendRequestService.deleteOneFriendRequest(me, requesterId);
+        return ResponseEntity.ok(CommonResponse.onSuccess());
+    }
+
+    @DeleteMapping("/delete-all")
+    public ResponseEntity<CommonResponse<FriendRequestBulkRespondResponse>> deleteAllFriendRequests(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long me = principalDetails.getUserId();
+        FriendRequestBulkRespondResponse res = friendRequestService.deleteAllFriendRequests(me);
+        return ResponseEntity.ok(CommonResponse.onSuccess(res));
+    }
 }

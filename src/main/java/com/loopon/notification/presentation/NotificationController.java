@@ -2,6 +2,7 @@ package com.loopon.notification.presentation;
 
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.notification.infrastructure.apns.APNsPushService;
+import com.loopon.notification.presentation.docs.NotificationDocs;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notification")
-public class NotificationController {
+public class NotificationController implements NotificationDocs {
     private final APNsPushService apnsPushService;
 
     @PostMapping("/send-push")

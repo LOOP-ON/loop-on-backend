@@ -22,7 +22,8 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 class NotificationSettingServiceImplTest {
 
-    @Mock NotificationSettingRepository notificationSettingRepository;
+    @Mock
+    NotificationSettingRepository notificationSettingRepository;
 
     private NotificationSettingServiceImpl sut() {
         return new NotificationSettingServiceImpl(notificationSettingRepository);
@@ -123,11 +124,9 @@ class NotificationSettingServiceImplTest {
         Long userId = 1L;
 
         NotificationSetting setting = mock(NotificationSetting.class);
-        given(setting.getUnfinishedGoalReminderTime()).willReturn(null);
 
         NotificationSettingPatchRequest req = mock(NotificationSettingPatchRequest.class);
         given(req.unfinishedGoalReminderEnabled()).willReturn(false);
-        given(req.unfinishedGoalReminderTime()).willReturn(null);
 
         given(notificationSettingRepository.findByUser_Id(userId))
                 .willReturn(Optional.of(setting));

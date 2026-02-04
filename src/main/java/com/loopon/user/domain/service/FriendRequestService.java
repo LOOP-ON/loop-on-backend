@@ -17,11 +17,13 @@ public interface FriendRequestService {
     //친구 요청 전송
     FriendRequestCreateResponse sendFriendRequest(Long me, Long receiverId);
 
-    //단일 친구 요청 관리
-    FriendRequestRespondResponse respondOneFriendRequest(Long me, FriendRequestRespondRequest friendRequestRespondRequest);
+    FriendRequestRespondResponse acceptOneFriendRequest(Long me, Long requesterId);
 
-    //일괄 친구 요청 관리
-    FriendRequestBulkRespondResponse respondAllFriendRequests(Long me, FriendStatus friendStatus);
+    FriendRequestBulkRespondResponse acceptAllFriendRequests(Long me);
+
+    void deleteOneFriendRequest(Long me, Long requesterId);
+
+    FriendRequestBulkRespondResponse deleteAllFriendRequests(Long me);
 
     Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus);
 }

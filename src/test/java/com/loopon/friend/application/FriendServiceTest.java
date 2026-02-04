@@ -46,40 +46,34 @@ class FriendServiceTest {
     }
 
     @Test
-    @DisplayName("친구 삭제: 내 친구 관계가 맞으면 deleteById를 호출한다")
+    @DisplayName("친구 삭제: 내 친구 관계가 맞으면 deleteByIdAndParticipant를 호출한다")
     void deleteFriend_deletes_whenRelationExists() {
-        // given
-        Long me = 1L;
-        Long friendRelationId = 10L; // Friend 엔티티의 id (친구 관계 row id)
-
-        given(friendRepository.existsByIdAndUserId(friendRelationId, me)).willReturn(true);
-
-        // when
-        assertDoesNotThrow(() -> friendService.deleteFriend(me, friendRelationId));
-
-        // then
-        then(friendRepository).should(times(1)).existsByIdAndUserId(friendRelationId, me);
-        then(friendRepository).should(times(1)).deleteById(friendRelationId);
-    }
-
-    @Test
-    @DisplayName("친구 삭제: 친구 관계가 없거나 권한이 없으면 예외를 던지고 deleteById를 호출하지 않는다")
-    void deleteFriend_throws_whenRelationNotExists() {
-        // given
         Long me = 1L;
         Long friendRelationId = 10L;
 
-        given(friendRepository.existsByIdAndUserId(friendRelationId, me)).willReturn(false);
+        given(friendRepository.deleteByIdAndParticipant(friendRelationId, me)).willReturn(1);
 
-        // when
+        assertDoesNotThrow(() -> friendService.deleteFriend(me, friendRelationId));
+
+        then(friendRepository).should(times(1)).deleteByIdAndParticipant(friendRelationId, me);
+        then(friendRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("친구 삭제: 친구 관계가 없거나 권한이 없으면 예외")
+    void deleteFriend_throws_whenRelationNotExists() {
+        Long me = 1L;
+        Long friendRelationId = 10L;
+
+        given(friendRepository.deleteByIdAndParticipant(friendRelationId, me)).willReturn(0);
+
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
                 () -> friendService.deleteFriend(me, friendRelationId)
         );
 
-        // then
         assertTrue(ex.getMessage().contains("삭제"));
-        then(friendRepository).should(times(1)).existsByIdAndUserId(friendRelationId, me);
-        then(friendRepository).should(never()).deleteById(anyLong());
+        then(friendRepository).should(times(1)).deleteByIdAndParticipant(friendRelationId, me);
+        then(friendRepository).shouldHaveNoMoreInteractions();
     }
 }

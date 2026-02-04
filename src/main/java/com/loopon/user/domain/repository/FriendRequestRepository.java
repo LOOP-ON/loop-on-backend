@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
 
-    Page<Friend> findByReceiverIdAndStatusOrderByUpdatedAtDesc(
+    Page<Friend> findByReceiver_IdAndStatusOrderByUpdatedAtDesc(
             Long me,
             FriendStatus status,
             Pageable pageable
@@ -52,6 +52,5 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
             @Param("status") FriendStatus status
     );
 
-    Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus);
-
+    List<Friend> findAllByReceiverIdAndStatus(Long receiverId, FriendStatus status);
 }

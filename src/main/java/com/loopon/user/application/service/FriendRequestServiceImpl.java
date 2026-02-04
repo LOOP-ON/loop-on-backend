@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.loopon.user.domain.FriendStatus.*;
@@ -34,6 +33,17 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private Friend getPendingRequestOrThrow(Long requesterId, Long me) {
+        Friend fr = friendRequestRepository
+                .findByRequesterIdAndReceiverIdAndStatus(requesterId, me, PENDING)
+                .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
+
+        if (!fr.getReceiver().getId().equals(me)) {
+            throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
+        }
+        return fr;
+    }
+
     @Override
     public PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable) {
         if (query == null || query.trim().length() < 2) {
@@ -46,7 +56,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     @Override
     public PageResponse<FriendRequestReceivedResponse> getFriendRequests(Long me, Pageable pageable) {
         Page<Friend> friendRequests =
-                friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(me, PENDING, pageable);
+                friendRequestRepository.findByReceiver_IdAndStatusOrderByUpdatedAtDesc(me, PENDING, pageable);
         return PageResponse.of(friendRequests.map(FriendRequestReceivedResponse::from));
     }
 
@@ -65,15 +75,15 @@ public class FriendRequestServiceImpl implements FriendRequestService {
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
         }
         //새로운 친구 요청 생성(로직 추가 필요)
-    User requester = userRepository.findById(me)
-            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-    User receiver = userRepository.findById(receiverId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User requester = userRepository.findById(me)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-    Friend friendRequest = Friend.request(requester, receiver);
-    //친구 요청 저장
-    Friend saved = friendRequestRepository.save(friendRequest);
-    //이벤트 발생
+        Friend friendRequest = Friend.request(requester, receiver);
+        //친구 요청 저장
+        Friend saved = friendRequestRepository.save(friendRequest);
+        //이벤트 발생
         applicationEventPublisher.publishEvent(
                 new FriendRequestCreatedEvent(saved.getId(), me, receiverId)
         );
@@ -82,60 +92,51 @@ public class FriendRequestServiceImpl implements FriendRequestService {
 
     @Override
     @Transactional
-    public FriendRequestRespondResponse respondOneFriendRequest(Long me, FriendRequestRespondRequest friendRequestRespondRequest) {
-        Friend friendRequest = friendRequestRepository
-                .findByRequesterIdAndReceiverIdAndStatus(friendRequestRespondRequest.requesterId(), me, PENDING)
-                .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
+    public FriendRequestRespondResponse acceptOneFriendRequest(Long me, Long requesterId) {
+        Friend friendRequest = getPendingRequestOrThrow(requesterId, me);
 
-        if (!friendRequest.getReceiver().getId().equals(me)) {
-            throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
-        }
-        FriendStatus requestedStatus = friendRequestRespondRequest.friendStatus();
-        if (requestedStatus == ACCEPTED) {
-            friendRequest.accept();
-        } else if (requestedStatus == REJECTED) {
-            friendRequest.reject();
-        } else {
-            throw new BusinessException(ErrorCode.FRIEND_REQUEST_INVALID_STATUS);
-        }
+        friendRequest.accept();
         Friend saved = friendRepository.save(friendRequest);
+
         return FriendRequestRespondResponse.from(saved);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteOneFriendRequest(Long me, Long requesterId) {
+        Friend friendRequest = getPendingRequestOrThrow(requesterId, me);
+
+        friendRequestRepository.delete(friendRequest);
     }
 
     @Override
     @Transactional
-    public FriendRequestBulkRespondResponse respondAllFriendRequests(Long me, FriendStatus friendStatus) {
-        List<Long> requesterIdList = friendRequestRepository.getAllRequesterIdByStatus(me, PENDING);
-        //요청이 비어있을 때
-        if (requesterIdList == null || requesterIdList.isEmpty()) {
-            return new FriendRequestBulkRespondResponse(0L);
-        }
-        //모두 수락/거절이 아닐때(형식 에러)
-        if (friendStatus != ACCEPTED && friendStatus != REJECTED) {
-            throw new BusinessException(ErrorCode.FRIEND_REQUEST_INVALID_STATUS);
-        }
-        List<Friend> toUpdate = new ArrayList<>();
-        for (Long requesterId : requesterIdList) {
-            Friend friendRequest = friendRequestRepository
-                    .findByRequesterIdAndReceiverIdAndStatus(requesterId, me, PENDING)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
-            if (!friendRequest.getReceiver().getId().equals(me)) {
-                throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
-            }
-            if (friendStatus == ACCEPTED) {
-                friendRequest.accept();
-            } else {
-                friendRequest.reject();
-            }
-            toUpdate.add(friendRequest);
-        }
-        //일괄 저장
-        List<Friend> saved = friendRepository.saveAll(toUpdate);
+    public FriendRequestBulkRespondResponse acceptAllFriendRequests(Long me) {
+        List<Friend> requests = friendRequestRepository.findAllByReceiverIdAndStatus(me, PENDING);
 
-        // Bulk 응답은 '처리된 요청 개수'만 반환
-        Long processedCount = (long) saved.size();
-        return new FriendRequestBulkRespondResponse(processedCount);
+        if (requests.isEmpty()) return new FriendRequestBulkRespondResponse(0L);
+
+        for (Friend fr : requests) {
+            fr.accept();
+        }
+
+        friendRepository.saveAll(requests);
+        return new FriendRequestBulkRespondResponse((long) requests.size());
     }
+
+
+    @Override
+    @Transactional
+    public FriendRequestBulkRespondResponse deleteAllFriendRequests(Long me) {
+        List<Friend> requests = friendRequestRepository.findAllByReceiverIdAndStatus(me, PENDING);
+
+        if (requests.isEmpty()) return new FriendRequestBulkRespondResponse(0L);
+
+        friendRequestRepository.deleteAllInBatch(requests);
+        return new FriendRequestBulkRespondResponse((long) requests.size());
+    }
+
 
     @Override
     public Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus) {

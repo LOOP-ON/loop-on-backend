@@ -22,11 +22,12 @@ public class FriendController implements FriendApiDocs {
 
     //내 친구 목록 조회 API
     @GetMapping
-    public ResponseEntity<CommonResponse<List<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails){
+    public ResponseEntity<CommonResponse<List<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long me = principalDetails.getUserId();
         List<FriendResponse> res = friendService.getMyFriends(me);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
+
     @DeleteMapping("/{friendId}")
     public ResponseEntity<CommonResponse<Void>> deleteFriend(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -34,6 +35,22 @@ public class FriendController implements FriendApiDocs {
     ) {
         Long me = principalDetails.getUserId();
         friendService.deleteFriend(me, friendId);
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+    }
+
+    @PutMapping("/{friendId}/block")
+    public ResponseEntity<CommonResponse<Void>> blockFriend(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId) {
+        Long me = principalDetails.getUserId();
+        friendService.blockFriend(me, friendId);
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+    }
+
+    @DeleteMapping("/{friendId}/block")
+    public ResponseEntity<CommonResponse<Void>> unblockFriend(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId) {
+        Long me = principalDetails.getUserId();
+        friendService.unblockFriend(me, friendId);
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -41,23 +42,35 @@ public interface FriendRequestApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<FriendRequestCreateResponse>> sendFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody FriendRequestCreateRequest friendRequestRespondRequest);
 
-    @Operation(summary = "친구 요청 수락/거절", description = "친구 요청 1개(수락/거절)를 처리합니다.")
+    @Operation(summary = "친구 1개 요청 수락", description = "친구 요청을 1개 수락합니다.")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<FriendRequestRespondResponse>> friendRequestResponse(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody FriendRequestRespondRequest friendRequestRespondRequest);
+    ResponseEntity<CommonResponse<FriendRequestRespondResponse>> acceptOneFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendRequestId);
 
-    @Operation(summary = "친구 요청 모두 수락/거절", description = "모든 친구 요청을 처리합니다.")
+    @Operation(summary = "친구 요청 모두 수락", description = "모든 친구 요청을 모두 수락합니다.")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<FriendRequestBulkRespondResponse>> friendRequestResponseAll(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestParam FriendStatus friendStatus);
+    ResponseEntity<CommonResponse<FriendRequestBulkRespondResponse>> acceptAllFriendRequests(@AuthenticationPrincipal PrincipalDetails principalDetails);
 
-    @Operation(summary = "수신한 친구 요청 개수 반환", description = "회원이 받은 친구 요청 개수를 반환하빈다.")
+    @Operation(summary = "친구 1개 요청 거절", description = "친구 요청을 1개 거절합니다.")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<Long>> getFriendRequestCount(@AuthenticationPrincipal PrincipalDetails principalDetails);
+    ResponseEntity<CommonResponse<Void>> deleteOneFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendRequestId);
+
+    @Operation(summary = "친구 요청 모두 거절", description = "모든 친구 요청을 모두 거절합니다.")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<FriendRequestBulkRespondResponse>> deleteAllFriendRequests(@AuthenticationPrincipal PrincipalDetails principalDetails);
+
+    @Operation(summary = "친구 요청 개수", description = "받은 친구 요청 개수를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    public ResponseEntity<CommonResponse<Long>> getFriendRequestCount(@AuthenticationPrincipal PrincipalDetails principalDetails);
 
 }
 

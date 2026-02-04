@@ -44,3 +44,6 @@ out/
 
 ### .env files ###
 **/.env
+
+# APNs keys
+src/main/resources/keys/

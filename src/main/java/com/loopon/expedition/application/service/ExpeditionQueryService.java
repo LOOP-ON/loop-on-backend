@@ -164,7 +164,6 @@ public class ExpeditionQueryService {
     }
 
 
-
     // ---------------------------- Helper Methods -------------------------------
 
     // 탐험대 카테고리 가져오기
@@ -174,7 +173,7 @@ public class ExpeditionQueryService {
         List<ExpeditionCategory> expeditionCategories = new ArrayList<>();
         ExpeditionCategory[] temp = ExpeditionCategory.values();
 
-        for (int i=0; i<3; i++) {
+        for (int i = 0; i < 3; i++) {
             if (commandDto.categories().get(i) == true) {
                 expeditionCategories.add(temp[i]);
             }
@@ -205,7 +204,7 @@ public class ExpeditionQueryService {
 
         int currentCount = 0;
 
-        for (ExpeditionUser expeditionUser : expeditionUserList){
+        for (ExpeditionUser expeditionUser : expeditionUserList) {
             if (expeditionUser.getStatus().equals(ExpeditionUserStatus.APPROVED)) {
                 currentCount++;
             }
@@ -215,7 +214,7 @@ public class ExpeditionQueryService {
     }
     // 유저의 친구들 Map{userId, FriendStatus}
 
-    private Map<Long, FriendStatus> getFriendsIds(Long userId){
+    private Map<Long, FriendStatus> getFriendsIds(Long userId) {
         List<Friend> friendList = friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.ACCEPTED);
         friendList.addAll(friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.PENDING));
 
@@ -226,14 +225,10 @@ public class ExpeditionQueryService {
 
         return friendIds;
     }
+
     // 유저의 친구목록에 id가 존재하는지
-
     private FriendStatus getFriendStatus(Map<Long, FriendStatus> friendIds, Long friendId) {
-        if (friendIds.containsKey(friendId)) {
-            return friendIds.get(friendId);
-        }
-
-        return FriendStatus.REJECTED;
+        return friendIds.get(friendId);
     }
 
 
