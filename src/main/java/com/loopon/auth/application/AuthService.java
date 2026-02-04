@@ -102,16 +102,18 @@ public class AuthService {
 
     private User registerSocialUser(SocialInfoResponse info, UserProvider provider) {
         String nickname = info.nickname();
+        if (nickname == null || nickname.isBlank()) {
+            nickname = "LOOP:ON_user";
+        }
+
         String tempNickname;
 
         do {
             String randomSuffix = UUID.randomUUID().toString().substring(0, 4);
 
-            if (nickname.length() > 25) {
-                nickname = nickname.substring(0, 25);
-            }
+            String safeName = nickname.length() > 10 ? nickname.substring(0, 10) : nickname;
 
-            tempNickname = nickname + "#" + randomSuffix;
+            tempNickname = String.format("%s#%s", safeName, randomSuffix);
 
         } while (userRepository.existsByNickname(tempNickname));
 
