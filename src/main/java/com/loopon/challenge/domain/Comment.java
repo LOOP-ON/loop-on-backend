@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,7 +33,6 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @BatchSize(size = 100)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,12 +46,22 @@ public class Comment {
     private Integer likeCount = 0;
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @CreatedDate
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    @LastModifiedDate
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public void updateLikeCount(Integer i) {
+        if (likeCount > 0) {
+            likeCount += i;
+        }
+    }
 }

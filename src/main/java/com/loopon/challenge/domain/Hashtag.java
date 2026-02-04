@@ -2,6 +2,7 @@ package com.loopon.challenge.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "hashtags")
@@ -9,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@BatchSize(size = 100)
 public class Hashtag {
 
     @Id

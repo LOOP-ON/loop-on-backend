@@ -62,8 +62,17 @@ public enum ErrorCode {
 
     // Challenge (챌린지, C-xxx)
     CHALLENGE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C001", "해당 여정은 이미 챌린지가 존재합니다."),
-    HASHTAG_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C002", "해당 여정은 이미 챌린지가 존재합니다."),
-    CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "C003", "챌린지를 찾을 수 없습니다."),
+    CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "C002", "챌린지를 찾을 수 없습니다."),
+    CHALLENGE_IMAGE_LIMIT(HttpStatus.BAD_REQUEST, "C003", "챌린지 이미지 개수 제한을 넘을 수 없습니다"),
+    CHALLENGE_HASHTAG_LIMIT(HttpStatus.BAD_REQUEST, "C004", "챌린지 해시태그 개수 제한을 넘을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C005", "댓글을 찾을 수 없습니다."),
+    NOT_COMMENT_WRITER(HttpStatus.FORBIDDEN, "C006", "해당 댓글 작성자가 아닙니다."),
+    NOT_CHALLENGE_WRITER(HttpStatus.FORBIDDEN, "C007", "해당 챌린지 작성자가 아닙니다."),
+    CHALLENGE_FORBIDDEN(HttpStatus.FORBIDDEN, "C008", "해당 챌린지를 조회할 수 없습니다."),
+
+    // S3 관련 에러
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C009", "사진 파일을 업로드하는데 실패했습니다."),
+    S3_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C010", "사진 파일을 삭제하는데 실패했습니다"),
 
     // 파일 업로드 관련 에러
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "업로드할 파일이 없습니다."),
@@ -71,9 +80,6 @@ public enum ErrorCode {
     INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "F004", "허용되지 않는 파일 형식입니다."),
     INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "F005", "유효하지 않은 파일 이름입니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F006", "허용되지 않는 파일 확장자입니다."),
-
-    // S3 관련 에러
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "파일을 업로드하는데 실패했습니다."),
 
     // Expedition (탐험대, E-xxx)
     EXPEDITION_ABOVE_LIMIT(HttpStatus.BAD_REQUEST, "E001", "탐험대 제한 개수를 초과했습니다."),

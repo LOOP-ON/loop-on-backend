@@ -3,6 +3,7 @@ package com.loopon.challenge.domain;
 import com.loopon.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class ChallengeLike {
 
     @Id
@@ -27,5 +29,7 @@ public class ChallengeLike {
     private Challenge challenge;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @CreatedDate
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
