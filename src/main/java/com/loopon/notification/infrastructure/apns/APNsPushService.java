@@ -52,12 +52,10 @@ public class APNsPushService {
                             int status = res.getStatusCode().value();
                             String apnsId = res.getHeaders().getFirst("apns-id");
 
-                            // 성공(일반적으로 200)
                             if (status >= 200 && status < 300) {
                                 return APNsSendResponse.ok(apnsId);
                             }
 
-                            // 실패: APNs는 보통 body에 {"reason": "..."}를 줌
                             String bodyStr = "";
                             if (res.getBody() != null) {
                                 bodyStr = StreamUtils.copyToString(res.getBody(), StandardCharsets.UTF_8);

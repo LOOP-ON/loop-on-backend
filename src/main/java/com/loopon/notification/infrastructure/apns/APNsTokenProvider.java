@@ -31,12 +31,10 @@ public class APNsTokenProvider {
 
     private PrivateKey privateKey;
 
-    // --- 캐시 ---
     private volatile String cachedToken;
     private volatile Instant cachedAt;
 
-    // APNs JWT는 보통 60분 내 재사용 권장
-    // 안전하게 55분 기준으로 갱신
+    //55분 기준으로 갱신
     private static final long REFRESH_AFTER_SECONDS = 55L * 60L;
 
     private final ReentrantLock refreshLock = new ReentrantLock();
