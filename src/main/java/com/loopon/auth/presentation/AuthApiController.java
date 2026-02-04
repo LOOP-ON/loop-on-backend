@@ -1,15 +1,14 @@
 package com.loopon.auth.presentation;
 
 import com.loopon.auth.application.AuthService;
-import com.loopon.auth.application.dto.request.SocialLoginRequest;
 import com.loopon.auth.application.dto.request.LoginRequest;
+import com.loopon.auth.application.dto.request.SocialLoginRequest;
 import com.loopon.auth.application.dto.response.AccessTokenResponse;
 import com.loopon.auth.application.dto.response.AuthResult;
 import com.loopon.auth.application.dto.response.LoginSuccessResponse;
 import com.loopon.auth.presentation.docs.AuthApiDocs;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.jwt.TokenCookieFactory;
-import com.loopon.user.domain.UserProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
