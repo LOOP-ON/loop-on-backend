@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Builder(toBuilder = true)
 public class Journey {
 
     @Id
@@ -59,5 +59,9 @@ public class Journey {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
+    }
+    
+    public void updateGoal(String newGoal) {
+        this.goal = newGoal;
     }
 }
