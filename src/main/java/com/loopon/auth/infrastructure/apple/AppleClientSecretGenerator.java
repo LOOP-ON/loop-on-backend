@@ -54,14 +54,13 @@ public class AppleClientSecretGenerator {
     }
 
     private PrivateKey getPrivateKey() {
-        try {
-            InputStreamReader reader = new InputStreamReader(privateKeyResource.getInputStream());
+        try (InputStreamReader reader = new InputStreamReader(privateKeyResource.getInputStream());
+             PEMParser pemParser = new PEMParser(reader)) {
 
-            try (PEMParser pemParser = new PEMParser(reader)) {
-                PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
-                JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-                return converter.getPrivateKey(privateKeyInfo);
-            }
+            PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            return converter.getPrivateKey(privateKeyInfo);
+
         } catch (IOException e) {
             log.error("Apple Private Key 로드 실패. 경로: {}", privateKeyResource, e);
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
