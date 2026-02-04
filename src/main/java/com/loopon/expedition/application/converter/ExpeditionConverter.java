@@ -2,6 +2,7 @@ package com.loopon.expedition.application.converter;
 
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.expedition.application.dto.command.*;
+import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
@@ -230,12 +231,32 @@ public class ExpeditionConverter {
     ) {
         return ExpeditionChallengesResponse.builder()
                 .challengeId(challenge.getId())
-                .journeyNumber(challenge.getJourney().getId().intValue()) // n번째 여정 필드 아직 없음.
+                .journeyNumber(challenge.getJourney().getJourneyOrder())
                 .imageUrls(imageUrls)
                 .content(challenge.getContent())
                 .hashtags(hashtags)
                 .createdAt(challenge.getCreatedAt())
                 .isLiked(isLiked)
+                .build();
+    }
+
+    public static ExpeditionCancelExpelCommand cancelExpelExpedition(
+            Long expeditionId,
+            ExpeditionCancelExpelRequest requestDto,
+            Long userId
+    ) {
+        return ExpeditionCancelExpelCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(requestDto.userId())
+                .myUserId(userId)
+                .build();
+    }
+
+    public static ExpeditionCancelExpelResponse cancelExpelExpedition(
+            Long userId
+    ){
+        return ExpeditionCancelExpelResponse.builder()
+                .userId(userId)
                 .build();
     }
 }

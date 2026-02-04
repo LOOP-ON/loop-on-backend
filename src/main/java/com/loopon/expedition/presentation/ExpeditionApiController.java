@@ -3,11 +3,13 @@ package com.loopon.expedition.presentation;
 import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.*;
 import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
+import com.loopon.expedition.application.dto.request.ExpeditionExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.application.service.ExpeditionCommandService;
 import com.loopon.expedition.application.service.ExpeditionQueryService;
+import com.loopon.expedition.presentation.docs.ExpeditionApiDocs;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import jakarta.validation.constraints.NotBlank;
@@ -24,7 +26,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class ExpeditionApiController {
+public class ExpeditionApiController implements ExpeditionApiDocs {
 
     private final ExpeditionQueryService expeditionQueryService;
     private final ExpeditionCommandService expeditionCommandService;
@@ -127,11 +129,11 @@ public class ExpeditionApiController {
     @PatchMapping("/api/expeditions/{expeditionId}/expel")
     public CommonResponse<ExpeditionExpelResponse> expelExpedition (
             @PathVariable Long expeditionId,
-            @RequestParam Long userId,
+            @RequestBody ExpeditionExpelRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         ExpeditionExpelCommand commandDto
-                = ExpeditionConverter.expelExpedition(expeditionId, userId, principalDetails.getUserId());
+                = ExpeditionConverter.expelExpedition(expeditionId, requestDto.userId(), principalDetails.getUserId());
 
         return CommonResponse.onSuccess(
                 expeditionCommandService.expelExpedition(commandDto)
