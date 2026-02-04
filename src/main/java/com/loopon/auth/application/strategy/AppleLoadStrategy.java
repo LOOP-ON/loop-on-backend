@@ -38,6 +38,11 @@ public class AppleLoadStrategy implements SocialLoadStrategy {
         Map<String, Object> claims = parseIdToken(tokenResponse.id_token());
 
         String socialId = (String) claims.get(SUBJECT);
+
+        if (socialId == null || socialId.isBlank()) {
+            throw new BusinessException(ErrorCode.SOCIAL_LOGIN_FAILED);
+        }
+
         String email = (String) claims.get(EMAIL);
 
         String nicknameCandidate = APPLE_USER_PREFIX;
