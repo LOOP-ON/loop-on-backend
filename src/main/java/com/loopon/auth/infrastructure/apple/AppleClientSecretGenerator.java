@@ -1,13 +1,16 @@
 package com.loopon.auth.infrastructure.apple;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +19,7 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AppleClientSecretGenerator {
     @Value("${apple.team-id}")
     private String teamId;
@@ -27,7 +31,7 @@ public class AppleClientSecretGenerator {
     private String clientId;
 
     @Value("${apple.key-path}")
-    private String keyPath;
+    private Resource privateKeyResource;
 
     @Value("${apple.url}")
     private String url;
@@ -51,8 +55,7 @@ public class AppleClientSecretGenerator {
 
     private PrivateKey getPrivateKey() {
         try {
-            ClassPathResource resource = new ClassPathResource(keyPath);
-            InputStreamReader reader = new InputStreamReader(resource.getInputStream());
+            InputStreamReader reader = new InputStreamReader(privateKeyResource.getInputStream());
 
             try (PEMParser pemParser = new PEMParser(reader)) {
                 PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
@@ -60,7 +63,8 @@ public class AppleClientSecretGenerator {
                 return converter.getPrivateKey(privateKeyInfo);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Apple Private Key 로드 실패", e);
+            log.error("Apple Private Key 로드 실패. 경로: {}", privateKeyResource, e);
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -89,5 +89,5 @@ apple:
   team-id: ${APPLE_TEAM_ID}
   key-id: ${APPLE_KEY_ID}
   client-id: ${APPLE_CLIENT_ID}
-  key-path: apple/AuthKey_${APPLE_KEY_ID}.p8
+  key-path: classpath:apple/AuthKey_${APPLE_KEY_ID}.p8
   url: https://appleid.apple.com
