@@ -32,4 +32,29 @@ private final JourneyCommandService journeyCommandService;
 
         return ResponseEntity.ok(CommonResponse.onSuccess(journeyId));
     }
+
+    //여정 미루기 API
+    @PostMapping("/{journeyId}/routines/{routineId}/postpone")
+    @Override
+    public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
+            @PathVariable Long journeyId,
+            @PathVariable Long routineId,
+            @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        Long userId = principalDetails.getUserId();
+
+        JourneyCommand.PostponeRoutineCommand command =
+                new JourneyCommand.PostponeRoutineCommand(
+                        userId,
+                        journeyId,
+                        routineId,
+                        reqBody.reason()
+                );
+
+        JourneyResponse.PostponeRoutineDto response =
+                journeyCommandService.postponeRoutine(command);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
 }

@@ -11,4 +11,7 @@ public interface JourneyCommandService {
     JourneyResponse.PostJourneyGoalDto postJourneyGoal(
             JourneyCommand.AddJourneyGoalCommand command
     );
+
+    @Transactional
+    JourneyResponse.PostponeRoutineDto postponeRoutine(JourneyCommand.PostponeRoutineCommand command);
 }
