@@ -86,8 +86,11 @@ public class ExpeditionCommandService {
     public ExpeditionWithdrawResponse withdrawExpedition(
             ExpeditionWithdrawCommand commandDto
     ) {
-         ExpeditionUser expeditionUser =
-                 expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
+
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+
+        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
                          .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionRepository.deleteExpeditionUser(expeditionUser);
@@ -161,6 +164,21 @@ public class ExpeditionCommandService {
         return ExpeditionConverter.cancelExpelExpedition(expeditionUser.getId());
     }
 
+    @Transactional
+    public ExpeditionModifyResponse modifyExpedition(
+            ExpeditionModifyCommand dto
+    ) {
+        Expedition expedition = expeditionRepository.findById(dto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+        User user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        checkAdmin(user, expedition);
+
+        expedition.modify(dto.title(), dto.visibility(), dto.password());
+
+        return ExpeditionConverter.modifyExpedition(expedition.getId());
+    }
 
     // -------------------------- helper methods-------------------------------
 
@@ -217,6 +235,5 @@ public class ExpeditionCommandService {
             throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
         }
     }
-
 
 }

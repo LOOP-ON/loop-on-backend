@@ -2,10 +2,7 @@ package com.loopon.expedition.presentation;
 
 import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.*;
-import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
-import com.loopon.expedition.application.dto.request.ExpeditionExpelRequest;
-import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
-import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
+import com.loopon.expedition.application.dto.request.*;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.application.service.ExpeditionCommandService;
 import com.loopon.expedition.application.service.ExpeditionQueryService;
@@ -30,11 +27,11 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @GetMapping("/api/expeditions")
-    public CommonResponse<ExpeditionGetResponseList> getExpeditions (
+    public CommonResponse<ExpeditionGetResponseList> getExpeditionList(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         return CommonResponse.onSuccess(
-                expeditionQueryService.getExpeditions(principalDetails.getUserId())
+                expeditionQueryService.getExpeditionList(principalDetails.getUserId())
         );
     }
 
@@ -171,6 +168,35 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
         return CommonResponse.onSuccess(
                 expeditionCommandService.cancelExpelExpedition(commandDto)
+        );
+    }
+
+    @Override
+    @GetMapping("/api/expeditions/{expeditionId}")
+    public CommonResponse<ExpeditionGetResponse> getExpedition(
+            @PathVariable Long expeditionId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        ExpeditionGetCommand commandDto
+                = ExpeditionConverter.getExpedition(expeditionId, principalDetails.getUserId());
+
+        return CommonResponse.onSuccess(
+                expeditionQueryService.getExpedition(commandDto)
+        );
+    }
+
+    @Override
+    @PatchMapping("/api/expeditions/{expeditionId}")
+    public CommonResponse<ExpeditionModifyResponse> modifyExpedition(
+            @PathVariable Long expeditionId,
+            @RequestBody ExpeditionModifyRequest requestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        ExpeditionModifyCommand commandDto
+                = ExpeditionConverter.modifyExpedition(expeditionId, requestDto, principalDetails.getUserId());
+
+        return CommonResponse.onSuccess(
+                expeditionCommandService.modifyExpedition(commandDto)
         );
     }
 }

@@ -4,6 +4,7 @@ import com.loopon.challenge.domain.Challenge;
 import com.loopon.expedition.application.dto.command.*;
 import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
+import com.loopon.expedition.application.dto.request.ExpeditionModifyRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
@@ -13,16 +14,14 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-import static com.loopon.expedition.application.dto.response.ExpeditionGetResponseList.*;
-
 public class ExpeditionConverter {
 
-    public static ExpeditionGetResponse getExpeditions(
+    public static ExpeditionGetResponseList.ExpeditionGetResponse getExpeditions(
             Expedition expedition,
             String adminName,
             Integer currentMembers
     ) {
-        return ExpeditionGetResponse.builder()
+        return ExpeditionGetResponseList.ExpeditionGetResponse.builder()
                 .expeditionId(expedition.getId())
                 .title(expedition.getTitle())
                 .category(expedition.getCategory())
@@ -34,7 +33,7 @@ public class ExpeditionConverter {
     }
 
     public static ExpeditionGetResponseList getExpeditionList(
-            List<ExpeditionGetResponse> responseList
+            List<ExpeditionGetResponseList.ExpeditionGetResponse> responseList
     ) {
         return ExpeditionGetResponseList.builder()
                 .expeditionGetResponses(responseList)
@@ -257,6 +256,49 @@ public class ExpeditionConverter {
     ){
         return ExpeditionCancelExpelResponse.builder()
                 .userId(userId)
+                .build();
+    }
+
+    public static ExpeditionGetCommand getExpedition(
+            Long expeditionId,
+            Long userId
+    ) {
+        return ExpeditionGetCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(userId)
+                .build();
+    }
+
+    public static ExpeditionGetResponse getExpedition(
+            Expedition expedition
+    ) {
+        return ExpeditionGetResponse.builder()
+                .title(expedition.getTitle())
+                .currentUsers(expedition.getCurrentUsers())
+                .visibility(expedition.getVisibility())
+                .password(expedition.getPassword())
+                .build();
+    }
+
+    public static ExpeditionModifyCommand modifyExpedition(
+            Long expeditionId,
+            ExpeditionModifyRequest dto,
+            Long userId
+    ) {
+        return ExpeditionModifyCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(userId)
+                .title(dto.title())
+                .visibility(dto.visibility())
+                .password(dto.password())
+                .build();
+    }
+
+    public static ExpeditionModifyResponse modifyExpedition(
+            Long expeditionId
+    ) {
+        return ExpeditionModifyResponse.builder()
+                .expeditionId(expeditionId)
                 .build();
     }
 }

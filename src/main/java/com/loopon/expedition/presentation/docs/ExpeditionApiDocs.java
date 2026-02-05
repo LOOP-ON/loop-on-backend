@@ -1,9 +1,6 @@
 package com.loopon.expedition.presentation.docs;
 
-import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
-import com.loopon.expedition.application.dto.request.ExpeditionExpelRequest;
-import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
-import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
+import com.loopon.expedition.application.dto.request.*;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
@@ -26,7 +23,7 @@ import java.util.List;
 public interface ExpeditionApiDocs {
 
     @Operation(summary = "내 탐험대 목록 조회", description = "내가 참여 중인 모든 탐험대 리스트를 조회합니다.")
-    CommonResponse<ExpeditionGetResponseList> getExpeditions(
+    CommonResponse<ExpeditionGetResponseList> getExpeditionList(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
@@ -94,6 +91,19 @@ public interface ExpeditionApiDocs {
     CommonResponse<ExpeditionCancelExpelResponse> cancelExpelExpedition(
             @Parameter(description = "탐험대 ID") @PathVariable("expeditionId") Long expeditionId,
             @RequestBody ExpeditionCancelExpelRequest requestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    @Operation(summary = "탐험대 설정 조회", description = "탐험대 설정을 조회합니다.")
+    CommonResponse<ExpeditionGetResponse> getExpedition(
+            @Parameter(description = "탐험대 ID") @PathVariable("expeditionId") Long expeditionId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    @Operation(summary = "탐험대 설정 수정", description = "탐험대 설정을 수정합니다.")
+    CommonResponse<ExpeditionModifyResponse> modifyExpedition(
+            @Parameter(description = "탐험대 ID") @PathVariable("expeditionId") Long expeditionId,
+            @RequestBody ExpeditionModifyRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 }

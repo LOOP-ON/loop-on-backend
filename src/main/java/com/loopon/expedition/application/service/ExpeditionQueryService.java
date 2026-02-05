@@ -6,6 +6,7 @@ import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionGetCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
 import com.loopon.expedition.application.dto.response.*;
@@ -38,7 +39,7 @@ public class ExpeditionQueryService {
     private final ChallengeRepository challengeRepository;
 
     @Transactional(readOnly = true)
-    public ExpeditionGetResponseList getExpeditions(Long userId) {
+    public ExpeditionGetResponseList getExpeditionList(Long userId) {
 
         List<Expedition> expeditions = expeditionRepository.findApprovedExpeditionsByUserId(userId);
 
@@ -163,6 +164,21 @@ public class ExpeditionQueryService {
     }
 
 
+    @Transactional(readOnly = true)
+    public ExpeditionGetResponse getExpedition(
+            ExpeditionGetCommand commandDto
+    ) {
+
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+        User user = userRepository.findById(commandDto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        checkAdmin(user, expedition);
+
+        return ExpeditionConverter.getExpedition(expedition);
+    }
+
     // ---------------------------- Helper Methods -------------------------------
 
 
@@ -172,7 +188,7 @@ public class ExpeditionQueryService {
         List<ExpeditionCategory> expeditionCategories = new ArrayList<>();
         ExpeditionCategory[] temp = ExpeditionCategory.values();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i=0; i<3; i++) {
             if (commandDto.categories().get(i) == true) {
                 expeditionCategories.add(temp[i]);
             }
@@ -203,7 +219,7 @@ public class ExpeditionQueryService {
 
         int currentCount = 0;
 
-        for (ExpeditionUser expeditionUser : expeditionUserList) {
+        for (ExpeditionUser expeditionUser : expeditionUserList){
             if (expeditionUser.getStatus().equals(ExpeditionUserStatus.APPROVED)) {
                 currentCount++;
             }
@@ -227,7 +243,6 @@ public class ExpeditionQueryService {
 
     // 유저의 친구목록에 id가 존재하는지
     private FriendStatus getFriendStatus(Map<Long, FriendStatus> friendIds, Long friendId) {
-
         if (friendIds.containsKey(friendId)) {
             return friendIds.get(friendId);
         }

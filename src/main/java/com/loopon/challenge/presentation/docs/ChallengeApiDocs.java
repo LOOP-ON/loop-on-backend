@@ -7,7 +7,6 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,7 +112,7 @@ public interface ChallengeApiDocs {
             PrincipalDetails principalDetails
     );
 
-    @Operation(summary = "챌린지 홈 피드 조회. 트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
+    @Operation(summary = "여정광장 챌린지 조회.", description = "트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
     CommonResponse<ChallengeCombinedViewResponse> viewChallenge(
             PrincipalDetails principalDetails,
             @PageableDefault @Qualifier("trending") Pageable trendingPageable,
