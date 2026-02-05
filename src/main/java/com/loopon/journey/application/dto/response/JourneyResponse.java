@@ -1,5 +1,6 @@
 package com.loopon.journey.application.dto.response;
 
+import com.loopon.journey.domain.JourneyCategory;
 import com.loopon.journey.domain.ProgressStatus;
 import lombok.Builder;
 
@@ -28,6 +29,7 @@ public class JourneyResponse {
     //여정 기본 정보
     public record JourneyInfoDto(
             Long journeyId,
+            JourneyCategory journeyCategory,
             String goal
     ) {}
 

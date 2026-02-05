@@ -85,6 +85,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         return new JourneyResponse.CurrentJourneyDto(
                 new JourneyResponse.JourneyInfoDto(
                         journey.getId(),
+                        journey.getCategory(),
                         journey.getGoal()
                 ),
                 new JourneyResponse.TodayProgressDto(
