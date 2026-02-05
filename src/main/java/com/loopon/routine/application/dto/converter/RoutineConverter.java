@@ -1,10 +1,9 @@
-package com.loopon.Routine.application.dto.converter;
+package com.loopon.routine.application.dto.converter;
 
-import com.loopon.Routine.application.dto.request.RoutineRequest;
-import com.loopon.Routine.application.dto.response.RoutineResponse;
-import com.loopon.Routine.domain.Routine;
+import com.loopon.routine.application.dto.request.RoutineRequest;
+import com.loopon.routine.application.dto.response.RoutineResponse;
+import com.loopon.routine.domain.Routine;
 import com.loopon.journey.domain.Journey;
-import com.loopon.user.domain.User;
 
 import java.time.LocalTime;
 import java.util.List;

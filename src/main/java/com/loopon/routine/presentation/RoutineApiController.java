@@ -1,9 +1,9 @@
-package com.loopon.Routine.presentation;
+package com.loopon.routine.presentation;
 
-import com.loopon.Routine.application.dto.request.RoutineRequest;
-import com.loopon.Routine.application.dto.response.RoutineResponse;
-import com.loopon.Routine.domain.service.RoutineCommandService;
-import com.loopon.Routine.presentation.docs.RoutineApiDocs;
+import com.loopon.routine.application.dto.request.RoutineRequest;
+import com.loopon.routine.application.dto.response.RoutineResponse;
+import com.loopon.routine.domain.service.RoutineCommandService;
+import com.loopon.routine.presentation.docs.RoutineApiDocs;
 import com.loopon.global.domain.dto.CommonResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
-package com.loopon.Routine.domain.service;
+package com.loopon.routine.domain.service;
 
-import com.loopon.Routine.application.dto.request.RoutineRequest;
-import com.loopon.Routine.application.dto.response.RoutineResponse;
+import com.loopon.routine.application.dto.request.RoutineRequest;
+import com.loopon.routine.application.dto.response.RoutineResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface RoutineCommandService {

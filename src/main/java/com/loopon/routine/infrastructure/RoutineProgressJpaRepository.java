@@ -1,7 +1,7 @@
-package com.loopon.Routine.infrastructure;
+package com.loopon.routine.infrastructure;
 
-import com.loopon.Routine.domain.Routine;
-import com.loopon.Routine.domain.RoutineProgress;
+import com.loopon.routine.domain.Routine;
+import com.loopon.routine.domain.RoutineProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

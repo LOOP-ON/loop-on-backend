@@ -1,6 +1,5 @@
-package com.loopon.Routine.application.dto.response;
+package com.loopon.routine.application.dto.response;
 
-import com.loopon.Routine.domain.Routine;
 import lombok.Builder;
 
 import java.time.LocalTime;

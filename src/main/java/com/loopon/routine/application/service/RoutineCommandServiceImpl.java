@@ -1,11 +1,11 @@
-package com.loopon.Routine.application.service;
+package com.loopon.routine.application.service;
 
-import com.loopon.Routine.application.dto.converter.RoutineConverter;
-import com.loopon.Routine.application.dto.request.RoutineRequest;
-import com.loopon.Routine.application.dto.response.RoutineResponse;
-import com.loopon.Routine.domain.Routine;
-import com.loopon.Routine.domain.service.RoutineCommandService;
-import com.loopon.Routine.infrastructure.RoutineJpaRepository;
+import com.loopon.routine.application.dto.converter.RoutineConverter;
+import com.loopon.routine.application.dto.request.RoutineRequest;
+import com.loopon.routine.application.dto.response.RoutineResponse;
+import com.loopon.routine.domain.Routine;
+import com.loopon.routine.domain.service.RoutineCommandService;
+import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import lombok.RequiredArgsConstructor;

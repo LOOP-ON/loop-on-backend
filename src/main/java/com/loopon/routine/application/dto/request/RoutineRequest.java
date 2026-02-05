@@ -1,8 +1,6 @@
-package com.loopon.Routine.application.dto.request;
+package com.loopon.routine.application.dto.request;
 
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 
 public class RoutineRequest {
 

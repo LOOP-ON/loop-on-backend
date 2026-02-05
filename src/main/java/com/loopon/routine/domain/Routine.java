@@ -1,4 +1,4 @@
-package com.loopon.Routine.domain;
+package com.loopon.routine.domain;
 
 import com.loopon.journey.domain.Journey;
 import jakarta.persistence.*;

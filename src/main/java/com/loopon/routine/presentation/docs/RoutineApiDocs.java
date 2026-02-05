@@ -1,7 +1,7 @@
-package com.loopon.Routine.presentation.docs;
+package com.loopon.routine.presentation.docs;
 
-import com.loopon.Routine.application.dto.request.RoutineRequest;
-import com.loopon.Routine.application.dto.response.RoutineResponse;
+import com.loopon.routine.application.dto.request.RoutineRequest;
+import com.loopon.routine.application.dto.response.RoutineResponse;
 import com.loopon.global.docs.error.errors.CommonBadRequestResponseDocs;
 import com.loopon.global.docs.error.errors.CommonInternalServerErrorResponseDocs;
 import com.loopon.global.domain.dto.CommonResponse;

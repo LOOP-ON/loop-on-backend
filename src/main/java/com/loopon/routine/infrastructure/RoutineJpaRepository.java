@@ -1,6 +1,6 @@
-package com.loopon.Routine.infrastructure;
+package com.loopon.routine.infrastructure;
 
-import com.loopon.Routine.domain.Routine;
+import com.loopon.routine.domain.Routine;
 import com.loopon.journey.domain.Journey;
 import org.springframework.data.jpa.repository.JpaRepository;
 
