@@ -29,7 +29,7 @@ public class APNsPushService {
     private final APNsTokenProvider tokenProvider;
     private final ObjectMapper objectMapper;
     private final ObjectProvider<DeviceTokenInvalidator> invalidatorProvider;
-    @Value("${apns.topic}")
+    @Value("${apple.client-id}")
     private String topic;
 
     public CompletableFuture<APNsSendResponse> send(String deviceToken, String title, String body, Map<String, String> data) {

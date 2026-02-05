@@ -6,7 +6,7 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 
@@ -20,14 +20,14 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class APNsTokenProvider {
 
-    @Value("${apns.team-id}")
+    @Value("${apple.team-id}")
     private String teamId;
 
-    @Value("${apns.key-id}")
+    @Value("${apple.key-id}")
     private String keyId;
 
-    @Value("${apns.p8-path}")
-    private String p8Path;
+    @Value("${apple.key-path}")
+    private Resource p8Resource;
 
     private PrivateKey privateKey;
 
@@ -41,13 +41,24 @@ public class APNsTokenProvider {
 
     @PostConstruct
     public void init() throws IOException {
-        ClassPathResource resource = new ClassPathResource(p8Path);
+        try (PEMParser pemParser =
+                     new PEMParser(new InputStreamReader(p8Resource.getInputStream()))) {
 
-        try (PEMParser pemParser = new PEMParser(new InputStreamReader(resource.getInputStream()))) {
-            PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
+            Object obj = pemParser.readObject();
+
+            PrivateKeyInfo privateKeyInfo;
+            if (obj instanceof PrivateKeyInfo pki) {
+                privateKeyInfo = pki;
+            } else if (obj instanceof org.bouncycastle.openssl.PEMKeyPair kp) {
+                privateKeyInfo = kp.getPrivateKeyInfo();
+            } else {
+                throw new IllegalStateException("Unsupported PEM object: " + (obj == null ? "null" : obj.getClass()));
+            }
+
             this.privateKey = new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
         }
     }
+
 
     public String getToken() {
         //캐시가 있고 아직 갱신 필요 없으면 그대로 반환
