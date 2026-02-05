@@ -26,6 +26,11 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi allApi() {
+        return createGroup("All API", "/**");
+    }
+
+    @Bean
     public GroupedOpenApi userApi() {
         return createGroup("1. 사용자(User)", "/api/users/**");
     }
@@ -42,12 +47,12 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi friendApi() {
-        return createGroup("4. 친구(Friend)", "/api/friend/**" );
+        return createGroup("4. 친구(Friend)", "/api/friend/**");
     }
 
     @Bean
     public GroupedOpenApi friendRequestApi() {
-        return createGroup("5. 친구요청(FriendRequest)", "/api/friend-request/**" );
+        return createGroup("5. 친구요청(FriendRequest)", "/api/friend-request/**");
     }
 
     @Bean
@@ -58,11 +63,6 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi routineApi() {
         return createGroup("7. 루틴(Routine)", "/api/routines/**");
-    }
-
-    @Bean
-    public GroupedOpenApi allApi() {
-        return createGroup("All API", "/**");
     }
 
     private Info apiInfo() {
