@@ -22,20 +22,35 @@ public class FriendController implements FriendApiDocs {
 
     //내 친구 목록 조회 API
     @GetMapping
-    @Operation(summary= "친구 목록 조회", description = "친구 목록을 가져옵니다.")
-    public ResponseEntity<CommonResponse<List<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails){
+    public ResponseEntity<CommonResponse<List<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long me = principalDetails.getUserId();
         List<FriendResponse> res = friendService.getMyFriends(me);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
+
     @DeleteMapping("/{friendId}")
-    @Operation(summary = "친구 삭제", description = "친구 목록에서 친구를 삭제합니다.")
     public ResponseEntity<CommonResponse<Void>> deleteFriend(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long friendId
     ) {
         Long me = principalDetails.getUserId();
         friendService.deleteFriend(me, friendId);
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+    }
+
+    @PutMapping("/{friendId}/block")
+    public ResponseEntity<CommonResponse<Void>> blockFriend(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId) {
+        Long me = principalDetails.getUserId();
+        friendService.blockFriend(me, friendId);
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+    }
+
+    @DeleteMapping("/{friendId}/block")
+    public ResponseEntity<CommonResponse<Void>> unblockFriend(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId) {
+        Long me = principalDetails.getUserId();
+        friendService.unblockFriend(me, friendId);
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 }

@@ -66,10 +66,4 @@ public class Friend {
         }
         this.status = FriendStatus.ACCEPTED;
     }
-    public void reject() {
-        if (this.status != FriendStatus.PENDING) {
-            throw new IllegalStateException("Only PENDING request can be rejected.");
-        }
-        this.status = FriendStatus.REJECTED;
-    }
 }

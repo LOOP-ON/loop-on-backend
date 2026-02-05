@@ -10,12 +10,20 @@ import org.springframework.data.domain.Pageable;
 public interface FriendRequestService {
     //요청을 보낼 친구 검색
     PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable);
+
     //받은 친구 요청 목록 조회
     PageResponse<FriendRequestReceivedResponse> getFriendRequests(Long me, Pageable pageable);
+
     //친구 요청 전송
     FriendRequestCreateResponse sendFriendRequest(Long me, Long receiverId);
-    //단일 친구 요청 관리
-    FriendRequestRespondResponse respondOneFriendRequest(Long me, FriendRequestRespondRequest friendRequestRespondRequest);
-    //일괄 친구 요청 관리
-    FriendRequestBulkRespondResponse respondAllFriendRequests(Long me, FriendStatus friendStatus);
+
+    FriendRequestRespondResponse acceptOneFriendRequest(Long me, Long requesterId);
+
+    FriendRequestBulkRespondResponse acceptAllFriendRequests(Long me);
+
+    void deleteOneFriendRequest(Long me, Long requesterId);
+
+    FriendRequestBulkRespondResponse deleteAllFriendRequests(Long me);
+
+    Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus);
 }

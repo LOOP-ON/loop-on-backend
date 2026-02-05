@@ -23,5 +23,6 @@ public interface UserRepository {
 
     Optional<User> findBySocialIdAndProvider(String id, UserProvider provider);
 
+
     Optional<User> findByNickname(String nickname);
 }

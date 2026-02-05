@@ -163,7 +163,6 @@ public class ExpeditionQueryService {
     }
 
 
-
     // ---------------------------- Helper Methods -------------------------------
 
 
@@ -173,7 +172,7 @@ public class ExpeditionQueryService {
         List<ExpeditionCategory> expeditionCategories = new ArrayList<>();
         ExpeditionCategory[] temp = ExpeditionCategory.values();
 
-        for (int i=0; i<3; i++) {
+        for (int i = 0; i < 3; i++) {
             if (commandDto.categories().get(i) == true) {
                 expeditionCategories.add(temp[i]);
             }
@@ -204,7 +203,7 @@ public class ExpeditionQueryService {
 
         int currentCount = 0;
 
-        for (ExpeditionUser expeditionUser : expeditionUserList){
+        for (ExpeditionUser expeditionUser : expeditionUserList) {
             if (expeditionUser.getStatus().equals(ExpeditionUserStatus.APPROVED)) {
                 currentCount++;
             }
@@ -228,6 +227,7 @@ public class ExpeditionQueryService {
 
     // 유저의 친구목록에 id가 존재하는지
     private FriendStatus getFriendStatus(Map<Long, FriendStatus> friendIds, Long friendId) {
+
         if (friendIds.containsKey(friendId)) {
             return friendIds.get(friendId);
         }

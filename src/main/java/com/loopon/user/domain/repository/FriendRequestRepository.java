@@ -14,17 +14,12 @@ import java.util.Optional;
 
 public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
 
-    Page<Friend> findByReceiverIdAndStatusOrderByUpdatedAtDesc(
+    Page<Friend> findByReceiver_IdAndStatusOrderByUpdatedAtDesc(
             Long me,
             FriendStatus status,
             Pageable pageable
     );
 
-    boolean existsByStatusAndRequesterIdAndReceiverId(
-            FriendStatus status,
-            Long requesterId,
-            Long receiverId
-    );
 
     @EntityGraph(attributePaths = {"receiver", "requester"})
     Optional<Friend> findByRequesterIdAndReceiverIdAndStatus(
@@ -56,4 +51,6 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
             @Param("userId2") Long userId2,
             @Param("status") FriendStatus status
     );
+
+    List<Friend> findAllByReceiverIdAndStatus(Long receiverId, FriendStatus status);
 }

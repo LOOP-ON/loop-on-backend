@@ -92,9 +92,14 @@ public enum ErrorCode {
     EXPEDITION_EXPELLED(HttpStatus.BAD_REQUEST, "E004", "해당 탐험대에서 퇴출되어서 재가입에 실패했습니다."),
     EXPEDITION_USER_ABOVE_LIMIT(HttpStatus.BAD_REQUEST, "E005", "해당 탐험대의 사용자 수 제한을 초과했습니다."),
     EXPEDITION_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "해당 탐험대에 등록되어있지 않습니다."),
-    NOT_ADMIN_USER(HttpStatus.BAD_REQUEST, "E007", "탐험대 방장이 아니라 권한이 없습니다.");
+    NOT_ADMIN_USER(HttpStatus.BAD_REQUEST, "E007", "탐험대 방장이 아니라 권한이 없습니다."),
 
+    //디바이스 토큰 관련 에러
+    DEVICE_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "해당 디바이스 토큰을 찾을 수 없습니다."),
 
+    //설정-알림
+    NOTIFICATION_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "유저에 해당하는 알림 설정 목록을 찾을 수 없습니다."),
+    INVALID_REMINDER_TIME(HttpStatus.NO_CONTENT, "S002", "미완료 리만인더의 시간을 설정해주세요.");
     private final HttpStatus status;
     private final String code;
     private final String message;
