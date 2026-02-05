@@ -37,4 +37,9 @@ public class RoutineProgress {
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    public void postpone(String reason) {
+        this.status = ProgressStatus.POSTPONED;
+        this.postponedReason = reason;
+    }
 }
