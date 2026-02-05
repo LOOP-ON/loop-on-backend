@@ -85,9 +85,9 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 
-apns:
-  environment: sandbox
-  team-id: ${APNS_TEAM_ID}
-  key-id: ${APNS_KEY_ID}
-  p8-path: ${APNS_P8_PATH}
-  topic: ${APNS_BUNDLE_ID}
+apple:
+  team-id: ${APPLE_TEAM_ID}
+  key-id: ${APPLE_KEY_ID}
+  client-id: ${APPLE_CLIENT_ID}
+  key-path: classpath:apple/AuthKey_${APPLE_KEY_ID}.p8
+  url: https://appleid.apple.com

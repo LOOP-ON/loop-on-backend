@@ -51,6 +51,16 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi journeyApi() {
+        return createGroup("6. 여정(Journey)", "/api/journeys/**");
+    }
+
+    @Bean
+    public GroupedOpenApi routineApi() {
+        return createGroup("7. 루틴(Routine)", "/api/routines/**");
+    }
+
+    @Bean
     public GroupedOpenApi allApi() {
         return createGroup("All API", "/**");
     }

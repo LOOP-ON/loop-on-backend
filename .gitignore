@@ -45,5 +45,5 @@ out/
 ### .env files ###
 **/.env
 
-# APNs keys
-src/main/resources/keys/
+*.p8
+src/main/resources/apple/

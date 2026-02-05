@@ -13,4 +13,11 @@ public class RestClientConfig {
                 .baseUrl("https://kapi.kakao.com")
                 .build();
     }
+
+    @Bean
+    public RestClient geminiRestClient() {
+        return RestClient.builder()
+                .baseUrl("https://generativelanguage.googleapis.com")
+                .build();
+    }
 }

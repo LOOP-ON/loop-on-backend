@@ -49,6 +49,9 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${JJWT_VERSION}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${JJWT_VERSION}"
 
+    // Bouncy Castle
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.83'
+
     // Swagger
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SPRINGDOC_OPENAPI_VERSION}"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:${SPRINGDOC_OPENAPI_VERSION}"
