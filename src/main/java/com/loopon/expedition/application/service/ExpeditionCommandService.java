@@ -77,6 +77,7 @@ public class ExpeditionCommandService {
                 .build();
 
         expeditionRepository.saveExpeditionUser(expeditionUser);
+        expedition.addToCurrentUsers(1);
 
         return ExpeditionConverter.joinExpedition(expeditionUser);
     }
@@ -89,7 +90,8 @@ public class ExpeditionCommandService {
                  expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
                          .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
-         expeditionRepository.deleteExpeditionUser(expeditionUser);
+        expeditionRepository.deleteExpeditionUser(expeditionUser);
+        expedition.addToCurrentUsers(-1);
 
         return ExpeditionConverter.withdrawExpedition(commandDto.expeditionId());
     }
@@ -133,6 +135,7 @@ public class ExpeditionCommandService {
                         .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionUser.expelUser();
+        expedition.addToCurrentUsers(-1);
 
         return ExpeditionConverter.expelExpedition(expeditionUser.getId());
     }
