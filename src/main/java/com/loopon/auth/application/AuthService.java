@@ -35,6 +35,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final List<SocialLoadStrategy> socialLoadStrategies;
 
+    private static final int MAX_DB_NICKNAME_LENGTH = 30;
+    private static final int RANDOM_SUFFIX_LENGTH = 4;
+    private static final String NICKNAME_DELIMITER = "#";
+
     @Transactional
     public AuthResult login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
@@ -102,16 +106,22 @@ public class AuthService {
 
     private User registerSocialUser(SocialInfoResponse info, UserProvider provider) {
         String nickname = info.nickname();
+        if (nickname == null || nickname.isBlank()) {
+            nickname = "LOOP:ON_user";
+        }
+
         String tempNickname;
 
+        int allowedBaseLength = MAX_DB_NICKNAME_LENGTH - NICKNAME_DELIMITER.length() - RANDOM_SUFFIX_LENGTH;
+
         do {
-            String randomSuffix = UUID.randomUUID().toString().substring(0, 4);
+            String randomSuffix = UUID.randomUUID().toString().substring(0, RANDOM_SUFFIX_LENGTH);
 
-            if (nickname.length() > 25) {
-                nickname = nickname.substring(0, 25);
-            }
+            String safeBaseName = (nickname.length() > allowedBaseLength)
+                    ? nickname.substring(0, allowedBaseLength)
+                    : nickname;
 
-            tempNickname = nickname + "#" + randomSuffix;
+            tempNickname = safeBaseName + NICKNAME_DELIMITER + randomSuffix;
 
         } while (userRepository.existsByNickname(tempNickname));
 
