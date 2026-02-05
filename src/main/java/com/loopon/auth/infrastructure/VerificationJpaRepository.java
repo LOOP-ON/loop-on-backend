@@ -11,11 +11,9 @@ import java.util.Optional;
 public interface VerificationJpaRepository extends JpaRepository<Verification, Long> {
 
     @Query("""
-                select v
-                from Verification v
-                where v.target = :target
-                  and v.purpose = :purpose
-                order by v.createdAt desc
+                select v from Verification v
+                    where v.target = :target and v.purpose = :purpose
+                    order by v.createdAt desc
             """)
     Optional<Verification> findLatest(
             @Param("target") String target,
