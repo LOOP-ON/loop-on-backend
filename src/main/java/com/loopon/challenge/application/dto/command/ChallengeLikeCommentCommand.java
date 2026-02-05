@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record ChallengeLikeCommentCommand(
         Long commentId,
-        Long userId
+        Long userId,
+        Boolean isLiked
 ) {
 }

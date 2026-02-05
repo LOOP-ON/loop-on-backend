@@ -67,19 +67,21 @@ public class ChallengeCommandService {
             ChallengeLikeCommand dto
     ) {
         Challenge challenge = challengeRepository.findById(dto.challengeId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Long challengeLikeId = null;
 
         if (dto.isLiked()) {
             ChallengeLike challengeLike = challengeRepository.findChallengeLikeByUserIdAndId(user.getId(), challenge.getId())
-                    .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_LIKE_NOT_FOUND));
             challengeRepository.deleteChallengeLikeById(challengeLike.getId());
 
             challenge.updateLikeCount(-1);
         } else {
+            checkIsLiked(challenge, user);
+
             ChallengeLike challengeLike = ChallengeLike.builder()
                     .user(user)
                     .challenge(challenge)
@@ -100,9 +102,11 @@ public class ChallengeCommandService {
 
         Challenge challenge = challengeRepository.findById(dto.challengeId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
-        Expedition expedition = expeditionRepository.findById(dto.expeditionId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
-
+        Expedition expedition = null;
+        if (dto.expeditionId() != null) {
+            expedition = expeditionRepository.findById(dto.expeditionId())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+        }
 
         challenge.updateContent(dto.content());
         challenge.updateExpedition(expedition);
@@ -145,20 +149,24 @@ public class ChallengeCommandService {
 
     @Transactional
     public ChallengeLikeCommentResponse likeCommentChallenge(
-            ChallengeLikeCommentCommand commandDto
+            ChallengeLikeCommentCommand dto
     ) {
-        Comment comment = challengeRepository.findCommentByCommentId(commandDto.commentId())
+        Comment comment = challengeRepository.findCommentByCommentId(dto.commentId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
-        User user = userRepository.findById(commandDto.userId())
+        User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Optional<CommentLike> commentLike = challengeRepository.findCommentLikeByCommentIdAndUserId(commandDto.commentId(), commandDto.userId());
         Long commentLikeId = null;
 
-        if (commentLike.isPresent()) {
-            challengeRepository.deleteCommentLikeById(commentLike.get().getId());
+        if (dto.isLiked()) {
+            CommentLike commentLike = challengeRepository.findCommentLikeByCommentIdAndUserId(dto.commentId(), dto.userId())
+                            .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_LIKE_NOT_FOUND));
+
+            challengeRepository.deleteCommentLikeById(commentLike.getId());
             comment.updateLikeCount(-1);
         } else {
+            checkCommentIsLiked(comment, user);
+
             CommentLike newCommentLike = CommentLike.builder()
                     .comment(comment)
                     .user(user)
@@ -319,4 +327,15 @@ public class ChallengeCommandService {
         }
     }
 
+    private void checkIsLiked(Challenge challenge, User user) {
+        if (challengeRepository.existsChallengeLikeByIdAndUserId(challenge.getId(), user.getId())){
+            throw new BusinessException(ErrorCode.CHALLENGE_LIKE_ALREADY_EXISTS);
+        }
+    }
+
+    private void checkCommentIsLiked(Comment comment, User user) {
+        if (challengeRepository.existsCommentLikeByCommentIdAndUserId(comment.getId(), user.getId())){
+            throw new BusinessException(ErrorCode.COMMENT_LIKE_ALREADY_EXISTS);
+        }
+    }
 }

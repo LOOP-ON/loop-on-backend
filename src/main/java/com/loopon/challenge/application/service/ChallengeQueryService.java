@@ -11,7 +11,6 @@ import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.Comment;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
-import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.Friend;
@@ -157,10 +156,10 @@ public class ChallengeQueryService {
         }
 
         Slice<ChallengeViewResponse> trendingResponse = trendingChallenges.map(challenge ->
-                convertToResponse(challenge, user, likedChallengeIds));
+                convertToResponse(challenge, likedChallengeIds));
 
         Slice<ChallengeViewResponse> friendsResponse = friendsChallenges.map(challenge ->
-                convertToResponse(challenge, user, likedChallengeIds));
+                convertToResponse(challenge, likedChallengeIds));
 
 
         return ChallengeConverter.combineChallenge(trendingResponse, friendsResponse);
@@ -211,7 +210,7 @@ public class ChallengeQueryService {
     }
 
 
-    private ChallengeViewResponse convertToResponse(Challenge challenge, User user, Set<Long> likedChallengeIds) {
+    private ChallengeViewResponse convertToResponse(Challenge challenge, Set<Long> likedChallengeIds) {
         List<String> imageUrls = getImageUrls(challenge);
         List<String> hashtags = getHashtags(challenge);
         Boolean isLiked = likedChallengeIds.contains(challenge.getId());

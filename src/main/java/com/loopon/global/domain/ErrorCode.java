@@ -69,10 +69,14 @@ public enum ErrorCode {
     NOT_COMMENT_WRITER(HttpStatus.FORBIDDEN, "C006", "해당 댓글 작성자가 아닙니다."),
     NOT_CHALLENGE_WRITER(HttpStatus.FORBIDDEN, "C007", "해당 챌린지 작성자가 아닙니다."),
     CHALLENGE_FORBIDDEN(HttpStatus.FORBIDDEN, "C008", "해당 챌린지를 조회할 수 없습니다."),
+    CHALLENGE_LIKE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C009", "해당 챌린지에 이미 좋아요가 존재합니다."),
+    COMMENT_LIKE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C010", "해당 댓글에 이미 좋아요가 존재합니다."),
+    CHALLENGE_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "C011", "해당 챌린지에 좋아요를 찾을 수 없습니다."),
+    COMMENT_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "C012", "해당 댓글에 좋아요를 찾을 수 없습니다."),
 
     // S3 관련 에러
-    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C009", "사진 파일을 업로드하는데 실패했습니다."),
-    S3_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C010", "사진 파일을 삭제하는데 실패했습니다"),
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C012", "사진 파일을 업로드하는데 실패했습니다."),
+    S3_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C013", "사진 파일을 삭제하는데 실패했습니다"),
 
     // 파일 업로드 관련 에러
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "F002", "업로드할 파일이 없습니다."),

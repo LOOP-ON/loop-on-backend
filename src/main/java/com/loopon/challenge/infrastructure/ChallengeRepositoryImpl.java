@@ -193,4 +193,9 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     public void saveComment(Comment comment) {
         commentJpaRepository.save(comment);
     }
+
+    @Override
+    public Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId) {
+        return commentLikeJpaRepository.existsByIdAndUserId(commentId, userId);
+    }
 }

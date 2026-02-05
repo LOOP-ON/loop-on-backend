@@ -27,6 +27,5 @@ public record ChallengeModifyRequest(
         @NotNull
         Long journeyId,
 
-        @NotNull
         Long expeditionId
 ) {}

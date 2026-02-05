@@ -79,4 +79,6 @@ public interface ChallengeRepository {
     Set<Long> findLikedChallengeIds(Long userId, List<Long> challengesIds);
 
     void saveComment(Comment comment);
+
+    Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId);
 }

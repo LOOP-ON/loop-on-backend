@@ -1,11 +1,8 @@
 package com.loopon.challenge.application.converter;
 
 import com.loopon.challenge.application.dto.command.*;
-import com.loopon.challenge.application.dto.request.ChallengeCommentRequest;
-import com.loopon.challenge.application.dto.request.ChallengeLikeRequest;
-import com.loopon.challenge.application.dto.request.ChallengeModifyRequest;
+import com.loopon.challenge.application.dto.request.*;
 import com.loopon.challenge.application.dto.response.*;
-import com.loopon.challenge.application.dto.request.ChallengePostRequest;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.Comment;
 import com.loopon.expedition.domain.Expedition;
@@ -202,11 +199,13 @@ public class ChallengeConverter {
 
     public static ChallengeLikeCommentCommand likeCommentChallenge(
             Long commentId,
+            ChallengeLikeCommentRequest requestDto,
             Long userId
     ) {
         return ChallengeLikeCommentCommand.builder()
                 .commentId(commentId)
                 .userId(userId)
+                .isLiked(requestDto.isLiked())
                 .build();
     }
 
@@ -293,6 +292,7 @@ public class ChallengeConverter {
                 .nickname(challenge.getUser().getNickname())
                 .profileImageUrl(challenge.getUser().getProfileImageUrl())
                 .isLiked(isLiked)
+                .likeCount(challenge.getLikeCount())
                 .build();
     }
 
