@@ -21,8 +21,8 @@ public class JourneyApiController implements JourneyApiDocs {
 private final JourneyCommandService journeyCommandService;
 private final JourneyQueryService journeyQueryService;
 
-    @PostMapping("/goals")
     @Override
+    @PostMapping("/goals")
     public ResponseEntity<CommonResponse<JourneyResponse.PostJourneyGoalDto>> postJourneyGoal(
             @Valid @RequestBody JourneyRequest.AddJourneyDto reqBody,
             @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -36,8 +36,8 @@ private final JourneyQueryService journeyQueryService;
     }
 
     //여정 미루기 API
-    @PostMapping("/{journeyId}/routines/{routineId}/postpone")
     @Override
+    @PostMapping("/{journeyId}/routines/{routineId}/postpone")
     public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
             @PathVariable Long journeyId,
             @PathVariable Long routineId,
@@ -61,6 +61,7 @@ private final JourneyQueryService journeyQueryService;
     }
 
     //여정 전체 조회
+    @Override
     @GetMapping("/current")
     public ResponseEntity<CommonResponse<JourneyResponse.CurrentJourneyDto>> getCurrentJourney(
             @AuthenticationPrincipal PrincipalDetails principalDetails
