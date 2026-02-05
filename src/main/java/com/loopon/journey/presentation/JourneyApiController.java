@@ -6,6 +6,7 @@ import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.service.JourneyCommandService;
+import com.loopon.journey.domain.service.JourneyQueryService;
 import com.loopon.journey.presentation.docs.JourneyApiDocs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class JourneyApiController implements JourneyApiDocs {
 private final JourneyCommandService journeyCommandService;
+private final JourneyQueryService journeyQueryService;
 
     @PostMapping("/goals")
     @Override
@@ -54,6 +56,19 @@ private final JourneyCommandService journeyCommandService;
 
         JourneyResponse.PostponeRoutineDto response =
                 journeyCommandService.postponeRoutine(command);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    //여정 전체 조회
+    @GetMapping("/current")
+    public ResponseEntity<CommonResponse<JourneyResponse.CurrentJourneyDto>> getCurrentJourney(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        Long userId = principalDetails.getUserId();
+
+        JourneyResponse.CurrentJourneyDto response =
+                journeyQueryService.getCurrentJourney(userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

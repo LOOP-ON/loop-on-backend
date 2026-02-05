@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface JourneyJpaRepository extends JpaRepository<Journey, Long> {
     Optional<Journey> findById(Long journeyId);
-    boolean existsByRoutineAndProgressDate(Routine routine, LocalDate progressDate);
+
     Optional<Journey> findByUserAndStatus(User user, JourneyStatus status);
 
 }

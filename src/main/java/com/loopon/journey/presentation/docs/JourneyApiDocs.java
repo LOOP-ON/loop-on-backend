@@ -38,4 +38,12 @@ public interface JourneyApiDocs {
             @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
+
+    @Operation(summary = "현재 진행 중인 여정 조회", description = "사용자가 현재 진행 중인 여정과 오늘의 루틴 진행 현황을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "현재 진행 중인 여정 조회에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<JourneyResponse.CurrentJourneyDto>> getCurrentJourney(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
 }
