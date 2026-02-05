@@ -20,3 +20,16 @@ cloud:
 loopon:
   server:
     url: https://api.loopon.cloud
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: asc
+    tags-sorter: alpha
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
