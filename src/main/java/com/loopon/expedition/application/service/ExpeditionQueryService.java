@@ -8,10 +8,7 @@ import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
-import com.loopon.expedition.application.dto.response.ExpeditionChallengesResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionGetResponseList;
-import com.loopon.expedition.application.dto.response.ExpeditionSearchResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionUsersResponse;
+import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionCategory;
 import com.loopon.expedition.domain.ExpeditionUser;
@@ -76,9 +73,6 @@ public class ExpeditionQueryService {
                         commandDto.pageable()
                 );
 
-//        if (expeditions.isEmpty()) {
-//            return new SliceImpl<>(Collections.emptyList(), commandDto.pageable(), false);
-//        }
 
         List<Long> joinedExpeditionIds = getJoinedExpeditionIds(expeditions, user);
 
@@ -105,7 +99,9 @@ public class ExpeditionQueryService {
         User user = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 해당 탐험대 명단
+        checkJoinedToExpedition(expedition, user);
+
+        // 해당 탐험대 명단(탈퇴 인원들 포함)
         List<ExpeditionUser> userList = expeditionRepository.findAllExpeditionUserWithUserById(expedition.getId());
 
         // 유저의 친구 목록
@@ -127,6 +123,7 @@ public class ExpeditionQueryService {
                     .isMe(isMe)
                     .isHost(isHost)
                     .friendStatus(status)
+                    .expeditionUserStatus(expeditionUser.getStatus())
                     .build());
         }
 
@@ -149,12 +146,14 @@ public class ExpeditionQueryService {
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
+        checkJoinedToExpedition(expedition, user);
+
         // Challenge + Journey + User
         Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByExpeditionId(expedition.getId(), commandDto.pageable());
 
         return challenges.map(challenge -> {
 
-            List<String> imageUrls = getImageUrls(challenge.getId());
+            List<String> imageUrls = getImageUrls(challenge);
             List<String> hashtags = getHashtags(challenge.getId());
             Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), user.getId());
 
@@ -167,8 +166,8 @@ public class ExpeditionQueryService {
 
     // ---------------------------- Helper Methods -------------------------------
 
-    // 탐험대 카테고리 가져오기
 
+    // 탐험대 카테고리 가져오기
     private static List<ExpeditionCategory> getExpeditionCategories(ExpeditionSearchCommand commandDto) {
 
         List<ExpeditionCategory> expeditionCategories = new ArrayList<>();
@@ -188,8 +187,8 @@ public class ExpeditionQueryService {
 
         return expeditionCategories;
     }
-    // 가입한 탐험대의 id 가져오기
 
+    // 가입한 탐험대의 id 가져오기
     private List<Long> getJoinedExpeditionIds(Slice<Expedition> expeditions, User user) {
         List<Long> expeditionIds = new ArrayList<>();
         for (Expedition expedition : expeditions) {
@@ -198,8 +197,8 @@ public class ExpeditionQueryService {
 
         return expeditionRepository.findJoinedExpeditionIds(user.getId(), expeditionIds);
     }
-    // 사용자의 탐험대 개수 제한
 
+    // 사용자의 탐험대 개수 제한
     private boolean checkExpeditionLimit(User user) {
         List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserByUserId(user.getId());
 
@@ -213,8 +212,8 @@ public class ExpeditionQueryService {
 
         return currentCount < 5;
     }
-    // 유저의 친구들 Map{userId, FriendStatus}
 
+    // 유저의 친구들 Map{userId, FriendStatus}
     private Map<Long, FriendStatus> getFriendsIds(Long userId){
         List<Friend> friendList = friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.ACCEPTED);
         friendList.addAll(friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.PENDING));
@@ -226,14 +225,14 @@ public class ExpeditionQueryService {
 
         return friendIds;
     }
-    // 유저의 친구목록에 id가 존재하는지
 
+    // 유저의 친구목록에 id가 존재하는지
     private FriendStatus getFriendStatus(Map<Long, FriendStatus> friendIds, Long friendId) {
         if (friendIds.containsKey(friendId)) {
             return friendIds.get(friendId);
         }
 
-        return FriendStatus.REJECTED;
+        return FriendStatus.NOT_FRIENDS;
     }
 
 
@@ -253,8 +252,8 @@ public class ExpeditionQueryService {
         return hashtags;
     }
 
-    private List<String> getImageUrls(Long challengeId) {
-        List<ChallengeImage> imageList = challengeRepository.findAllImageByChallengeId(challengeId);
+    private List<String> getImageUrls(Challenge challenge) {
+        List<ChallengeImage> imageList = challenge.getChallengeImages();
 
         List<String> imageUrls = new ArrayList<>();
         for (ChallengeImage challengeImage : imageList) {
@@ -262,5 +261,17 @@ public class ExpeditionQueryService {
         }
 
         return imageUrls;
+    }
+
+    private void checkJoinedToExpedition(Expedition expedition, User user) {
+        if (!expeditionRepository.existsExpeditionUserByIdAndUserId(expedition.getId(), user.getId())){
+            throw new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND);
+        }
+    }
+
+    private void checkAdmin(User user, Expedition expedition) {
+        if (expedition.getAdmin() != user){
+            throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
+        }
     }
 }
