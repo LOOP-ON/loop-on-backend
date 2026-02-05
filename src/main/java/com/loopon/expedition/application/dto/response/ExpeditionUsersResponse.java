@@ -1,5 +1,6 @@
 package com.loopon.expedition.application.dto.response;
 
+import com.loopon.expedition.domain.ExpeditionUserStatus;
 import com.loopon.user.domain.FriendStatus;
 import lombok.Builder;
 
@@ -19,7 +20,8 @@ public record ExpeditionUsersResponse(
             String profileImageUrl,
             Boolean isMe,
             Boolean isHost,
-            FriendStatus friendStatus
+            FriendStatus friendStatus,
+            ExpeditionUserStatus expeditionUserStatus
     ) {}
 }
 

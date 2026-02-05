@@ -35,6 +35,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             @Param("me") Long me
     );
 
+
     Long countByReceiver_IdAndStatus(Long me, FriendStatus friendStatus);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -59,4 +60,15 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
               and (:me = f.requester.id or :me = f.receiver.id)
             """)
     int deleteByIdAndParticipant(@Param("friendId") Long friendId, @Param("me") Long me);
+
+
+    @Query("SELECT COUNT(f) > 0 FROM Friend f " +
+            "WHERE f.status = :status " +
+            "AND ((f.requester.id = :userAId AND f.receiver.id = :userBId) " +
+            "OR (f.requester.id = :userBId AND f.receiver.id = :userAId))")
+    boolean existsFriendship(
+            @Param("userAId") Long userAId,
+            @Param("userBId") Long userBId,
+            @Param("status") FriendStatus status
+    );
 }

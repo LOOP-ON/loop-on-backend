@@ -92,4 +92,9 @@ public class ExpeditionRepositoryImpl implements ExpeditionRepository {
     public List<ExpeditionUser> findAllExpeditionUserWithUserById(Long expeditionId) {
         return expeditionUserJpaRepository.findAllWithUserByExpeditionId(expeditionId);
     }
+
+    @Override
+    public Boolean existsExpeditionUserByIdAndUserId(Long expeditionId, Long userId) {
+        return expeditionUserJpaRepository.existsByExpeditionIdAndUserId(expeditionId, userId);
+    }
 }

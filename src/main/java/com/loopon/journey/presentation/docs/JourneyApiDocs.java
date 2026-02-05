@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "6. 여정(Journey)", description = "여정 생성 및 조회 API")
@@ -23,6 +25,25 @@ public interface JourneyApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<JourneyResponse.PostJourneyGoalDto>> postJourneyGoal(
             @Valid @RequestBody JourneyRequest.AddJourneyDto reqBody,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    @Operation(summary = "루틴을 미룹니다.", description = "진행 중인 여정의 루틴을 미루는 API")
+    @ApiResponse(responseCode = "200", description = "루틴 미루기에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
+            @PathVariable Long journeyId,
+            @PathVariable Long routineId,
+            @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    @Operation(summary = "현재 진행 중인 여정 조회", description = "사용자가 현재 진행 중인 여정과 오늘의 루틴 진행 현황을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "현재 진행 중인 여정 조회에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<JourneyResponse.CurrentJourneyDto>> getCurrentJourney(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 }

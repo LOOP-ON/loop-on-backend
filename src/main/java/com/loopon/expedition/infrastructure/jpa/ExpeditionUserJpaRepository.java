@@ -29,6 +29,8 @@ public interface ExpeditionUserJpaRepository extends JpaRepository<ExpeditionUse
 
     @Query("SELECT eu FROM ExpeditionUser eu " +
             "JOIN FETCH eu.user " +
-            "WHERE eu.expedition.id = :expeditionId AND eu.status = com.loopon.expedition.domain.ExpeditionUserStatus.APPROVED")
+            "WHERE eu.expedition.id = :expeditionId ")
     List<ExpeditionUser> findAllWithUserByExpeditionId(@Param("expeditionId") Long expeditionId);
+
+    Boolean existsByExpeditionIdAndUserId(Long expeditionId, Long userId);
 }

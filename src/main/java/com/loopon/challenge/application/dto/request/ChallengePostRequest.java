@@ -20,6 +20,5 @@ public record ChallengePostRequest(
         @NotNull
         Long journeyId,
 
-        @NotNull
         Long expeditionId
 ){}

@@ -34,6 +34,9 @@ public class Journey {
     @Column(nullable = false, length = 20)
     private JourneyStatus status;
 
+    @Column(name = "journey_order", nullable = false)
+    Integer journeyOrder;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
