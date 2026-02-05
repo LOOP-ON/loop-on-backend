@@ -9,7 +9,7 @@ public class LoopGenerationResponse {
     private final Long goalId;
     private final String goal;
     private final java.util.List<LoopResponse> loops;
-    
+
     @Getter
     @Builder
     public static class LoopResponse {
