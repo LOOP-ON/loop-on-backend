@@ -44,3 +44,6 @@ out/
 
 ### .env files ###
 **/.env
+
+*.p8
+src/main/resources/apple/

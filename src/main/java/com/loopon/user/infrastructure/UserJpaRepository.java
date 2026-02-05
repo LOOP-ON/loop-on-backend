@@ -29,4 +29,6 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
                     where u.socialId = :id and u.provider = :provider
             """)
     Optional<User> findBySocialIdAndProvider(@Param("id") String id, @Param("provider") UserProvider provider);
+
+    Optional<User> findByNickname(String nickname);
 }

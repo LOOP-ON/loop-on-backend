@@ -15,5 +15,7 @@ public record ChallengeViewResponse(
         LocalDateTime createdAt,
         String nickname,
         String profileImageUrl,
-        Boolean isLiked
-) {}
+        Boolean isLiked,
+        Integer likeCount
+) {
+}

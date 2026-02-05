@@ -5,4 +5,5 @@ import lombok.Builder;
 @Builder
 public record ExpeditionDeleteResponse(
         String title
-) {}
+) {
+}

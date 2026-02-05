@@ -39,10 +39,10 @@ public class SecurityConfig {
             "/api/terms/{termId}",
             "/api/users/**",
             "/api/auth/login",
+            "/api/auth/login/social",
             "/api/auth/reissue",
             "/api/auth/logout",
-            "/api/auth/verification/**",
-            "/api/auth/login/kakao"
+            "/api/auth/verification/**"
     };
 
     private static final String[] API_URLS = {

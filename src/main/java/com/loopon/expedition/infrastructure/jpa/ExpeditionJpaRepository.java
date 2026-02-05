@@ -9,8 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpeditionJpaRepository extends JpaRepository<Expedition, Long> {
+    @Override
+    Optional<Expedition> findById(Long expeditionId);
+
     @Query("SELECT eu.expedition FROM ExpeditionUser eu " +
             "JOIN eu.expedition " +
             "WHERE eu.user.id = :userId AND eu.status = 'APPROVED'")

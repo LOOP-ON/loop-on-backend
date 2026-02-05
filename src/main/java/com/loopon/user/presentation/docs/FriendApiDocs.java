@@ -30,4 +30,17 @@ public interface FriendApiDocs {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long friendId
     );
+
+    @Operation(summary = "친구 차단", description = "친구 목록에서 친구를 차단합니다.")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<Void>> blockFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId);
+
+    @Operation(summary = "친구 차단 해제", description = "친구 목록에서 친구 차단을 해제합니다.")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<Void>> unblockFriend(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId);
 }

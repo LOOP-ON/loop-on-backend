@@ -1,6 +1,5 @@
 package com.loopon.term.domain;
 
-
 import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.user.domain.User;
 import jakarta.persistence.Column;

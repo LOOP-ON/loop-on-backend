@@ -1,10 +1,28 @@
 package com.loopon.expedition.application.converter;
 
 import com.loopon.challenge.domain.Challenge;
-import com.loopon.expedition.application.dto.command.*;
+import com.loopon.expedition.application.dto.command.ExpeditionCancelExpelCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionDeleteCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionExpelCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionJoinCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionPostCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionWithdrawCommand;
+import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
-import com.loopon.expedition.application.dto.response.*;
+import com.loopon.expedition.application.dto.response.ExpeditionCancelExpelResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionChallengesResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionDeleteResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionExpelResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionGetResponseList;
+import com.loopon.expedition.application.dto.response.ExpeditionJoinResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionPostResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionSearchResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionUsersResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionWithdrawResponse;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionUser;
 import com.loopon.user.domain.User;
@@ -12,7 +30,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-import static com.loopon.expedition.application.dto.response.ExpeditionGetResponseList.*;
+import static com.loopon.expedition.application.dto.response.ExpeditionGetResponseList.ExpeditionGetResponse;
 
 public class ExpeditionConverter {
 
@@ -96,7 +114,6 @@ public class ExpeditionConverter {
                 .expeditionUserId(expeditionUser.getId())
                 .build();
     }
-
 
     public static ExpeditionWithdrawCommand withdrawExpedition(
             Long expeditionId,
@@ -230,12 +247,32 @@ public class ExpeditionConverter {
     ) {
         return ExpeditionChallengesResponse.builder()
                 .challengeId(challenge.getId())
-                .journeyNumber(challenge.getJourney().getId().intValue()) // n번째 여정 필드 아직 없음.
+                .journeyNumber(challenge.getJourney().getJourneyOrder())
                 .imageUrls(imageUrls)
                 .content(challenge.getContent())
                 .hashtags(hashtags)
                 .createdAt(challenge.getCreatedAt())
                 .isLiked(isLiked)
+                .build();
+    }
+
+    public static ExpeditionCancelExpelCommand cancelExpelExpedition(
+            Long expeditionId,
+            ExpeditionCancelExpelRequest requestDto,
+            Long userId
+    ) {
+        return ExpeditionCancelExpelCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(requestDto.userId())
+                .myUserId(userId)
+                .build();
+    }
+
+    public static ExpeditionCancelExpelResponse cancelExpelExpedition(
+            Long userId
+    ) {
+        return ExpeditionCancelExpelResponse.builder()
+                .userId(userId)
                 .build();
     }
 }

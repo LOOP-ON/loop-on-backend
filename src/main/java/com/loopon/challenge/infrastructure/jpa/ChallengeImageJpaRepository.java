@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ChallengeImageJpaRepository extends JpaRepository<ChallengeImage, Long> {
     List<ChallengeImage> findAllByChallengeId(Long challengeId);
+
+    void deleteAllByChallengeId(Long challengeId);
 }

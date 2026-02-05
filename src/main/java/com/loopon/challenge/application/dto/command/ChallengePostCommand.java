@@ -18,4 +18,5 @@ public record ChallengePostCommand(
         Long expeditionId,
 
         Long userId
-){}
+) {
+}

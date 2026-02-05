@@ -45,8 +45,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
+      max-file-size: 20MB
+      max-request-size: 20MB
 
   threads:
     virtual:
@@ -84,3 +84,13 @@ springdoc:
     display-request-duration: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+apple:
+  team-id: ${APPLE_TEAM_ID}
+  key-id: ${APPLE_KEY_ID}
+  client-id: ${APPLE_CLIENT_ID}
+  key-path: classpath:apple/AuthKey_${APPLE_KEY_ID}.p8
+  url: https://appleid.apple.com
+
+apns:
+  environment: sandbox

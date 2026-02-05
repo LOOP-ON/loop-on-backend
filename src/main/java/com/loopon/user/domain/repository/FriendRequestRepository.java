@@ -14,16 +14,10 @@ import java.util.Optional;
 
 public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
 
-    Page<Friend> findByReceiverIdAndStatusOrderByUpdatedAtDesc(
+    Page<Friend> findByReceiver_IdAndStatusOrderByUpdatedAtDesc(
             Long me,
             FriendStatus status,
             Pageable pageable
-    );
-
-    boolean existsByStatusAndRequesterIdAndReceiverId(
-            FriendStatus status,
-            Long requesterId,
-            Long receiverId
     );
 
     @EntityGraph(attributePaths = {"receiver", "requester"})
@@ -34,26 +28,29 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
     );
 
     @Query("""
-    select f.requester.id
-    from Friend f
-    where f.status = :status
-      and f.receiver.id = :me
-    order by f.updatedAt desc
-    """)
+            select f.requester.id
+            from Friend f
+            where f.status = :status
+              and f.receiver.id = :me
+            order by f.updatedAt desc
+            """)
     List<Long> getAllRequesterIdByStatus(
             @Param("me") Long me,
             @Param("status") FriendStatus status
     );
+
     @Query("""
-    SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END
-    FROM Friend f
-    WHERE f.status = :status
-      AND ((f.requester.id = :userId1 AND f.receiver.id = :userId2)
-        OR (f.requester.id = :userId2 AND f.receiver.id = :userId1))
-    """)
+            SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END
+            FROM Friend f
+            WHERE f.status = :status
+              AND ((f.requester.id = :userId1 AND f.receiver.id = :userId2)
+                OR (f.requester.id = :userId2 AND f.receiver.id = :userId1))
+            """)
     boolean existsFriendship(
             @Param("userId1") Long userId1,
             @Param("userId2") Long userId2,
             @Param("status") FriendStatus status
     );
+
+    List<Friend> findAllByReceiverIdAndStatus(Long receiverId, FriendStatus status);
 }

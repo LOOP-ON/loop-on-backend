@@ -70,6 +70,11 @@ public class User extends BaseTimeEntity {
     @Column(name = "status_message", length = 100)
     private String statusMessage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility", nullable = false)
+    @Builder.Default
+    private UserVisibility visibility = UserVisibility.PUBLIC;
+
     public String getUserRole() {
         return this.role.name();
     }
