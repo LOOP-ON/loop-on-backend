@@ -19,6 +19,7 @@ import java.util.Map;
 public class NotificationController implements NotificationDocs {
     private final APNsPushService apnsPushService;
 
+    @Override
     @PostMapping("/send-push")
     public ResponseEntity<CommonResponse<Void>> sendPush() {
         Map<String, String> data = new HashMap<>();

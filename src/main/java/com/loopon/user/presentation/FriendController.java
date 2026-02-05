@@ -5,12 +5,15 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.response.FriendResponse;
 import com.loopon.user.domain.service.FriendService;
 import com.loopon.user.presentation.docs.FriendApiDocs;
-import com.loopon.user.presentation.docs.UserApiDocs;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -21,6 +24,7 @@ public class FriendController implements FriendApiDocs {
     private final FriendService friendService;
 
     //내 친구 목록 조회 API
+    @Override
     @GetMapping
     public ResponseEntity<CommonResponse<List<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long me = principalDetails.getUserId();
@@ -28,6 +32,7 @@ public class FriendController implements FriendApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
 
+    @Override
     @DeleteMapping("/{friendId}")
     public ResponseEntity<CommonResponse<Void>> deleteFriend(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -38,6 +43,7 @@ public class FriendController implements FriendApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 
+    @Override
     @PutMapping("/{friendId}/block")
     public ResponseEntity<CommonResponse<Void>> blockFriend(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId) {
@@ -46,6 +52,7 @@ public class FriendController implements FriendApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 
+    @Override
     @DeleteMapping("/{friendId}/block")
     public ResponseEntity<CommonResponse<Void>> unblockFriend(
             @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId) {

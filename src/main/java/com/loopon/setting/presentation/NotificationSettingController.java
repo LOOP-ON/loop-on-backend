@@ -18,12 +18,14 @@ public class NotificationSettingController implements NotificationSettingDocs {
 
     private final NotificationSettingService notificationSettingService;
 
+    @Override
     @GetMapping
     public ResponseEntity<CommonResponse<NotificationSettingResponse>> getNotificationSetting(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         NotificationSettingResponse res = notificationSettingService.getNotificationSetting(principalDetails.getUserId());
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
 
+    @Override
     @PatchMapping
     public ResponseEntity<CommonResponse<NotificationSettingResponse>> patchNotificationSetting(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody NotificationSettingPatchRequest req) {
         NotificationSettingResponse res = notificationSettingService.patchNotificationSetting(principalDetails.getUserId(), req);

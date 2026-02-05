@@ -19,14 +19,16 @@ import org.springframework.web.bind.annotation.*;
 public class DeviceTokenController implements DeviceTokenDocs {
     private final DeviceTokenService deviceTokenService;
 
-    @PostMapping()
+    @Override
+    @PostMapping
     public ResponseEntity<CommonResponse<DeviceTokenResponse>> saveDeviceToken(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody DeviceTokenRequest deviceTokenRequest) {
         Long me = principalDetails.getUserId();
         DeviceTokenResponse res = deviceTokenService.saveDeviceToken(me, deviceTokenRequest);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
 
-    @DeleteMapping()
+    @Override
+    @DeleteMapping
     public ResponseEntity<CommonResponse<String>> deleteDeviceToken(@AuthenticationPrincipal PrincipalDetails principalDetails, @RequestBody DeviceTokenRequest deviceTokenRequest) {
         Long me = principalDetails.getUserId();
         deviceTokenService.deleteDeviceToken(me, deviceTokenRequest);

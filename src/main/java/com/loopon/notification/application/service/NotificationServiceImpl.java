@@ -17,6 +17,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final DeviceTokenRepository deviceTokenRepository;
     private final APNsPushService apnsPushService;
 
+    @Override
     public void sendFriendRequestPush(Long receiverId, Long senderId, Long friendRequestId) {
         EnvironmentType env = EnvironmentType.PROD;
 
