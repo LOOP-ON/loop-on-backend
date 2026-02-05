@@ -41,9 +41,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.loopon.challenge.application.dto.command.ChallengeModifyCommand.builder;
-
-
 public class ChallengeConverter {
 
     public static ChallengePostCommand postChallenge(
@@ -140,7 +137,7 @@ public class ChallengeConverter {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
-        return builder()
+        return ChallengeModifyCommand.builder()
                 .challengeId(challengeId)
                 .newImages(safeImageFiles)
                 .newSequence(safeSequence)
