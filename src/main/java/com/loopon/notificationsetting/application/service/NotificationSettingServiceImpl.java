@@ -19,7 +19,7 @@ public class NotificationSettingServiceImpl implements NotificationSettingServic
 
     @Override
     public NotificationSettingResponse getNotificationSetting(Long userId) {
-        NotificationSetting setting = notificationSettingRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
+        NotificationSetting setting = notificationSettingRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
 
         return NotificationSettingMapper.toResponse(setting);
     }
@@ -27,7 +27,7 @@ public class NotificationSettingServiceImpl implements NotificationSettingServic
     @Override
     @Transactional
     public NotificationSettingResponse patchNotificationSetting(Long userId, NotificationSettingPatchRequest req) {
-        NotificationSetting setting = notificationSettingRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
+        NotificationSetting setting = notificationSettingRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
 
         //알림 설정 true, 시간 설정 안되어있을 경우 예외 처리
         if (Boolean.TRUE.equals(req.dayEndJourneyReminderEnabled())

@@ -35,7 +35,7 @@ class NotificationSettingServiceImplTest {
         // given
         Long userId = 1L;
         NotificationSetting setting = mock(NotificationSetting.class);
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -43,7 +43,7 @@ class NotificationSettingServiceImplTest {
 
         // then
         assertNotNull(res);
-        then(notificationSettingRepository).should(times(1)).findByUser_Id(userId);
+        then(notificationSettingRepository).should(times(1)).findByUserId(userId);
     }
 
     @Test
@@ -51,7 +51,7 @@ class NotificationSettingServiceImplTest {
     void getNotificationSetting_notFound_throw() {
         // given
         Long userId = 1L;
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.empty());
 
         // when & then
@@ -59,7 +59,7 @@ class NotificationSettingServiceImplTest {
                 () -> sut().getNotificationSetting(userId));
 
         assertEquals(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND, ex.getErrorCode());
-        then(notificationSettingRepository).should(times(1)).findByUser_Id(userId);
+        then(notificationSettingRepository).should(times(1)).findByUserId(userId);
     }
 
     @Test
@@ -70,7 +70,7 @@ class NotificationSettingServiceImplTest {
         NotificationSettingPatchRequest req = new NotificationSettingPatchRequest(
                 null, null, null, null, null, null, null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.empty());
 
         // when & then
@@ -78,7 +78,7 @@ class NotificationSettingServiceImplTest {
                 () -> sut().patchNotificationSetting(userId, req));
 
         assertEquals(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND, ex.getErrorCode());
-        then(notificationSettingRepository).should(times(1)).findByUser_Id(userId);
+        then(notificationSettingRepository).should(times(1)).findByUserId(userId);
     }
 
     @Test
@@ -93,7 +93,7 @@ class NotificationSettingServiceImplTest {
                 null,  // dayEndJourneyReminderTime
                 null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when & then
@@ -116,7 +116,7 @@ class NotificationSettingServiceImplTest {
                 LocalTime.of(22, 0),  // dayEndJourneyReminderTime
                 null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -139,7 +139,7 @@ class NotificationSettingServiceImplTest {
                 null,  // dayEndJourneyReminderTime
                 null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -162,7 +162,7 @@ class NotificationSettingServiceImplTest {
                 null,  // dayEndJourneyReminderTime
                 null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -183,7 +183,7 @@ class NotificationSettingServiceImplTest {
                 false, // allEnabled
                 null, null, null, null, null, null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -206,7 +206,7 @@ class NotificationSettingServiceImplTest {
                 AlertMode.VIBRATE, // routineAlertMode
                 null, null, null, null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -232,7 +232,7 @@ class NotificationSettingServiceImplTest {
                 false, // noticeEnabled
                 true   // marketingEnabled
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -254,7 +254,7 @@ class NotificationSettingServiceImplTest {
                 true, // journeyCompleteEnabled
                 null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
@@ -274,7 +274,7 @@ class NotificationSettingServiceImplTest {
         NotificationSettingPatchRequest req = new NotificationSettingPatchRequest(
                 null, null, null, null, null, null, null, null, null, null, null, null
         );
-        given(notificationSettingRepository.findByUser_Id(userId))
+        given(notificationSettingRepository.findByUserId(userId))
                 .willReturn(Optional.of(setting));
 
         // when
