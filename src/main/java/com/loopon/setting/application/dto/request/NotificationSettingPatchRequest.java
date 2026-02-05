@@ -1,6 +1,8 @@
 package com.loopon.setting.application.dto.request;
 
 import com.loopon.setting.domain.AlertMode;
+import com.loopon.setting.domain.NotificationSetting;
+
 import java.time.LocalTime;
 
 public record NotificationSettingPatchRequest(
@@ -10,7 +12,6 @@ public record NotificationSettingPatchRequest(
         AlertMode routineAlertMode,
 
         Boolean unfinishedGoalReminderEnabled,
-        LocalTime unfinishedGoalReminderTime,
 
         Boolean dayEndJourneyReminderEnabled,
         LocalTime dayEndJourneyReminderTime,
@@ -22,4 +23,21 @@ public record NotificationSettingPatchRequest(
         Boolean commentEnabled,
         Boolean noticeEnabled,
         Boolean marketingEnabled
-) {}
+) {
+    public NotificationSetting.UpdateRequest toUpdateRequest() {
+        return NotificationSetting.UpdateRequest.builder()
+                .allEnabled(this.allEnabled)
+                .routineEnabled(this.routineEnabled)
+                .routineAlertMode(this.routineAlertMode)
+                .unfinishedGoalReminderEnabled(this.unfinishedGoalReminderEnabled)
+                .dayEndJourneyReminderEnabled(this.dayEndJourneyReminderEnabled)
+                .dayEndJourneyReminderTime(this.dayEndJourneyReminderTime)
+                .journeyCompleteEnabled(this.journeyCompleteEnabled)
+                .friendRequestEnabled(this.friendRequestEnabled)
+                .likeEnabled(this.likeEnabled)
+                .commentEnabled(this.commentEnabled)
+                .noticeEnabled(this.noticeEnabled)
+                .marketingEnabled(this.marketingEnabled)
+                .build();
+    }
+}

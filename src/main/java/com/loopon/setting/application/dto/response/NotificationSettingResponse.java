@@ -12,7 +12,6 @@ public record NotificationSettingResponse(
 
         // 미완료 목표 리마인드
         boolean unfinishedGoalReminderEnabled,
-        LocalTime unfinishedGoalReminderTime,
 
         // 하루 종료 - 오늘 여정 기록 리마인드
         boolean dayEndJourneyReminderEnabled,

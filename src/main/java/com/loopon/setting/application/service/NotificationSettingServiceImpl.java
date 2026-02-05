@@ -31,11 +31,12 @@ public class NotificationSettingServiceImpl implements NotificationSettingServic
         NotificationSetting setting = notificationSettingRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
 
         //알림 설정 true, 시간 설정 안되어있을 경우 예외 처리
-        if (Boolean.TRUE.equals(req.unfinishedGoalReminderEnabled()) && req.unfinishedGoalReminderTime() == null && setting.getUnfinishedGoalReminderTime() == null) {
+        if (Boolean.TRUE.equals(req.dayEndJourneyReminderEnabled())
+                && req.dayEndJourneyReminderTime() == null) {
             throw new BusinessException(ErrorCode.INVALID_REMINDER_TIME);
         }
 
-        setting.apply(req);
+        setting.update(req.toUpdateRequest());
 
 
         return NotificationSettingMapper.toResponse(setting);

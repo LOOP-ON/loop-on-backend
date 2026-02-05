@@ -3,18 +3,14 @@ package com.loopon.setting.domain;
 import com.loopon.setting.application.dto.request.NotificationSettingPatchRequest;
 import com.loopon.user.domain.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "notification_settings",
-        uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
+@Table(name = "notification_settings", uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -43,17 +39,6 @@ public class NotificationSetting {
 
     @Column(nullable = false)
     private boolean unfinishedGoalReminderEnabled;
-
-    @Column(nullable = false)
-    private LocalTime unfinishedGoalReminderTime;
-
-    //리마인드 알림 기본 시각 23시
-    @PrePersist
-    public void prePersist() {
-        if (unfinishedGoalReminderTime == null) {
-            this.unfinishedGoalReminderTime = LocalTime.of(23, 0);
-        }
-    }
 
     // 여정 관련
     @Column(nullable = false)
@@ -84,32 +69,47 @@ public class NotificationSetting {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public void apply(NotificationSettingPatchRequest req) {
-        if (req.allEnabled() != null) this.allEnabled = req.allEnabled();
-
-        if (req.routineEnabled() != null) this.routineEnabled = req.routineEnabled();
-        if (req.routineAlertMode() != null) this.routineAlertMode = req.routineAlertMode();
-
-        if (req.unfinishedGoalReminderEnabled() != null)
-            this.unfinishedGoalReminderEnabled = req.unfinishedGoalReminderEnabled();
-        if (req.unfinishedGoalReminderTime() != null)
-            this.unfinishedGoalReminderTime = req.unfinishedGoalReminderTime();
-
-        if (req.dayEndJourneyReminderEnabled() != null)
-            this.dayEndJourneyReminderEnabled = req.dayEndJourneyReminderEnabled();
-        if (req.dayEndJourneyReminderTime() != null) this.dayEndJourneyReminderTime = req.dayEndJourneyReminderTime();
-
-        if (req.journeyCompleteEnabled() != null) this.journeyCompleteEnabled = req.journeyCompleteEnabled();
-
-        if (req.friendRequestEnabled() != null) this.friendRequestEnabled = req.friendRequestEnabled();
-        if (req.likeEnabled() != null) this.likeEnabled = req.likeEnabled();
-        if (req.commentEnabled() != null) this.commentEnabled = req.commentEnabled();
-        if (req.noticeEnabled() != null) this.noticeEnabled = req.noticeEnabled();
-        if (req.marketingEnabled() != null) this.marketingEnabled = req.marketingEnabled();
+    public void update(UpdateRequest request) {
+        if (request.allEnabled != null) this.allEnabled = request.allEnabled;
+        if (request.routineEnabled != null) this.routineEnabled = request.routineEnabled;
+        if (request.routineAlertMode != null) this.routineAlertMode = request.routineAlertMode;
+        if (request.unfinishedGoalReminderEnabled != null)
+            this.unfinishedGoalReminderEnabled = request.unfinishedGoalReminderEnabled;
+        if (request.dayEndJourneyReminderEnabled != null)
+            this.dayEndJourneyReminderEnabled = request.dayEndJourneyReminderEnabled;
+        if (request.dayEndJourneyReminderTime != null)
+            this.dayEndJourneyReminderTime = request.dayEndJourneyReminderTime;
+        if (request.journeyCompleteEnabled != null)
+            this.journeyCompleteEnabled = request.journeyCompleteEnabled;
+        if (request.friendRequestEnabled != null)
+            this.friendRequestEnabled = request.friendRequestEnabled;
+        if (request.likeEnabled != null) this.likeEnabled = request.likeEnabled;
+        if (request.commentEnabled != null) this.commentEnabled = request.commentEnabled;
+        if (request.noticeEnabled != null) this.noticeEnabled = request.noticeEnabled;
+        if (request.marketingEnabled != null) this.marketingEnabled = request.marketingEnabled;
 
         this.updatedAt = LocalDateTime.now();
     }
 
+    @Getter
+    @Builder
+    public static class UpdateRequest {
+        private Boolean allEnabled;
+        private Boolean routineEnabled;
+        private AlertMode routineAlertMode;
+        private Boolean unfinishedGoalReminderEnabled;
+        private LocalTime unfinishedGoalReminderTime;
+        private Boolean dayEndJourneyReminderEnabled;
+        private LocalTime dayEndJourneyReminderTime;
+        private Boolean journeyCompleteEnabled;
+        private Boolean friendRequestEnabled;
+        private Boolean likeEnabled;
+        private Boolean commentEnabled;
+        private Boolean noticeEnabled;
+        private Boolean marketingEnabled;
+    }
+
+    //실제 알림 전송 과정에서 알림 권한 확인용
     public boolean canSend(NotificationSettingType type) {
         if (!this.allEnabled) return false;
 
@@ -126,6 +126,14 @@ public class NotificationSetting {
 
             case ROUTINE -> this.routineEnabled;
         };
+    }
+
+    //리마인드 알림 기본 시각 23시
+    @PrePersist
+    public void prePersist() {
+        if (dayEndJourneyReminderTime == null) {
+            this.dayEndJourneyReminderTime = LocalTime.of(23, 0);
+        }
     }
 
 }
