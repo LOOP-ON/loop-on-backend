@@ -22,4 +22,5 @@ public record ExpeditionPostRequest(
         ExpeditionCategory category,
 
         String password
-) { }
+) {
+}

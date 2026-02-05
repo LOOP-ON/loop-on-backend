@@ -22,6 +22,6 @@ public record ExpeditionUsersResponse(
             Boolean isHost,
             FriendStatus friendStatus,
             ExpeditionUserStatus expeditionUserStatus
-    ) {}
+    ) {
+    }
 }
-

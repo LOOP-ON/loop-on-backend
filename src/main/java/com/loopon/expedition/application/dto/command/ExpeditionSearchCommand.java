@@ -11,4 +11,5 @@ public record ExpeditionSearchCommand(
         List<Boolean> categories,
         Pageable pageable,
         Long userId
-) {}
+) {
+}

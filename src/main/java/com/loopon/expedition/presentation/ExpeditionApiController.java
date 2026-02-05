@@ -1,12 +1,29 @@
 package com.loopon.expedition.presentation;
 
 import com.loopon.expedition.application.converter.ExpeditionConverter;
-import com.loopon.expedition.application.dto.command.*;
+import com.loopon.expedition.application.dto.command.ExpeditionCancelExpelCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionDeleteCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionExpelCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionJoinCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionPostCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionWithdrawCommand;
 import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
-import com.loopon.expedition.application.dto.response.*;
+import com.loopon.expedition.application.dto.response.ExpeditionCancelExpelResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionChallengesResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionDeleteResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionExpelResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionGetResponseList;
+import com.loopon.expedition.application.dto.response.ExpeditionJoinResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionPostResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionSearchResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionUsersResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionWithdrawResponse;
 import com.loopon.expedition.application.service.ExpeditionCommandService;
 import com.loopon.expedition.application.service.ExpeditionQueryService;
 import com.loopon.expedition.presentation.docs.ExpeditionApiDocs;
@@ -17,7 +34,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -30,7 +54,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @GetMapping("/api/expeditions")
-    public CommonResponse<ExpeditionGetResponseList> getExpeditions (
+    public CommonResponse<ExpeditionGetResponseList> getExpeditions(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         return CommonResponse.onSuccess(
@@ -40,10 +64,10 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @PostMapping("/api/expeditions")
-    public CommonResponse<ExpeditionPostResponse> postExpedition (
+    public CommonResponse<ExpeditionPostResponse> postExpedition(
             @RequestBody ExpeditionPostRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
-    ){
+    ) {
         ExpeditionPostCommand commandDto
                 = ExpeditionConverter.postExpedition(requestDto, principalDetails.getUserId());
 
@@ -54,7 +78,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @PostMapping("/api/expeditions/join")
-    public CommonResponse<ExpeditionJoinResponse> joinExpedition (
+    public CommonResponse<ExpeditionJoinResponse> joinExpedition(
             @RequestBody ExpeditionJoinRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
@@ -68,7 +92,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @DeleteMapping("/api/expeditions/{expeditionId}/withdraw")
-    public CommonResponse<ExpeditionWithdrawResponse> withdrawExpedition (
+    public CommonResponse<ExpeditionWithdrawResponse> withdrawExpedition(
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
@@ -82,7 +106,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @GetMapping("/api/expeditions/search")
-    public CommonResponse<Slice<ExpeditionSearchResponse>> searchExpeditions (
+    public CommonResponse<Slice<ExpeditionSearchResponse>> searchExpeditions(
             @RequestParam
             String keyword,
 
@@ -103,7 +127,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @DeleteMapping("/api/expeditions/{expeditionId}")
-    public CommonResponse<ExpeditionDeleteResponse> deleteExpedition (
+    public CommonResponse<ExpeditionDeleteResponse> deleteExpedition(
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
@@ -117,7 +141,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @GetMapping("/api/expeditions/{expeditionId}/users")
-    public CommonResponse<ExpeditionUsersResponse> usersExpedition (
+    public CommonResponse<ExpeditionUsersResponse> usersExpedition(
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
@@ -131,7 +155,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @PatchMapping("/api/expeditions/{expeditionId}/expel")
-    public CommonResponse<ExpeditionExpelResponse> expelExpedition (
+    public CommonResponse<ExpeditionExpelResponse> expelExpedition(
             @PathVariable Long expeditionId,
             @RequestBody ExpeditionExpelRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -146,7 +170,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @GetMapping("/api/expeditions/{expeditionId}/challenges")
-    public CommonResponse<Slice<ExpeditionChallengesResponse>> challengesExpedition (
+    public CommonResponse<Slice<ExpeditionChallengesResponse>> challengesExpedition(
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PageableDefault Pageable pageable
@@ -161,7 +185,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @DeleteMapping("/api/expeditions/{expeditionId}/expel")
-    public CommonResponse<ExpeditionCancelExpelResponse> cancelExpelExpedition (
+    public CommonResponse<ExpeditionCancelExpelResponse> cancelExpelExpedition(
             @PathVariable Long expeditionId,
             @RequestBody ExpeditionCancelExpelRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails

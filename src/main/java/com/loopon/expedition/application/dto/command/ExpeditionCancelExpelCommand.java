@@ -7,4 +7,5 @@ public record ExpeditionCancelExpelCommand(
         Long expeditionId,
         Long userId,
         Long myUserId
-) {}
+) {
+}

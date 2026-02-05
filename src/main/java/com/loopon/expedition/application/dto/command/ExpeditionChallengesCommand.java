@@ -8,4 +8,5 @@ public record ExpeditionChallengesCommand(
         Long expeditionId,
         Long userId,
         Pageable pageable
-) {}
+) {
+}

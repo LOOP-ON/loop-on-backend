@@ -6,4 +6,5 @@ import lombok.Builder;
 public record ExpeditionDeleteCommand(
         Long expeditionId,
         Long userId
-) {}
+) {
+}
