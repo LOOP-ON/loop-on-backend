@@ -10,25 +10,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/journeys")
+@RequestMapping("/api/journeys")
 @RequiredArgsConstructor
 @Tag(name = "Journeys", description = "루프 재생성 API")
 public class JourneyController {
-    
+
     private final LoopRegenerationService loopRegenerationService;
-    
+
     @PutMapping("/{journeyId}/regenerate")
     @Operation(summary = "루프 재생성", description = "마음에 들지 않는 루프를 새로운 내용으로 재생성합니다")
     public CommonResponse<LoopRegenerationResponse> regenerateLoop(
             @PathVariable Long journeyId,
             @Valid @RequestBody LoopRegenerationRequest request,
             @AuthenticationPrincipal User user) {
-        
+
         LoopRegenerationResponse response = loopRegenerationService.regenerateLoop(journeyId, request, user);
-        
+
         return CommonResponse.onSuccess(response);
     }
 }

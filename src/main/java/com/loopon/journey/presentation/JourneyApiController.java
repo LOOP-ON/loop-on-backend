@@ -12,21 +12,26 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/journeys")
 @RequiredArgsConstructor
 public class JourneyApiController implements JourneyApiDocs {
-private final JourneyCommandService journeyCommandService;
-private final JourneyQueryService journeyQueryService;
+    private final JourneyCommandService journeyCommandService;
+    private final JourneyQueryService journeyQueryService;
 
     @Override
     @PostMapping("/goals")
     public ResponseEntity<CommonResponse<JourneyResponse.PostJourneyGoalDto>> postJourneyGoal(
             @Valid @RequestBody JourneyRequest.AddJourneyDto reqBody,
             @AuthenticationPrincipal PrincipalDetails principalDetails
-    ){
+    ) {
         Long userId = principalDetails.getUserId();
         JourneyCommand.AddJourneyGoalCommand command = new JourneyCommand.AddJourneyGoalCommand(userId, reqBody.goal(), reqBody.category());
 
@@ -35,7 +40,7 @@ private final JourneyQueryService journeyQueryService;
         return ResponseEntity.ok(CommonResponse.onSuccess(journeyId));
     }
 
-    //여정 미루기 API
+    // 여정 미루기 API
     @Override
     @PostMapping("/{journeyId}/routines/{routineId}/postpone")
     public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
@@ -60,7 +65,7 @@ private final JourneyQueryService journeyQueryService;
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
-    //여정 전체 조회
+    // 여정 전체 조회
     @Override
     @GetMapping("/current")
     public ResponseEntity<CommonResponse<JourneyResponse.CurrentJourneyDto>> getCurrentJourney(

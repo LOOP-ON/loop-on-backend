@@ -32,16 +32,16 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
     @Transactional
     public JourneyResponse.PostJourneyGoalDto postJourneyGoal(
             JourneyCommand.AddJourneyGoalCommand command
-    ){
+    ) {
         //사용자 찾기
         User user = userRepository.findById(command.userId())
-                .orElseThrow(()->new IllegalArgumentException("user not found"));
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
 
         //사용자가 현재 진행중인 여정이 있는지 검사
         journeyRepository.findByUserAndStatus(user, JourneyStatus.IN_PROGRESS)
-            .ifPresent(e-> {
-                throw new IllegalArgumentException("이미 진행중인 여정이 있습니다.");
-            });
+                .ifPresent(e -> {
+                    throw new IllegalArgumentException("이미 진행중인 여정이 있습니다.");
+                });
 
         //여정 객체 생성
         Journey journey = JourneyConverter.commandToJourney(command, user);
@@ -50,7 +50,9 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         journeyRepository.save(journey);
 
         return new JourneyResponse.PostJourneyGoalDto(journey.getId());
-    };
+    }
+
+    ;
 
     @Transactional
     @Override
