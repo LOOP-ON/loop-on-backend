@@ -4,7 +4,11 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.request.FriendRequestCreateRequest;
-import com.loopon.user.application.dto.response.*;
+import com.loopon.user.application.dto.response.FriendRequestBulkRespondResponse;
+import com.loopon.user.application.dto.response.FriendRequestCreateResponse;
+import com.loopon.user.application.dto.response.FriendRequestReceivedResponse;
+import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
+import com.loopon.user.application.dto.response.FriendSearchResponse;
 import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.service.FriendRequestService;
 import com.loopon.user.presentation.docs.FriendRequestApiDocs;
@@ -14,7 +18,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,7 +88,7 @@ public class FriendRequestController implements FriendRequestApiDocs {
 
     @Override
     @DeleteMapping("/{requesterId}/delete-one")
-    public ResponseEntity<CommonResponse<Void>> deleteOneFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails,@PathVariable Long requesterId) {
+    public ResponseEntity<CommonResponse<Void>> deleteOneFriendRequest(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long requesterId) {
         Long me = principalDetails.getUserId();
         friendRequestService.deleteOneFriendRequest(me, requesterId);
         return ResponseEntity.ok(CommonResponse.onSuccess());

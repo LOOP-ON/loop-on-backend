@@ -4,8 +4,11 @@ import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.notification.application.event.FriendRequestCreatedEvent;
-import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
-import com.loopon.user.application.dto.response.*;
+import com.loopon.user.application.dto.response.FriendRequestBulkRespondResponse;
+import com.loopon.user.application.dto.response.FriendRequestCreateResponse;
+import com.loopon.user.application.dto.response.FriendRequestReceivedResponse;
+import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
+import com.loopon.user.application.dto.response.FriendSearchResponse;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.User;
@@ -22,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.loopon.user.domain.FriendStatus.*;
+import static com.loopon.user.domain.FriendStatus.ACCEPTED;
+import static com.loopon.user.domain.FriendStatus.PENDING;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +36,6 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    private Friend getPendingRequestOrThrow(Long requesterId, Long me) {
-        Friend fr = friendRequestRepository
-                .findByRequesterIdAndReceiverIdAndStatus(requesterId, me, PENDING)
-                .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
-
-        if (!fr.getReceiver().getId().equals(me)) {
-            throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
-        }
-        return fr;
-    }
 
     @Override
     public PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable) {
@@ -143,5 +136,16 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         return friendRepository.countByReceiver_IdAndStatus(
                 me, FriendStatus.PENDING
         );
+    }
+
+    private Friend getPendingRequestOrThrow(Long requesterId, Long me) {
+        Friend fr = friendRequestRepository
+                .findByRequesterIdAndReceiverIdAndStatus(requesterId, me, PENDING)
+                .orElseThrow(() -> new BusinessException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
+
+        if (!fr.getReceiver().getId().equals(me)) {
+            throw new BusinessException(ErrorCode.FRIEND_REQUEST_FORBIDDEN);
+        }
+        return fr;
     }
 }

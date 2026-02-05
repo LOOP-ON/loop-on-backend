@@ -1,7 +1,7 @@
 package com.loopon.user.presentation;
 
-import com.loopon.global.s3.S3Service;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.s3.S3Service;
 import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.UserQueryService;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
