@@ -196,7 +196,7 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(exp));
             given(userRepository.findById(myId)).willReturn(Optional.of(me));
             given(expeditionRepository.findAllExpeditionUserWithUserById(expId)).willReturn(List.of(eu1, eu2));
-
+            given(expeditionRepository.existsExpeditionUserByIdAndUserId(expId, myId)).willReturn(true);
             // 친구 목록 모킹
             Friend friendRecord = mock(Friend.class);
             lenient().when(friendRecord.getId()).thenReturn(friendId);
@@ -248,6 +248,8 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(exp));
             given(challengeRepository.findAllWithJourneyAndUserByExpeditionId(eq(expId), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(challenge)));
+            given(expeditionRepository.existsExpeditionUserByIdAndUserId(expId, userId)).willReturn(true);
+
 
             // 해시태그 모킹
             ChallengeHashtag ch = mock(ChallengeHashtag.class);
