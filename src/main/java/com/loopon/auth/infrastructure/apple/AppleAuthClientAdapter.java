@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClient;
 @Component
 @RequiredArgsConstructor
 public class AppleAuthClientAdapter {
-    private final RestClient restClient;
+    private final RestClient kakaoRestClient;
     private final AppleClientSecretGenerator secretGenerator;
 
     @Value("${apple.client-id}")
@@ -33,7 +33,7 @@ public class AppleAuthClientAdapter {
         params.add("grant_type", "authorization_code");
 
         try {
-            return restClient.post()
+            return kakaoRestClient.post()
                     .uri("https://appleid.apple.com/auth/token")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(params)
