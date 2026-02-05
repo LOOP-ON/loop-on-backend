@@ -1,4 +1,4 @@
-package com.loopon.liquibase;
+package com.loopon.global.liquibase;
 
 import liquibase.changelog.IncludeAllFilter;
 import lombok.extern.slf4j.Slf4j;
