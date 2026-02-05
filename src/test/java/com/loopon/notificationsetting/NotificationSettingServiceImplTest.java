@@ -1,13 +1,13 @@
-package com.loopon.setting;
+package com.loopon.notificationsetting;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.setting.application.dto.request.NotificationSettingPatchRequest;
-import com.loopon.setting.application.dto.response.NotificationSettingResponse;
-import com.loopon.setting.application.service.NotificationSettingServiceImpl;
-import com.loopon.setting.domain.AlertMode;
-import com.loopon.setting.domain.NotificationSetting;
-import com.loopon.setting.domain.repository.NotificationSettingRepository;
+import com.loopon.notificationsetting.application.dto.request.NotificationSettingPatchRequest;
+import com.loopon.notificationsetting.application.dto.response.NotificationSettingResponse;
+import com.loopon.notificationsetting.application.service.NotificationSettingServiceImpl;
+import com.loopon.notificationsetting.domain.AlertMode;
+import com.loopon.notificationsetting.domain.NotificationSetting;
+import com.loopon.notificationsetting.domain.repository.NotificationSettingRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

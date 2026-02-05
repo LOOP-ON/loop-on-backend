@@ -1,11 +1,11 @@
-package com.loopon.setting.presentation;
+package com.loopon.notificationsetting.presentation;
 
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
-import com.loopon.setting.application.dto.request.NotificationSettingPatchRequest;
-import com.loopon.setting.application.dto.response.NotificationSettingResponse;
-import com.loopon.setting.domain.service.NotificationSettingService;
-import com.loopon.setting.presentation.docs.NotificationSettingDocs;
+import com.loopon.notificationsetting.application.dto.request.NotificationSettingPatchRequest;
+import com.loopon.notificationsetting.application.dto.response.NotificationSettingResponse;
+import com.loopon.notificationsetting.domain.service.NotificationSettingService;
+import com.loopon.notificationsetting.presentation.docs.NotificationSettingDocs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

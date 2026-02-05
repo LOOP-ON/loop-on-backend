@@ -1,6 +1,7 @@
-package com.loopon.setting.application.dto.response;
+package com.loopon.notificationsetting.application.dto.response;
 
-import com.loopon.setting.domain.AlertMode;
+import com.loopon.notificationsetting.domain.AlertMode;
+
 import java.time.LocalTime;
 
 public record NotificationSettingResponse(
@@ -26,4 +27,5 @@ public record NotificationSettingResponse(
         boolean commentEnabled,
         boolean noticeEnabled,
         boolean marketingEnabled
-) {}
+) {
+}

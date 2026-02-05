@@ -1,7 +1,7 @@
-package com.loopon.setting.application.dto.mapper;
+package com.loopon.notificationsetting.application.dto.mapper;
 
-import com.loopon.setting.application.dto.response.NotificationSettingResponse;
-import com.loopon.setting.domain.NotificationSetting;
+import com.loopon.notificationsetting.application.dto.response.NotificationSettingResponse;
+import com.loopon.notificationsetting.domain.NotificationSetting;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

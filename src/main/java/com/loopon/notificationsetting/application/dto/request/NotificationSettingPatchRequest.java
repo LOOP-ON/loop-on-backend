@@ -1,7 +1,7 @@
-package com.loopon.setting.application.dto.request;
+package com.loopon.notificationsetting.application.dto.request;
 
-import com.loopon.setting.domain.AlertMode;
-import com.loopon.setting.domain.NotificationSetting;
+import com.loopon.notificationsetting.domain.AlertMode;
+import com.loopon.notificationsetting.domain.NotificationSetting;
 
 import java.time.LocalTime;
 

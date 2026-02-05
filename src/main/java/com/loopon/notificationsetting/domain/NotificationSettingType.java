@@ -1,7 +1,6 @@
-package com.loopon.setting.domain;
+package com.loopon.notificationsetting.domain;
 
 public enum NotificationSettingType {
-
     // 시스템/소셜
     FRIEND_REQUEST,
     LIKE,

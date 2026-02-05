@@ -1,17 +1,16 @@
-package com.loopon.setting.application.service;
+package com.loopon.notificationsetting.application.service;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.setting.application.dto.mapper.NotificationSettingMapper;
-import com.loopon.setting.application.dto.request.NotificationSettingPatchRequest;
-import com.loopon.setting.application.dto.response.NotificationSettingResponse;
-import com.loopon.setting.domain.NotificationSetting;
-import com.loopon.setting.domain.repository.NotificationSettingRepository;
-import com.loopon.setting.domain.service.NotificationSettingService;
+import com.loopon.notificationsetting.application.dto.mapper.NotificationSettingMapper;
+import com.loopon.notificationsetting.application.dto.request.NotificationSettingPatchRequest;
+import com.loopon.notificationsetting.application.dto.response.NotificationSettingResponse;
+import com.loopon.notificationsetting.domain.NotificationSetting;
+import com.loopon.notificationsetting.domain.repository.NotificationSettingRepository;
+import com.loopon.notificationsetting.domain.service.NotificationSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @RequiredArgsConstructor
