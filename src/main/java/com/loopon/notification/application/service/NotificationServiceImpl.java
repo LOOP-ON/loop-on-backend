@@ -36,6 +36,5 @@ public class NotificationServiceImpl implements NotificationService {
                             data
                     );
                 });
-
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.PrivateKey;
@@ -58,7 +57,6 @@ public class APNsTokenProvider {
             this.privateKey = new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
         }
     }
-
 
     public String getToken() {
         //캐시가 있고 아직 갱신 필요 없으면 그대로 반환

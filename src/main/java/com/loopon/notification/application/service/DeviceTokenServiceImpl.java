@@ -54,6 +54,4 @@ public class DeviceTokenServiceImpl implements DeviceTokenService {
 
         deviceTokenRepository.delete(deviceToken);
     }
-
-
 }

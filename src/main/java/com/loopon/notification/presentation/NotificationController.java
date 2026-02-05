@@ -4,7 +4,6 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.notification.infrastructure.apns.APNsPushService;
 import com.loopon.notification.presentation.docs.NotificationDocs;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

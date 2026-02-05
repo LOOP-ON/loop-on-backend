@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "6. 디바이스 토큰", description = "알림 서비스 첫 이용 시 필요한 디바이스 토큰 API")
