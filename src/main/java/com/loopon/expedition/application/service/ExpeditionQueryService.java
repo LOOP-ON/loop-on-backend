@@ -8,10 +8,7 @@ import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
-import com.loopon.expedition.application.dto.response.ExpeditionChallengesResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionGetResponseList;
-import com.loopon.expedition.application.dto.response.ExpeditionSearchResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionUsersResponse;
+import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionCategory;
 import com.loopon.expedition.domain.ExpeditionUser;
@@ -102,7 +99,9 @@ public class ExpeditionQueryService {
         User user = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 해당 탐험대 명단
+        checkJoinedToExpedition(expedition, user);
+
+        // 해당 탐험대 명단(탈퇴 인원들 포함)
         List<ExpeditionUser> userList = expeditionRepository.findAllExpeditionUserWithUserById(expedition.getId());
 
         // 유저의 친구 목록
@@ -124,6 +123,7 @@ public class ExpeditionQueryService {
                     .isMe(isMe)
                     .isHost(isHost)
                     .friendStatus(status)
+                    .expeditionUserStatus(expeditionUser.getStatus())
                     .build());
         }
 
@@ -145,6 +145,8 @@ public class ExpeditionQueryService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+
+        checkJoinedToExpedition(expedition, user);
 
         // Challenge + Journey + User
         Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByExpeditionId(expedition.getId(), commandDto.pageable());
@@ -230,7 +232,7 @@ public class ExpeditionQueryService {
             return friendIds.get(friendId);
         }
 
-        return null;
+        return FriendStatus.NOT_FRIENDS;
     }
 
 
@@ -259,5 +261,17 @@ public class ExpeditionQueryService {
         }
 
         return imageUrls;
+    }
+
+    private void checkJoinedToExpedition(Expedition expedition, User user) {
+        if (!expeditionRepository.existsExpeditionUserByIdAndUserId(expedition.getId(), user.getId())){
+            throw new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND);
+        }
+    }
+
+    private void checkAdmin(User user, Expedition expedition) {
+        if (expedition.getAdmin() != user){
+            throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
+        }
     }
 }
