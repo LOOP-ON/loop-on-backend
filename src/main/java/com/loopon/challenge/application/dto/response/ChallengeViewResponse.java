@@ -17,4 +17,5 @@ public record ChallengeViewResponse(
         String profileImageUrl,
         Boolean isLiked,
         Integer likeCount
-) {}
+) {
+}

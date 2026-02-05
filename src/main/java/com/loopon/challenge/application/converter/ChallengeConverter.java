@@ -1,8 +1,30 @@
 package com.loopon.challenge.application.converter;
 
-import com.loopon.challenge.application.dto.command.*;
-import com.loopon.challenge.application.dto.request.*;
-import com.loopon.challenge.application.dto.response.*;
+import com.loopon.challenge.application.dto.command.ChallengeCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeDeleteCommand;
+import com.loopon.challenge.application.dto.command.ChallengeDeleteCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeGetCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeLikeCommand;
+import com.loopon.challenge.application.dto.command.ChallengeLikeCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeModifyCommand;
+import com.loopon.challenge.application.dto.command.ChallengeMyCommand;
+import com.loopon.challenge.application.dto.command.ChallengeOthersCommand;
+import com.loopon.challenge.application.dto.command.ChallengePostCommand;
+import com.loopon.challenge.application.dto.command.ChallengeViewCommand;
+import com.loopon.challenge.application.dto.request.ChallengeCommentRequest;
+import com.loopon.challenge.application.dto.request.ChallengeLikeCommentRequest;
+import com.loopon.challenge.application.dto.request.ChallengeLikeRequest;
+import com.loopon.challenge.application.dto.request.ChallengeModifyRequest;
+import com.loopon.challenge.application.dto.request.ChallengePostRequest;
+import com.loopon.challenge.application.dto.response.ChallengeCombinedViewResponse;
+import com.loopon.challenge.application.dto.response.ChallengeCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeGetCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
+import com.loopon.challenge.application.dto.response.ChallengeLikeCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeLikeResponse;
+import com.loopon.challenge.application.dto.response.ChallengeModifyResponse;
+import com.loopon.challenge.application.dto.response.ChallengePostResponse;
+import com.loopon.challenge.application.dto.response.ChallengeViewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.Comment;
 import com.loopon.expedition.domain.Expedition;
@@ -11,7 +33,6 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.loopon.challenge.application.dto.command.ChallengeModifyCommand.*;
+import static com.loopon.challenge.application.dto.command.ChallengeModifyCommand.builder;
 
 
 public class ChallengeConverter {
@@ -154,7 +175,7 @@ public class ChallengeConverter {
 
     public static ChallengeCommentResponse commentChallenge(
             Long commentId
-    ){
+    ) {
         return ChallengeCommentResponse.builder()
                 .commentId(commentId)
                 .build();
@@ -209,7 +230,7 @@ public class ChallengeConverter {
                 .build();
     }
 
-    public static ChallengeLikeCommentResponse likeCommentChallenge (
+    public static ChallengeLikeCommentResponse likeCommentChallenge(
             Long commentLikeId
     ) {
         return ChallengeLikeCommentResponse.builder()
@@ -281,7 +302,7 @@ public class ChallengeConverter {
             List<String> imageUrls,
             List<String> hashtags,
             Boolean isLiked
-    ){
+    ) {
         return ChallengeViewResponse.builder()
                 .challengeId(challenge.getId())
                 .journeySequence(challenge.getJourney().getJourneyOrder()) // 여정 번호 필요!

@@ -1,6 +1,5 @@
 package com.loopon.challenge.application.dto.command;
 
-import jakarta.validation.constraints.AssertTrue;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,4 +18,5 @@ public record ChallengeModifyCommand(
         List<String> hashtags,
         String content,
         Long expeditionId
-) {}
+) {
+}

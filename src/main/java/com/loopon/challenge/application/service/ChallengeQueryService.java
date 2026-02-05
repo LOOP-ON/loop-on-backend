@@ -5,7 +5,11 @@ import com.loopon.challenge.application.dto.command.ChallengeGetCommentCommand;
 import com.loopon.challenge.application.dto.command.ChallengeMyCommand;
 import com.loopon.challenge.application.dto.command.ChallengeOthersCommand;
 import com.loopon.challenge.application.dto.command.ChallengeViewCommand;
-import com.loopon.challenge.application.dto.response.*;
+import com.loopon.challenge.application.dto.response.ChallengeCombinedViewResponse;
+import com.loopon.challenge.application.dto.response.ChallengeGetCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
+import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
+import com.loopon.challenge.application.dto.response.ChallengeViewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
@@ -25,7 +29,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
@@ -49,12 +59,12 @@ public class ChallengeQueryService {
         imageList.sort(Comparator.comparing(ChallengeImage::getDisplayOrder));
 
         List<String> urlList = new ArrayList<>();
-        for (ChallengeImage image : imageList){
+        for (ChallengeImage image : imageList) {
             urlList.add(image.getImageUrl());
         }
 
         List<String> hashtagList = new ArrayList<>();
-        for (ChallengeHashtag hashtag : tagList){
+        for (ChallengeHashtag hashtag : tagList) {
             hashtagList.add(hashtag.getHashtag().getName());
         }
 
@@ -91,7 +101,7 @@ public class ChallengeQueryService {
         }
 
         return comments.map(comment ->
-            ChallengeConverter.getCommentChallenge(comment, childrenMap.getOrDefault(comment.getId(), new ArrayList<>()))
+                ChallengeConverter.getCommentChallenge(comment, childrenMap.getOrDefault(comment.getId(), new ArrayList<>()))
         );
     }
 
@@ -166,9 +176,6 @@ public class ChallengeQueryService {
     }
 
 
-
-
-
     // --------------------------- Helper Method --------------------------------
 
     private void checkAllowed(User targetUser, User myself) {
@@ -238,5 +245,4 @@ public class ChallengeQueryService {
 
         return imageUrls;
     }
-
 }

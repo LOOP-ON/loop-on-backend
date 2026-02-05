@@ -1,15 +1,31 @@
 package com.loopon.challenge.application.service;
 
 import com.loopon.challenge.application.converter.ChallengeConverter;
-import com.loopon.challenge.application.dto.command.*;
-import com.loopon.challenge.application.dto.response.*;
-import com.loopon.challenge.domain.*;
+import com.loopon.challenge.application.dto.command.ChallengeCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeDeleteCommand;
+import com.loopon.challenge.application.dto.command.ChallengeDeleteCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeLikeCommand;
+import com.loopon.challenge.application.dto.command.ChallengeLikeCommentCommand;
+import com.loopon.challenge.application.dto.command.ChallengeModifyCommand;
+import com.loopon.challenge.application.dto.command.ChallengePostCommand;
+import com.loopon.challenge.application.dto.response.ChallengeCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeLikeCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeLikeResponse;
+import com.loopon.challenge.application.dto.response.ChallengeModifyResponse;
+import com.loopon.challenge.application.dto.response.ChallengePostResponse;
+import com.loopon.challenge.domain.Challenge;
+import com.loopon.challenge.domain.ChallengeHashtag;
+import com.loopon.challenge.domain.ChallengeImage;
+import com.loopon.challenge.domain.ChallengeLike;
+import com.loopon.challenge.domain.Comment;
+import com.loopon.challenge.domain.CommentLike;
+import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
-import com.loopon.global.s3.S3Service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
+import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.user.domain.User;
@@ -19,7 +35,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -160,7 +180,7 @@ public class ChallengeCommandService {
 
         if (dto.isLiked()) {
             CommentLike commentLike = challengeRepository.findCommentLikeByCommentIdAndUserId(dto.commentId(), dto.userId())
-                            .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_LIKE_NOT_FOUND));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_LIKE_NOT_FOUND));
 
             challengeRepository.deleteCommentLikeById(commentLike.getId());
             comment.updateLikeCount(-1);
@@ -214,9 +234,6 @@ public class ChallengeCommandService {
         return null;
     }
 
-
-
-
     // ------------------------------- Helper Method ----------------------------------
 
     private void updateChallengeImages(
@@ -254,7 +271,7 @@ public class ChallengeCommandService {
         challengeImages.clear();
         challengeRepository.deleteAllChallengeImageById(challenge.getId());
 
-        for (int i=0; i<remainUrls.size(); i++) {
+        for (int i = 0; i < remainUrls.size(); i++) {
             ChallengeImage challengeImage = ChallengeImage.builder()
                     .displayOrder(remainSequence.get(i))
                     .challenge(challenge)
@@ -296,12 +313,10 @@ public class ChallengeCommandService {
             }
         }
 
-
         Set<String> currentNames = new HashSet<>();
         for (ChallengeHashtag ch : challenge.getChallengeHashtags()) {
             currentNames.add(ch.getHashtag().getName());
         }
-
 
         for (String name : distinctNameSet) {
             if (!currentNames.contains(name)) {
@@ -328,13 +343,13 @@ public class ChallengeCommandService {
     }
 
     private void checkIsLiked(Challenge challenge, User user) {
-        if (challengeRepository.existsChallengeLikeByIdAndUserId(challenge.getId(), user.getId())){
+        if (challengeRepository.existsChallengeLikeByIdAndUserId(challenge.getId(), user.getId())) {
             throw new BusinessException(ErrorCode.CHALLENGE_LIKE_ALREADY_EXISTS);
         }
     }
 
     private void checkCommentIsLiked(Comment comment, User user) {
-        if (challengeRepository.existsCommentLikeByCommentIdAndUserId(comment.getId(), user.getId())){
+        if (challengeRepository.existsCommentLikeByCommentIdAndUserId(comment.getId(), user.getId())) {
             throw new BusinessException(ErrorCode.COMMENT_LIKE_ALREADY_EXISTS);
         }
     }

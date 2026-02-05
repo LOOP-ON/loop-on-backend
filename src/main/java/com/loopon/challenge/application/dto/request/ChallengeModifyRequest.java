@@ -28,4 +28,5 @@ public record ChallengeModifyRequest(
         Long journeyId,
 
         Long expeditionId
-) {}
+) {
+}

@@ -1,9 +1,22 @@
 package com.loopon.challenge.infrastructure;
 
 import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
-import com.loopon.challenge.domain.*;
+import com.loopon.challenge.domain.Challenge;
+import com.loopon.challenge.domain.ChallengeHashtag;
+import com.loopon.challenge.domain.ChallengeHashtagId;
+import com.loopon.challenge.domain.ChallengeImage;
+import com.loopon.challenge.domain.ChallengeLike;
+import com.loopon.challenge.domain.Comment;
+import com.loopon.challenge.domain.CommentLike;
+import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
-import com.loopon.challenge.infrastructure.jpa.*;
+import com.loopon.challenge.infrastructure.jpa.ChallengeHashtagJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.ChallengeImageJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.ChallengeJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.ChallengeLikeJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.CommentJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.CommentLikeJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.HashtagJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +41,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     private final CommentLikeJpaRepository commentLikeJpaRepository;
 
     @Override
-    public Boolean existsByJourneyId(Long journeyId){
+    public Boolean existsByJourneyId(Long journeyId) {
         return challengeJpaRepository.existsByJourneyId(journeyId);
     }
 
@@ -89,7 +102,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public Slice<Challenge> findAllWithJourneyAndUserByExpeditionId(Long expeditionId, Pageable pageable){
+    public Slice<Challenge> findAllWithJourneyAndUserByExpeditionId(Long expeditionId, Pageable pageable) {
         return challengeJpaRepository.findAllWithJourneyAndUserByExpeditionId(expeditionId, pageable);
     }
 

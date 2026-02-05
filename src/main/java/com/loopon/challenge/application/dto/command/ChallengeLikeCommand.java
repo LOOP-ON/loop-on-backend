@@ -7,4 +7,5 @@ public record ChallengeLikeCommand(
         Long challengeId,
         Boolean isLiked,
         Long userId
-) {}
+) {
+}
