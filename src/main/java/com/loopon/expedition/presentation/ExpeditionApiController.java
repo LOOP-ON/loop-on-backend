@@ -40,12 +40,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/expeditions")
 @AllArgsConstructor
 public class ExpeditionApiController implements ExpeditionApiDocs {
 
@@ -53,7 +55,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
     private final ExpeditionCommandService expeditionCommandService;
 
     @Override
-    @GetMapping("/api/expeditions")
+    @GetMapping
     public CommonResponse<ExpeditionGetResponseList> getExpeditions(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
@@ -63,7 +65,7 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
     }
 
     @Override
-    @PostMapping("/api/expeditions")
+    @PostMapping
     public CommonResponse<ExpeditionPostResponse> postExpedition(
             @RequestBody ExpeditionPostRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails

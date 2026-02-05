@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "5. 친구요청(FriendRequest)", description = "친구 요청 응답 및 요청 조회 요청 전송 API")
+@Tag(name = "08. 친구요청(FriendRequest)", description = "친구 요청 응답 및 요청 조회 요청 전송 API")
 public interface FriendRequestApiDocs {
     @Operation(summary = "새로운 친구 검색", description = "요청을 보낼 새로운 친구를 검색합니다.(닉네임)")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)

@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@Tag(name = "9. 탐험대(Expedition)", description = "탐험대 생성, 참여 및 관리 API")
+@Tag(name = "13. 탐험대(Expedition)", description = "탐험대 생성, 참여 및 관리 API")
 public interface ExpeditionApiDocs {
 
     @Operation(summary = "내 탐험대 목록 조회", description = "내가 참여 중인 모든 탐험대 리스트를 조회합니다.")

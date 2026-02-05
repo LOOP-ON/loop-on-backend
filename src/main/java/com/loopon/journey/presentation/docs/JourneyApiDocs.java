@@ -5,7 +5,9 @@ import com.loopon.global.docs.error.errors.CommonInternalServerErrorResponseDocs
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.application.dto.request.JourneyRequest;
+import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
 import com.loopon.journey.application.dto.response.JourneyResponse;
+import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "6. 여정(Journey)", description = "여정 생성 및 조회 API")
+@Tag(name = "09. 여정(Journey)", description = "여정 생성 및 조회 API")
 public interface JourneyApiDocs {
 
     @Operation(summary = "여정을 시작합니다.", description = "새로운 여정 생성 API")
@@ -43,6 +45,16 @@ public interface JourneyApiDocs {
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<JourneyResponse.CurrentJourneyDto>> getCurrentJourney(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    @Operation(summary = "루프 재생성", description = "마음에 들지 않는 루프를 새로운 내용으로 재생성합니다")
+    @ApiResponse(responseCode = "200", description = "루프 재생성에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<LoopRegenerationResponse>> regenerateLoop(
+            @PathVariable Long journeyId,
+            @Valid @RequestBody LoopRegenerationRequest request,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class RoutineApiController implements RoutineApiDocs {
     private final RoutineCommandService routineCommandService;
 
-    @PostMapping("/")
+    @PostMapping
     @Override
     public ResponseEntity<CommonResponse<RoutineResponse.PostRoutinesDto>> postRoutine(
             @Valid @RequestBody RoutineRequest.AddJRoutineDto routineRequest

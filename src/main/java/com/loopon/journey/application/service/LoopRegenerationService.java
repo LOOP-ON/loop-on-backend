@@ -6,7 +6,6 @@ import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.repository.JourneyRepository;
 import com.loopon.llm.application.service.LLMApplicationServiceImpl;
 import com.loopon.llm.domain.dto.LoopGenerationRequest;
-import com.loopon.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +18,11 @@ public class LoopRegenerationService {
     private final LLMApplicationServiceImpl llmService;
 
     @Transactional
-    public LoopRegenerationResponse regenerateLoop(Long journeyId, LoopRegenerationRequest request, User user) {
+    public LoopRegenerationResponse regenerateLoop(Long journeyId, LoopRegenerationRequest request, Long userId) {
         Journey existingJourney = journeyRepository.findById(journeyId)
                 .orElseThrow(() -> new RuntimeException("Journey not found"));
 
-        if (!existingJourney.getUser().getId().equals(user.getId())) {
+        if (!existingJourney.getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to journey");
         }
 

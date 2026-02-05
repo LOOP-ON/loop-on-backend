@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "2. 인증(Auth)", description = "이메일 인증 및 비밀번호 재설정 API")
+@Tag(name = "03. 인증(Auth)", description = "이메일 인증 및 비밀번호 재설정 API")
 public interface VerificationApiDocs {
 
     @Operation(summary = "인증 번호 발송", description = "요청한 이메일로 4자리 인증 번호를 발송합니다. (유효시간 5분)<br>단기간 내 과도한 요청 시 차단될 수 있습니다.")

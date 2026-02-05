@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Tag(name = "8. 챌린지(Challenge)", description = "챌린지, 댓글 및 좋아요 관련 API")
+@Tag(name = "10. 챌린지(Challenge)", description = "챌린지, 댓글 및 좋아요 관련 API")
 public interface ChallengeApiDocs {
 
     @Operation(summary = "챌린지 업로드")

@@ -31,42 +31,72 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi allApi() {
-        return createGroup("All API", "/**");
-    }
-
-    @Bean
-    public GroupedOpenApi userApi() {
-        return createGroup("1. 사용자(User)", "/api/users/**");
-    }
-
-    @Bean
-    public GroupedOpenApi authApi() {
-        return createGroup("2. 인증(Auth)", "/api/auth/**");
+        return createGroup("00. All API", "/**");
     }
 
     @Bean
     public GroupedOpenApi termApi() {
-        return createGroup("3. 약관(Term)", "/api/terms/**");
+        return createGroup("01. 약관(Term)", "/api/terms/**");
+    }
+
+    @Bean
+    public GroupedOpenApi userApi() {
+        return createGroup("02. 사용자(User)", "/api/users/**");
+    }
+
+    @Bean
+    public GroupedOpenApi authApi() {
+        return createGroup("03. 인증(Auth)", "/api/auth/**");
+    }
+
+    @Bean
+    public GroupedOpenApi notificationSettingApi() {
+        return createGroup("04. 알림 설정(Notification-Setting)", "/api/users/me/**");
+    }
+
+    @Bean
+    public GroupedOpenApi notificationApi() {
+        return createGroup("05. 알림(Notification)", "/api/notifications/**");
+    }
+
+    @Bean
+    public GroupedOpenApi deviceTokenApi() {
+        return createGroup("06. 디바이스 토큰(Device-Token)", "/api/device-tokens/**");
     }
 
     @Bean
     public GroupedOpenApi friendApi() {
-        return createGroup("4. 친구(Friend)", "/api/friend/**");
+        return createGroup("07. 친구(Friend)", "/api/friend/**");
     }
 
     @Bean
     public GroupedOpenApi friendRequestApi() {
-        return createGroup("5. 친구요청(FriendRequest)", "/api/friend-request/**");
+        return createGroup("08. 친구요청(FriendRequest)", "/api/friend-request/**");
     }
 
     @Bean
     public GroupedOpenApi journeyApi() {
-        return createGroup("6. 여정(Journey)", "/api/journeys/**");
+        return createGroup("09. 여정(Journey)", "/api/journeys/**");
+    }
+
+    @Bean
+    public GroupedOpenApi challengeApi() {
+        return createGroup("10. 챌린지(Challenge)", "/api/challenges/**");
     }
 
     @Bean
     public GroupedOpenApi routineApi() {
-        return createGroup("7. 루틴(Routine)", "/api/routines/**");
+        return createGroup("11. 루틴(Routine)", "/api/routines/**");
+    }
+
+    @Bean
+    public GroupedOpenApi goalApi() {
+        return createGroup("12. 목표(Goal)", "/api/goals/**");
+    }
+
+    @Bean
+    public GroupedOpenApi expeditionApi() {
+        return createGroup("13. 탐험대(Expedition)", "/api/expeditions/**");
     }
 
     private Info apiInfo() {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/me/notification-settings")
+@RequestMapping("/api/users/me/notification-settings")
 public class NotificationSettingController implements NotificationSettingDocs {
 
     private final NotificationSettingService notificationSettingService;

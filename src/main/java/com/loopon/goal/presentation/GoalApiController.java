@@ -1,14 +1,14 @@
 package com.loopon.goal.presentation;
 
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.goal.application.dto.request.LoopGenerationRequest;
 import com.loopon.goal.application.dto.response.LoopGenerationResponse;
 import com.loopon.goal.application.service.LoopGenerationService;
-import com.loopon.user.domain.User;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.loopon.goal.presentation.docs.GoalApiDocs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,19 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/goals")
 @RequiredArgsConstructor
-@Tag(name = "Goals", description = "목표 및 루프 생성 API")
-public class GoalController {
-
+public class GoalApiController implements GoalApiDocs {
     private final LoopGenerationService loopGenerationService;
 
+    @Override
     @PostMapping("/loops")
-    @Operation(summary = "목표 기반 루프 생성", description = "사용자가 입력한 목표를 바탕으로 5개의 연관 루프를 생성합니다")
-    public CommonResponse<LoopGenerationResponse> generateLoops(
+    public ResponseEntity<CommonResponse<LoopGenerationResponse>> generateLoops(
             @Valid @RequestBody LoopGenerationRequest request,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        LoopGenerationResponse response = loopGenerationService.generateLoops(request, user);
+        LoopGenerationResponse response = loopGenerationService.generateLoops(request, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(response);
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 }

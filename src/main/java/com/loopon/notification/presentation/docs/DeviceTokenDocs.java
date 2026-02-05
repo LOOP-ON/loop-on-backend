@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "6. 디바이스 토큰", description = "알림 서비스 첫 이용 시 필요한 디바이스 토큰 API")
+@Tag(name = "06. 디바이스 토큰", description = "알림 서비스 첫 이용 시 필요한 디바이스 토큰 API")
 public interface DeviceTokenDocs {
     @Operation(summary = "새로운 디바이스 토큰 등록", description = "알림 권한 동의 시 새로운 디바이스 토큰을 저장합니다.")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)

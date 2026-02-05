@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "7. 설정-알림", description = "알림 설정 변경 API")
+@Tag(name = "04. 알림 설정(Notification-Setting)", description = "알림 설정 변경 API")
 public interface NotificationSettingDocs {
 
     @Operation(summary = "알림 설정 정보 가져오기", description = "기존 알림 설정 정보를 불러옵니다.")

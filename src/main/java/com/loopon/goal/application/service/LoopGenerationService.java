@@ -9,6 +9,7 @@ import com.loopon.journey.domain.repository.GoalRepository;
 import com.loopon.journey.domain.repository.JourneyRepository;
 import com.loopon.llm.application.service.LLMApplicationServiceImpl;
 import com.loopon.user.domain.User;
+import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,13 +19,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class LoopGenerationService {
-
     private final GoalRepository goalRepository;
+    private final UserRepository userRepository;
     private final JourneyRepository journeyRepository;
     private final LLMApplicationServiceImpl llmService;
 
     @Transactional
-    public LoopGenerationResponse generateLoops(LoopGenerationRequest request, User user) {
+    public LoopGenerationResponse generateLoops(LoopGenerationRequest request, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         Goal goal = saveGoal(request.getGoal(), user);
 
         String llmResponse = llmService.generateLoops(
