@@ -6,12 +6,10 @@ import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.application.converter.ExpeditionConverter;
 import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionGetCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
-import com.loopon.expedition.application.dto.response.ExpeditionChallengesResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionGetResponseList;
-import com.loopon.expedition.application.dto.response.ExpeditionSearchResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionUsersResponse;
+import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionCategory;
 import com.loopon.expedition.domain.ExpeditionUser;
@@ -29,10 +27,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -44,7 +39,7 @@ public class ExpeditionQueryService {
     private final ChallengeRepository challengeRepository;
 
     @Transactional(readOnly = true)
-    public ExpeditionGetResponseList getExpeditions(Long userId) {
+    public ExpeditionGetResponseList getExpeditionList(Long userId) {
 
         List<Expedition> expeditions = expeditionRepository.findApprovedExpeditionsByUserId(userId);
 
@@ -60,6 +55,7 @@ public class ExpeditionQueryService {
 
         return ExpeditionConverter.getExpeditionList(responseList);
     }
+
 
     @Transactional(readOnly = true)
     public Slice<ExpeditionSearchResponse> searchExpedition(
@@ -140,6 +136,7 @@ public class ExpeditionQueryService {
         return ExpeditionConverter.usersExpedition(isHost, currentUsers, maxUsers, userInfoList);
     }
 
+
     @Transactional(readOnly = true)
     public Slice<ExpeditionChallengesResponse> challengesExpedition(
             ExpeditionChallengesCommand commandDto
@@ -166,7 +163,24 @@ public class ExpeditionQueryService {
 
     }
 
+
+    @Transactional(readOnly = true)
+    public ExpeditionGetResponse getExpedition(
+            ExpeditionGetCommand commandDto
+    ) {
+
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+        User user = userRepository.findById(commandDto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        checkAdmin(user, expedition);
+
+        return ExpeditionConverter.getExpedition(expedition);
+    }
+
     // ---------------------------- Helper Methods -------------------------------
+
 
     // 탐험대 카테고리 가져오기
     private static List<ExpeditionCategory> getExpeditionCategories(ExpeditionSearchCommand commandDto) {
@@ -174,7 +188,7 @@ public class ExpeditionQueryService {
         List<ExpeditionCategory> expeditionCategories = new ArrayList<>();
         ExpeditionCategory[] temp = ExpeditionCategory.values();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i=0; i<3; i++) {
             if (commandDto.categories().get(i) == true) {
                 expeditionCategories.add(temp[i]);
             }
@@ -205,7 +219,7 @@ public class ExpeditionQueryService {
 
         int currentCount = 0;
 
-        for (ExpeditionUser expeditionUser : expeditionUserList) {
+        for (ExpeditionUser expeditionUser : expeditionUserList){
             if (expeditionUser.getStatus().equals(ExpeditionUserStatus.APPROVED)) {
                 currentCount++;
             }
@@ -215,7 +229,7 @@ public class ExpeditionQueryService {
     }
 
     // 유저의 친구들 Map{userId, FriendStatus}
-    private Map<Long, FriendStatus> getFriendsIds(Long userId) {
+    private Map<Long, FriendStatus> getFriendsIds(Long userId){
         List<Friend> friendList = friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.ACCEPTED);
         friendList.addAll(friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.PENDING));
 
@@ -229,13 +243,13 @@ public class ExpeditionQueryService {
 
     // 유저의 친구목록에 id가 존재하는지
     private FriendStatus getFriendStatus(Map<Long, FriendStatus> friendIds, Long friendId) {
-
         if (friendIds.containsKey(friendId)) {
             return friendIds.get(friendId);
         }
 
         return FriendStatus.NOT_FRIENDS;
     }
+
 
     private Boolean getIsChallengeLikedByMe(Long challengeId, Long userId) {
         return challengeRepository.existsChallengeLikeByIdAndUserId(challengeId, userId);
@@ -265,13 +279,13 @@ public class ExpeditionQueryService {
     }
 
     private void checkJoinedToExpedition(Expedition expedition, User user) {
-        if (!expeditionRepository.existsExpeditionUserByIdAndUserId(expedition.getId(), user.getId())) {
+        if (!expeditionRepository.existsExpeditionUserByIdAndUserId(expedition.getId(), user.getId())){
             throw new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND);
         }
     }
 
     private void checkAdmin(User user, Expedition expedition) {
-        if (expedition.getAdmin() != user) {
+        if (expedition.getAdmin() != user){
             throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
         }
     }

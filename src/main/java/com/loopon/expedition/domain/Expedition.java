@@ -46,7 +46,8 @@ public class Expedition {
     private int userLimit;
 
     @Column(name = "current_users", nullable = false)
-    private int currentUsers;
+    @Builder.Default
+    private int currentUsers = 1;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -67,5 +68,15 @@ public class Expedition {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void modify(String title, ExpeditionVisibility visibility, String password) {
+        this.title = title;
+        this.visibility = visibility;
+        this.password = password;
+    }
+
+    public void addToCurrentUsers(int currentUsers) {
+        this.currentUsers += currentUsers;
     }
 }

@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -274,4 +277,56 @@ class ExpeditionCommandServiceTest {
             verify(expeditionRepository).deleteExpeditionUser(targetEU);
         }
     }
+
+    @Test
+    @DisplayName("탐험대 수정 성공 - 모든 조건 충족 시")
+    void modifyExpedition_Success() {
+        // given
+        ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "새 제목", ExpeditionVisibility.PUBLIC, "1234", 10L);
+
+        Expedition mockExpedition = mock(Expedition.class);
+        User mockUser = mock(User.class);
+        lenient().when(mockExpedition.getAdmin()).thenReturn(mockUser);
+
+        given(expeditionRepository.findById(command.expeditionId())).willReturn(Optional.of(mockExpedition));
+        given(userRepository.findById(command.userId())).willReturn(Optional.of(mockUser));
+        given(mockExpedition.getId()).willReturn(1L);
+
+
+        // when
+        ExpeditionModifyResponse response = expeditionCommandService.modifyExpedition(command);
+
+        // then
+        assertNotNull(response);
+        assertEquals(1L, response.expeditionId());
+
+        verify(mockExpedition).modify(command.title(), command.visibility(), command.password());
+    }
+
+    @Test
+    @DisplayName("수정 실패 - 방장 권한이 없는 경우")
+    void modifyExpedition_Forbidden_Not_Admin() {
+        // given
+        ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "제목", ExpeditionVisibility.PUBLIC, null, 10L);
+
+        Expedition mockExpedition = mock(Expedition.class);
+        User mockUser = mock(User.class);
+        User mockAdmin = mock(User.class);
+
+        given(expeditionRepository.findById(anyLong())).willReturn(Optional.of(mockExpedition));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUser));
+
+
+        given(mockExpedition.getAdmin()).willReturn(mockAdmin);
+
+
+        // when & then
+        assertThrows(BusinessException.class, () -> expeditionCommandService.modifyExpedition(command));
+
+        
+    }
+
+    
 }
+
+

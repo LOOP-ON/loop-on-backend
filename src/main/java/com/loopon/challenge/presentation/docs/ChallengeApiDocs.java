@@ -125,7 +125,7 @@ public interface ChallengeApiDocs {
             PrincipalDetails principalDetails
     );
 
-    @Operation(summary = "챌린지 홈 피드 조회. 트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
+    @Operation(summary = "여정광장 챌린지 조회.", description = "트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
     CommonResponse<ChallengeCombinedViewResponse> viewChallenge(
             PrincipalDetails principalDetails,
             @PageableDefault @Qualifier("trending") Pageable trendingPageable,
