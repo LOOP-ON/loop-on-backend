@@ -7,6 +7,7 @@ import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
 import com.loopon.user.application.dto.command.UpdateProfileCommand;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
+import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.UserVisibility;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -232,6 +234,73 @@ class UserCommandServiceTest {
             assertThatThrownBy(() -> userCommandService.updateProfile(userId, command))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("비밀번호 변경")
+    class ChangePassword {
+
+        private ChangePasswordRequest createPasswordCommand(String current, String newPw, String checkPw) {
+            return new ChangePasswordRequest(current, newPw, checkPw);
+        }
+
+        @Test
+        @DisplayName("성공: 현재 비밀번호가 일치하고 새 비밀번호 검증을 통과하면 변경된다")
+        void 비밀번호_변경_성공() {
+            // given
+            Long userId = 1L;
+            String encodedOldPw = "encodedOldPw";
+            User user = User.createLocalUser("test@email.com", "nick", encodedOldPw, null);
+            ReflectionTestUtils.setField(user, "id", userId);
+
+            ChangePasswordRequest command = createPasswordCommand("oldPw123!", "newPw123!", "newPw123!");
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(passwordEncoder.matches(command.currentPassword(), encodedOldPw)).willReturn(true);
+            given(passwordEncoder.encode(command.newPassword())).willReturn("encodedNewPw");
+
+            // when
+            userCommandService.changePassword(userId, command);
+
+            // then
+            org.assertj.core.api.Assertions.assertThat(user.getPassword()).isEqualTo("encodedNewPw");
+        }
+
+        @Test
+        @DisplayName("실패: 현재 비밀번호가 일치하지 않으면 예외가 발생한다")
+        void 비밀번호_변경_실패_현재_비밀번호_불일치() {
+            // given
+            Long userId = 1L;
+            String encodedOldPw = "encodedOldPw";
+            User user = User.createLocalUser("test@email.com", "nick", encodedOldPw, null);
+            ReflectionTestUtils.setField(user, "id", userId);
+
+            ChangePasswordRequest command = createPasswordCommand("wrongPw!", "newPw123!", "newPw123!");
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(passwordEncoder.matches(command.currentPassword(), encodedOldPw)).willReturn(false);
+
+            // when & then
+            assertThatThrownBy(() -> userCommandService.changePassword(userId, command))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CURRENT_PASSWORD_MISMATCH);
+        }
+
+        @Test
+        @DisplayName("실패: 새 비밀번호와 확인 비밀번호가 다르면 예외가 발생한다")
+        void 비밀번호_변경_실패_새비밀번호_불일치() {
+            // given
+            Long userId = 1L;
+            ChangePasswordRequest command = createPasswordCommand("oldPw123!", "newPw123!", "differentPw!");
+
+            User user = User.createLocalUser("test@email.com", "nick", "encoded", null);
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+            // when & then
+            assertThatThrownBy(() -> userCommandService.changePassword(userId, command))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PASSWORD_MISMATCH);
         }
     }
 }
