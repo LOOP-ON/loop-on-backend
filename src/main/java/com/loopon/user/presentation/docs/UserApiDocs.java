@@ -4,6 +4,7 @@ import com.loopon.global.docs.error.errors.CommonBadRequestResponseDocs;
 import com.loopon.global.docs.error.errors.CommonInternalServerErrorResponseDocs;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
+import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,5 +61,14 @@ public interface UserApiDocs {
             PrincipalDetails principalDetails,
             @Parameter(description = "페이징 설정 (page: 0부터 시작, size: 페이지 크기, sort: 정렬)")
             Pageable pageable
+    );
+
+    @Operation(summary = "프로필 수정", description = "닉네임, Bio, 상태메시지, 프로필 이미지를 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "수정 성공 (변경된 프로필 정보 반환)", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<UserProfileResponse>> updateProfile(
+            @Parameter(hidden = true) PrincipalDetails principalDetails,
+            UpdateProfileRequest request
     );
 }

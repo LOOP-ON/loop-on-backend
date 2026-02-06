@@ -5,6 +5,7 @@ import com.loopon.global.s3.S3Service;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.UserQueryService;
+import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,6 +76,16 @@ public class UserApiController implements UserApiDocs {
             Pageable pageable
     ) {
         UserProfileResponse response = userQueryService.getUserProfile(principalDetails.getUserId(), pageable);
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Override
+    @PatchMapping("/profile")
+    public ResponseEntity<CommonResponse<UserProfileResponse>> updateProfile(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Valid @RequestBody UpdateProfileRequest request
+    ) {
+        UserProfileResponse response = userCommandService.updateProfile(principalDetails.getUserId(), request.toCommand());
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 }

@@ -6,7 +6,9 @@ import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
 import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
+import com.loopon.user.application.dto.command.UpdateProfileCommand;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
+import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -80,5 +82,14 @@ public class UserCommandService {
                 .toList();
 
         agreementRepository.saveAll(agreements);
+    }
+
+    public UserProfileResponse updateProfile(Long userId, UpdateProfileCommand command) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateProfile(command.nickname(), command.bio(), command.statusMessage(), command.profileImageUrl(), command.visibility());
+
+        return UserProfileResponse.of(user, null);
     }
 }
