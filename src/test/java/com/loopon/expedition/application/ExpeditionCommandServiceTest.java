@@ -322,5 +322,11 @@ class ExpeditionCommandServiceTest {
 
         // when & then
         assertThrows(BusinessException.class, () -> expeditionCommandService.modifyExpedition(command));
+
+        
     }
+
+    
 }
+
+
