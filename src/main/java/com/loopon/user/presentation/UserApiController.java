@@ -5,6 +5,7 @@ import com.loopon.global.s3.S3Service;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.UserQueryService;
+import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
@@ -87,5 +88,15 @@ public class UserApiController implements UserApiDocs {
     ) {
         UserProfileResponse response = userCommandService.updateProfile(principalDetails.getUserId(), request.toCommand());
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Override
+    @PatchMapping("/password")
+    public ResponseEntity<CommonResponse<Void>> changePassword(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        userCommandService.changePassword(principalDetails.getUserId(), request);
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 }

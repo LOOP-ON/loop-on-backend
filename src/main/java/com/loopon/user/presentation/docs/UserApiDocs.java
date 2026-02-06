@@ -4,6 +4,7 @@ import com.loopon.global.docs.error.errors.CommonBadRequestResponseDocs;
 import com.loopon.global.docs.error.errors.CommonInternalServerErrorResponseDocs;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
+import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
@@ -70,5 +71,14 @@ public interface UserApiDocs {
     ResponseEntity<CommonResponse<UserProfileResponse>> updateProfile(
             @Parameter(hidden = true) PrincipalDetails principalDetails,
             UpdateProfileRequest request
+    );
+
+    @Operation(summary = "비밀번호 변경", description = "현재 비밀번호를 확인하고 새로운 비밀번호로 변경합니다.")
+    @ApiResponse(responseCode = "200", description = "비밀번호 변경 성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<Void>> changePassword(
+            @Parameter(hidden = true) PrincipalDetails principalDetails,
+            ChangePasswordRequest request
     );
 }

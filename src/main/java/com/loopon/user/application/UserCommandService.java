@@ -8,8 +8,10 @@ import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
 import com.loopon.user.application.dto.command.UpdateProfileCommand;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
+import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,34 @@ public class UserCommandService {
         saveUserTermAgreements(user, allTerms, command.agreedTermIds());
 
         return userId;
+    }
+
+    public UserProfileResponse updateProfile(Long userId, UpdateProfileCommand command) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateProfile(command.nickname(), command.bio(), command.statusMessage(), command.profileImageUrl(), command.visibility());
+
+        return UserProfileResponse.of(user, null);
+    }
+
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getProvider().equals(UserProvider.LOCAL)) {
+            throw new BusinessException(ErrorCode.SOCIAL_USER_CANNOT_CHANGE_PASSWORD);
+        }
+
+        if (!request.newPassword().equals(request.confirmNewPassword())) {
+            throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.CURRENT_PASSWORD_MISMATCH);
+        }
+
+        user.updatePassword(passwordEncoder.encode(request.newPassword()));
     }
 
     private void checkPasswordConfirmation(String password, String confirmPassword) {
@@ -82,14 +112,5 @@ public class UserCommandService {
                 .toList();
 
         agreementRepository.saveAll(agreements);
-    }
-
-    public UserProfileResponse updateProfile(Long userId, UpdateProfileCommand command) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        user.updateProfile(command.nickname(), command.bio(), command.statusMessage(), command.profileImageUrl(), command.visibility());
-
-        return UserProfileResponse.of(user, null);
     }
 }

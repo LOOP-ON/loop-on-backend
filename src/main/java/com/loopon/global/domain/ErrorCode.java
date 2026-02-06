@@ -21,6 +21,8 @@ public enum ErrorCode {
     NICKNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "U002", "이미 존재하는 닉네임입니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "U003", "비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "U004", "일치하는 회원 정보가 존재하지 않습니다."),
+    SOCIAL_USER_CANNOT_CHANGE_PASSWORD(HttpStatus.BAD_REQUEST, "U005", "소셜 로그인 사용자는 비밀번호 변경이 불가능합니다."),
+    CURRENT_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "U006", "현재 비밀번호가 일치하지 않습니다."),
 
     // Auth (인증/인가, A-xxx)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
