@@ -5,8 +5,11 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.term.domain.Term;
 import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
+import com.loopon.user.application.dto.command.UpdateProfileCommand;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
+import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserVisibility;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -171,6 +174,64 @@ class UserCommandServiceTest {
             assertThatThrownBy(() -> userCommandService.signUp(command))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+    }
+
+    @Nested
+    @DisplayName("프로필 수정")
+    class UpdateProfile {
+
+        private UpdateProfileCommand createUpdateCommand(String nickname, String bio, String statusMessage, String profileImageUrl, UserVisibility visibility) {
+            return new UpdateProfileCommand(
+                    nickname, bio, statusMessage, profileImageUrl, visibility
+            );
+        }
+
+        @Test
+        @DisplayName("성공: 존재하는 사용자의 프로필 정보를 수정한다")
+        void 프로필_수정_성공() {
+            // given
+            Long userId = 1L;
+            User user = User.createLocalUser(
+                    "test@loopon.com", "oldNick", "encodedPw", "oldImg.jpg"
+            );
+            ReflectionTestUtils.setField(user, "id", userId);
+
+            UpdateProfileCommand command = createUpdateCommand(
+                    "newNick", "newBio", "Studying...", "newImg.jpg", UserVisibility.PUBLIC
+            );
+
+            given(userRepository.findById(userId)).willReturn(java.util.Optional.of(user));
+
+            // when
+            UserProfileResponse response = userCommandService.updateProfile(userId, command);
+
+            // then
+            org.assertj.core.api.Assertions.assertThat(response.nickname()).isEqualTo(command.nickname());
+            org.assertj.core.api.Assertions.assertThat(response.bio()).isEqualTo(command.bio());
+            org.assertj.core.api.Assertions.assertThat(response.statusMessage()).isEqualTo(command.statusMessage());
+            org.assertj.core.api.Assertions.assertThat(response.profileImageUrl()).isEqualTo(command.profileImageUrl());
+
+            org.assertj.core.api.Assertions.assertThat(user.getNickname()).isEqualTo("newNick");
+            org.assertj.core.api.Assertions.assertThat(user.getBio()).isEqualTo("newBio");
+            org.assertj.core.api.Assertions.assertThat(user.getVisibility()).isEqualTo(UserVisibility.PUBLIC);
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 사용자 ID로 요청하면 예외가 발생한다")
+        void 프로필_수정_실패_사용자_없음() {
+            // given
+            Long userId = 999L;
+            UpdateProfileCommand command = createUpdateCommand(
+                    "newNick", "newBio", "msg", "img.jpg", UserVisibility.PRIVATE
+            );
+
+            given(userRepository.findById(userId)).willReturn(java.util.Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userCommandService.updateProfile(userId, command))
+                    .isInstanceOf(BusinessException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
         }
     }
 }
