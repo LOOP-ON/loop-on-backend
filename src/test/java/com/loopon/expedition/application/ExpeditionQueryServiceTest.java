@@ -107,7 +107,7 @@ class ExpeditionQueryServiceTest {
             // then
             assertThat(result.expeditionGetResponses()).hasSize(1);
             assertThat(result.expeditionGetResponses().get(0).admin()).isEqualTo("adminUser");
-            assertThat(result.expeditionGetResponses().get(0).currentMembers()).isEqualTo(2);
+            assertThat(result.expeditionGetResponses().get(0).currentUsers()).isEqualTo(2);
         }
     }
 
