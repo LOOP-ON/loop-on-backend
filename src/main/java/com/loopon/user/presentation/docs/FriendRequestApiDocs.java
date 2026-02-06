@@ -6,9 +6,11 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.request.FriendRequestCreateRequest;
-import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
-import com.loopon.user.application.dto.response.*;
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.user.application.dto.response.FriendRequestBulkRespondResponse;
+import com.loopon.user.application.dto.response.FriendRequestCreateResponse;
+import com.loopon.user.application.dto.response.FriendRequestReceivedResponse;
+import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
+import com.loopon.user.application.dto.response.FriendSearchResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "5. 친구요청(FriendRequest)", description = "친구 요청 응답 및 요청 조회 요청 전송 API")
+@Tag(name = "08. 친구요청(FriendRequest)", description = "친구 요청 응답 및 요청 조회 요청 전송 API")
 public interface FriendRequestApiDocs {
     @Operation(summary = "새로운 친구 검색", description = "요청을 보낼 새로운 친구를 검색합니다.(닉네임)")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)

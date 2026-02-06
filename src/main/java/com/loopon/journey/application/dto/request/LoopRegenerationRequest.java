@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class LoopRegenerationRequest {
-    
+
     @NotBlank(message = "기존 루프 목표는 필수입니다")
     private String originalGoal;
-    
+
     @NotBlank(message = "전체 목표는 필수입니다")
     private String mainGoal;
 }

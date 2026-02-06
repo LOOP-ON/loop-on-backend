@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-@Tag(name = "3. 약관(Term)", description = "약관 관련 API")
+@Tag(name = "01. 약관(Term)", description = "약관 관련 API")
 public interface TermApiDocs {
 
     @Operation(

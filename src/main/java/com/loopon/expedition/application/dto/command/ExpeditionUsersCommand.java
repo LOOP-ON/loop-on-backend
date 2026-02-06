@@ -6,4 +6,5 @@ import lombok.Builder;
 public record ExpeditionUsersCommand(
         Long expeditionId,
         Long userId
-) {}
+) {
+}

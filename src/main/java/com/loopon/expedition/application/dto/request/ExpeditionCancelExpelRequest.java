@@ -4,4 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 public record ExpeditionCancelExpelRequest(
         @NotNull Long userId
-) {}
+) {
+}

@@ -8,4 +8,5 @@ public record ChallengeCommentCommand(
         Long userId,
         String content,
         Long parentId
-) {}
+) {
+}

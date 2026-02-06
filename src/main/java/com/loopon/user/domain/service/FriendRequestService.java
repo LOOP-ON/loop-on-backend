@@ -1,8 +1,11 @@
 package com.loopon.user.domain.service;
 
 import com.loopon.global.domain.dto.PageResponse;
-import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
-import com.loopon.user.application.dto.response.*;
+import com.loopon.user.application.dto.response.FriendRequestBulkRespondResponse;
+import com.loopon.user.application.dto.response.FriendRequestCreateResponse;
+import com.loopon.user.application.dto.response.FriendRequestReceivedResponse;
+import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
+import com.loopon.user.application.dto.response.FriendSearchResponse;
 import com.loopon.user.domain.FriendStatus;
 import org.springframework.data.domain.Pageable;
 

@@ -6,4 +6,5 @@ import lombok.Builder;
 public record ChallengeLikeResponse(
         Long challengeId,
         Long challengeLikeId
-) {}
+) {
+}

@@ -6,8 +6,10 @@ import java.util.List;
 
 public interface FriendService {
     List<FriendResponse> getMyFriends(Long me);
-    void blockFriend(Long me, Long friendId);
-    void unblockFriend(Long me, Long friendId);
-    void deleteFriend(Long me, Long friendId);
 
+    void blockFriend(Long me, Long friendId);
+
+    void unblockFriend(Long me, Long friendId);
+
+    void deleteFriend(Long me, Long friendId);
 }

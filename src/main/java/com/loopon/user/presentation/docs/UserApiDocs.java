@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "1. 사용자(User)", description = "회원가입 및 중복 확인 관련 API")
+@Tag(name = "02. 사용자(User)", description = "회원가입 및 중복 확인 관련 API")
 public interface UserApiDocs {
 
     @Operation(summary = "이메일 중복 확인", description = "회원가입 시 이메일이 이미 존재하는지 확인합니다.")

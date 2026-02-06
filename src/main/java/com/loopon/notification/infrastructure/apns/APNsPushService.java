@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestClient;
 
-
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;

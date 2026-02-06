@@ -4,7 +4,6 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.notification.infrastructure.apns.APNsPushService;
 import com.loopon.notification.presentation.docs.NotificationDocs;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +18,7 @@ import java.util.Map;
 public class NotificationController implements NotificationDocs {
     private final APNsPushService apnsPushService;
 
+    @Override
     @PostMapping("/send-push")
     public ResponseEntity<CommonResponse<Void>> sendPush() {
         Map<String, String> data = new HashMap<>();

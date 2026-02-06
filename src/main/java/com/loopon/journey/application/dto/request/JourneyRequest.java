@@ -7,10 +7,12 @@ public class JourneyRequest {
     public record AddJourneyDto(
             String goal,
             JourneyCategory category
-    ){}
+    ) {
+    }
 
     public record PostponeRoutineDto(
             @NotBlank(message = "미루는 사유는 필수입니다.")
             String reason
-    ) {}
+    ) {
+    }
 }

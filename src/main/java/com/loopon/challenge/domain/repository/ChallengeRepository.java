@@ -1,7 +1,14 @@
 package com.loopon.challenge.domain.repository;
 
 import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
-import com.loopon.challenge.domain.*;
+import com.loopon.challenge.domain.Challenge;
+import com.loopon.challenge.domain.ChallengeHashtag;
+import com.loopon.challenge.domain.ChallengeHashtagId;
+import com.loopon.challenge.domain.ChallengeImage;
+import com.loopon.challenge.domain.ChallengeLike;
+import com.loopon.challenge.domain.Comment;
+import com.loopon.challenge.domain.CommentLike;
+import com.loopon.challenge.domain.Hashtag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;

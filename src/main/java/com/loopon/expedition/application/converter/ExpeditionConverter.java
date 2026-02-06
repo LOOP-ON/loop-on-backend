@@ -14,12 +14,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+
 public class ExpeditionConverter {
 
     public static ExpeditionGetResponseList.ExpeditionGetResponse getExpeditions(
             Expedition expedition,
             String adminName,
-            Integer currentMembers
+            Integer currentUsers
     ) {
         return ExpeditionGetResponseList.ExpeditionGetResponse.builder()
                 .expeditionId(expedition.getId())
@@ -28,7 +29,7 @@ public class ExpeditionConverter {
                 .capacity(expedition.getUserLimit())
                 .visibility(expedition.getVisibility())
                 .admin(adminName)
-                .currentMembers(currentMembers)
+                .currentUsers(currentUsers)
                 .build();
     }
 
@@ -253,7 +254,7 @@ public class ExpeditionConverter {
 
     public static ExpeditionCancelExpelResponse cancelExpelExpedition(
             Long userId
-    ){
+    ) {
         return ExpeditionCancelExpelResponse.builder()
                 .userId(userId)
                 .build();

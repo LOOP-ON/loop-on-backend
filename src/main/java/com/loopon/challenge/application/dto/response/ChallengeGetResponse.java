@@ -15,4 +15,5 @@ public record ChallengeGetResponse(
         String content,
 
         Long expeditionId
-) {}
+) {
+}

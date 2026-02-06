@@ -1,7 +1,19 @@
 package com.loopon.challenge.presentation.docs;
 
-import com.loopon.challenge.application.dto.request.*;
-import com.loopon.challenge.application.dto.response.*;
+import com.loopon.challenge.application.dto.request.ChallengeCommentRequest;
+import com.loopon.challenge.application.dto.request.ChallengeLikeCommentRequest;
+import com.loopon.challenge.application.dto.request.ChallengeLikeRequest;
+import com.loopon.challenge.application.dto.request.ChallengeModifyRequest;
+import com.loopon.challenge.application.dto.request.ChallengePostRequest;
+import com.loopon.challenge.application.dto.response.ChallengeCombinedViewResponse;
+import com.loopon.challenge.application.dto.response.ChallengeCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeGetCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
+import com.loopon.challenge.application.dto.response.ChallengeLikeCommentResponse;
+import com.loopon.challenge.application.dto.response.ChallengeLikeResponse;
+import com.loopon.challenge.application.dto.response.ChallengeModifyResponse;
+import com.loopon.challenge.application.dto.response.ChallengePostResponse;
+import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +32,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-@Tag(name = "8. 챌린지(Challenge)", description = "챌린지, 댓글 및 좋아요 관련 API")
+
+@Tag(name = "10. 챌린지(Challenge)", description = "챌린지, 댓글 및 좋아요 관련 API")
 public interface ChallengeApiDocs {
 
     @Operation(summary = "챌린지 업로드")

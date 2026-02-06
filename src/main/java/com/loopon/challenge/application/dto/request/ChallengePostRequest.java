@@ -21,4 +21,5 @@ public record ChallengePostRequest(
         Long journeyId,
 
         Long expeditionId
-){}
+) {
+}

@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record ExpeditionGetResponseList (
+public record ExpeditionGetResponseList(
         List<ExpeditionGetResponse> expeditionGetResponses
 ) {
 
@@ -17,8 +17,9 @@ public record ExpeditionGetResponseList (
             String title,
             ExpeditionCategory category,
             String admin,
-            Integer currentMembers,
+            Integer currentUsers,
             Integer capacity,
             ExpeditionVisibility visibility
-    ){}
+    ) {
+    }
 }

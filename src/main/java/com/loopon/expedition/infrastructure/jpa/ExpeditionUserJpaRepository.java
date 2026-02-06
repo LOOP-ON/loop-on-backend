@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface ExpeditionUserJpaRepository extends JpaRepository<ExpeditionUser, Long> {
 
     @EntityGraph(attributePaths = {"expedition"})

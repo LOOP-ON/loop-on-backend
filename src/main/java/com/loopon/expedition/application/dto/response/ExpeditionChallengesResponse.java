@@ -16,4 +16,5 @@ public record ExpeditionChallengesResponse(
         String nickName,
         String profileImageUrl,
         Boolean isLiked
-) {}
+) {
+}

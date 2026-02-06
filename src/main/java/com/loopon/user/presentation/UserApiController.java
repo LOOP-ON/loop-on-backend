@@ -1,7 +1,7 @@
 package com.loopon.user.presentation;
 
-import com.loopon.global.s3.S3Service;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.s3.S3Service;
 import com.loopon.user.application.UserCommandService;
 import com.loopon.user.application.UserQueryService;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
@@ -52,7 +52,7 @@ public class UserApiController implements UserApiDocs {
     }
 
     @Override
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, path = "/upload-profile-image")
+    @PostMapping(value = "/upload-profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommonResponse<String>> uploadProfileImage(@RequestPart("file") MultipartFile file) {
         profileImageValidator.validate(file);
         String imageUrl = s3Service.uploadFile(file);

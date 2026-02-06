@@ -7,12 +7,14 @@ public class JourneyCommand {
             Long userId,
             String goal,
             JourneyCategory category
-    ) {}
+    ) {
+    }
 
     public record PostponeRoutineCommand(
             Long userId,
             Long journeyId,
             Long routineId,
             String reason
-    ) {}
+    ) {
+    }
 }

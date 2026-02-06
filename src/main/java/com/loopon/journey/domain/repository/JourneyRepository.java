@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface JourneyRepository extends JpaRepository<Journey, Long> {
-    Optional<Journey> findById(Long journeyId);
     Optional<Journey> findByUserAndStatus(User user, JourneyStatus status);
+
     List<Journey> findByUser(User user);
 }

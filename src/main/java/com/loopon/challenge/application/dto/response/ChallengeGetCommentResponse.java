@@ -1,6 +1,5 @@
 package com.loopon.challenge.application.dto.response;
 
-import com.loopon.challenge.domain.Comment;
 import lombok.Builder;
 
 import java.util.List;
@@ -13,4 +12,5 @@ public record ChallengeGetCommentResponse(
         String content,
         Integer likeCount,
         List<ChallengeGetCommentResponse> children
-) {}
+) {
+}

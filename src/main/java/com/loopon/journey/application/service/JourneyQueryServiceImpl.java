@@ -1,9 +1,9 @@
 package com.loopon.journey.application.service;
 
-import com.loopon.Routine.domain.Routine;
-import com.loopon.Routine.domain.RoutineProgress;
-import com.loopon.Routine.infrastructure.RoutineJpaRepository;
-import com.loopon.Routine.infrastructure.RoutineProgressJpaRepository;
+import com.loopon.routine.domain.Routine;
+import com.loopon.routine.domain.RoutineProgress;
+import com.loopon.routine.infrastructure.RoutineJpaRepository;
+import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyStatus;

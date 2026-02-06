@@ -46,25 +46,25 @@ public record UserSignUpRequest(
         List<Long> agreedTermIds
 ) {
 
-        public UserSignUpCommand toCommand() {
-                return UserSignUpCommand.of(
-                        email,
-                        password,
-                        confirmPassword,
-                        nickname,
-                        profileImageUrl,
-                        agreedTermIds
-                );
-        }
+    public UserSignUpCommand toCommand() {
+        return UserSignUpCommand.of(
+                email,
+                password,
+                confirmPassword,
+                nickname,
+                profileImageUrl,
+                agreedTermIds
+        );
+    }
 
-        @Override
-        public String toString() {
-                return "UserSignUpRequest[" +
-                        "email=" + email +
-                        ", nickname=" + nickname +
-                        ", agreedTermIds=" + agreedTermIds +
-                        ", password=****" +
-                        ", confirmPassword=****" +
-                        "]";
-        }
+    @Override
+    public String toString() {
+        return "UserSignUpRequest[" +
+                "email=" + email +
+                ", nickname=" + nickname +
+                ", agreedTermIds=" + agreedTermIds +
+                ", password=****" +
+                ", confirmPassword=****" +
+                "]";
+    }
 }
