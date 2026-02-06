@@ -28,9 +28,12 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
+import com.loopon.notification.application.event.ChallengeLikeEvent;
+import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +55,8 @@ public class ChallengeCommandService {
     private final ExpeditionRepository expeditionRepository;
 
     private final S3Service s3Service;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public ChallengePostResponse postChallenge(
@@ -110,8 +115,11 @@ public class ChallengeCommandService {
             challengeLikeId = challengeLike.getId();
 
             challenge.updateLikeCount(1);
-        }
 
+            applicationEventPublisher.publishEvent(
+                    new ChallengeLikeEvent(challenge.getId(), challenge.getUser().getId(), user.getId())
+            );
+        }
         return ChallengeConverter.likeChallenge(dto.challengeId(), challengeLikeId);
     }
 
