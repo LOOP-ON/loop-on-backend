@@ -3,12 +3,15 @@ package com.loopon.user.presentation.docs;
 import com.loopon.global.docs.error.errors.CommonBadRequestResponseDocs;
 import com.loopon.global.docs.error.errors.CommonInternalServerErrorResponseDocs;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
+import com.loopon.user.application.dto.response.UserProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,5 +48,16 @@ public interface UserApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<String>> uploadProfileImage(
             @Parameter(description = "업로드할 이미지 파일", required = true) MultipartFile file
+    );
+
+    @Operation(summary = "내 프로필 조회", description = "인증된 사용자의 프로필 정보(닉네임, 이미지, 참여 이력 등)를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<UserProfileResponse>> getUserProfile(
+            @Parameter(hidden = true)
+            PrincipalDetails principalDetails,
+            @Parameter(description = "페이징 설정 (page: 0부터 시작, size: 페이지 크기, sort: 정렬)")
+            Pageable pageable
     );
 }

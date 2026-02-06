@@ -66,6 +66,7 @@ public class UserApiController implements UserApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(imageUrl));
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<CommonResponse<UserProfileResponse>> getUserProfile(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
