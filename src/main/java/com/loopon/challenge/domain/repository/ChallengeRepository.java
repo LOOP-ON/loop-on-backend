@@ -88,4 +88,6 @@ public interface ChallengeRepository {
     void saveComment(Comment comment);
 
     Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId);
+
+    Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable);
 }

@@ -1,31 +1,13 @@
 package com.loopon.challenge.presentation;
 
 import com.loopon.challenge.application.converter.ChallengeConverter;
-import com.loopon.challenge.application.dto.command.ChallengeCommentCommand;
-import com.loopon.challenge.application.dto.command.ChallengeDeleteCommand;
-import com.loopon.challenge.application.dto.command.ChallengeDeleteCommentCommand;
-import com.loopon.challenge.application.dto.command.ChallengeGetCommentCommand;
-import com.loopon.challenge.application.dto.command.ChallengeLikeCommand;
-import com.loopon.challenge.application.dto.command.ChallengeLikeCommentCommand;
-import com.loopon.challenge.application.dto.command.ChallengeModifyCommand;
-import com.loopon.challenge.application.dto.command.ChallengeMyCommand;
-import com.loopon.challenge.application.dto.command.ChallengeOthersCommand;
-import com.loopon.challenge.application.dto.command.ChallengePostCommand;
-import com.loopon.challenge.application.dto.command.ChallengeViewCommand;
+import com.loopon.challenge.application.dto.command.*;
 import com.loopon.challenge.application.dto.request.ChallengeCommentRequest;
 import com.loopon.challenge.application.dto.request.ChallengeLikeCommentRequest;
 import com.loopon.challenge.application.dto.request.ChallengeLikeRequest;
 import com.loopon.challenge.application.dto.request.ChallengeModifyRequest;
 import com.loopon.challenge.application.dto.request.ChallengePostRequest;
-import com.loopon.challenge.application.dto.response.ChallengeCombinedViewResponse;
-import com.loopon.challenge.application.dto.response.ChallengeCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeGetCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
-import com.loopon.challenge.application.dto.response.ChallengeLikeCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeLikeResponse;
-import com.loopon.challenge.application.dto.response.ChallengeModifyResponse;
-import com.loopon.challenge.application.dto.response.ChallengePostResponse;
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
+import com.loopon.challenge.application.dto.response.*;
 import com.loopon.challenge.application.service.ChallengeCommandService;
 import com.loopon.challenge.application.service.ChallengeQueryService;
 import com.loopon.challenge.presentation.docs.ChallengeApiDocs;
@@ -35,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -183,5 +166,16 @@ public class ChallengeApiController implements ChallengeApiDocs {
     ) {
         ChallengeViewCommand commandDto = ChallengeConverter.viewChallenge(principalDetails.getUserId(), trendingPageable, friendsPageable);
         return CommonResponse.onSuccess(challengeQueryService.viewChallenge(commandDto));
+    }
+
+
+    @Override
+    @GetMapping("/api/challenges/users/{nickname}/details")
+    public CommonResponse<Slice<ChallengeDetailResponse>> detailsChallenge(
+            @PathVariable String nickname,
+            @PageableDefault Pageable pageable
+    ) {
+        ChallengeDetailCommand commandDto = ChallengeConverter.detailChallenge(nickname, pageable);
+        return CommonResponse.onSuccess(challengeQueryService.detailsChallenge(commandDto));
     }
 }
