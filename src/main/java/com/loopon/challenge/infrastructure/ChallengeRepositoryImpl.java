@@ -211,4 +211,9 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     public Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId) {
         return commentLikeJpaRepository.existsByIdAndUserId(commentId, userId);
     }
+
+    @Override
+    public Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable) {
+        return challengeJpaRepository.findAllWithJourneyAndUserByUserId(userId, pageable);
+    }
 }

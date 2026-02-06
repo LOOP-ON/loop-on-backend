@@ -1,15 +1,8 @@
 package com.loopon.challenge.application.service;
 
 import com.loopon.challenge.application.converter.ChallengeConverter;
-import com.loopon.challenge.application.dto.command.ChallengeGetCommentCommand;
-import com.loopon.challenge.application.dto.command.ChallengeMyCommand;
-import com.loopon.challenge.application.dto.command.ChallengeOthersCommand;
-import com.loopon.challenge.application.dto.command.ChallengeViewCommand;
-import com.loopon.challenge.application.dto.response.ChallengeCombinedViewResponse;
-import com.loopon.challenge.application.dto.response.ChallengeGetCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
-import com.loopon.challenge.application.dto.response.ChallengeViewResponse;
+import com.loopon.challenge.application.dto.command.*;
+import com.loopon.challenge.application.dto.response.*;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
@@ -175,6 +168,27 @@ public class ChallengeQueryService {
         return ChallengeConverter.combineChallenge(trendingResponse, friendsResponse);
     }
 
+    @Transactional(readOnly = true)
+    public Slice<ChallengeDetailResponse> detailsChallenge(
+            ChallengeDetailCommand dto
+    ) {
+
+        User user = userRepository.findByNickname(dto.nickname())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByUserId(user.getId(), dto.pageable());
+
+        return challenges.map(challenge -> {
+
+            List<String> imageUrls = getImageUrls(challenge);
+            List<String> hashtags = getHashtags(challenge);
+            Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), user.getId());
+
+            return ChallengeConverter.detailChallenge(challenge, imageUrls, hashtags, isLiked);
+        });
+    }
+
+
 
     // --------------------------- Helper Method --------------------------------
 
@@ -244,5 +258,9 @@ public class ChallengeQueryService {
         }
 
         return imageUrls;
+    }
+
+    private Boolean getIsChallengeLikedByMe(Long challengeId, Long userId) {
+        return challengeRepository.existsChallengeLikeByIdAndUserId(challengeId, userId);
     }
 }
