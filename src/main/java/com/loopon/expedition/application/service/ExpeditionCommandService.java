@@ -2,18 +2,8 @@ package com.loopon.expedition.application.service;
 
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.application.converter.ExpeditionConverter;
-import com.loopon.expedition.application.dto.command.ExpeditionCancelExpelCommand;
-import com.loopon.expedition.application.dto.command.ExpeditionDeleteCommand;
-import com.loopon.expedition.application.dto.command.ExpeditionExpelCommand;
-import com.loopon.expedition.application.dto.command.ExpeditionJoinCommand;
-import com.loopon.expedition.application.dto.command.ExpeditionPostCommand;
-import com.loopon.expedition.application.dto.command.ExpeditionWithdrawCommand;
-import com.loopon.expedition.application.dto.response.ExpeditionCancelExpelResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionDeleteResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionExpelResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionJoinResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionPostResponse;
-import com.loopon.expedition.application.dto.response.ExpeditionWithdrawResponse;
+import com.loopon.expedition.application.dto.command.*;
+import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionUser;
 import com.loopon.expedition.domain.ExpeditionUserStatus;
@@ -87,6 +77,7 @@ public class ExpeditionCommandService {
                 .build();
 
         expeditionRepository.saveExpeditionUser(expeditionUser);
+        expedition.addToCurrentUsers(1);
 
         return ExpeditionConverter.joinExpedition(expeditionUser);
     }
@@ -95,11 +86,15 @@ public class ExpeditionCommandService {
     public ExpeditionWithdrawResponse withdrawExpedition(
             ExpeditionWithdrawCommand commandDto
     ) {
-        ExpeditionUser expeditionUser =
-                expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
-                        .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
+
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+
+        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
+                         .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionRepository.deleteExpeditionUser(expeditionUser);
+        expedition.addToCurrentUsers(-1);
 
         return ExpeditionConverter.withdrawExpedition(commandDto.expeditionId());
     }
@@ -140,9 +135,10 @@ public class ExpeditionCommandService {
 
         ExpeditionUser expeditionUser =
                 expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
-                        .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
+                        .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionUser.expelUser();
+        expedition.addToCurrentUsers(-1);
 
         return ExpeditionConverter.expelExpedition(expeditionUser.getId());
     }
@@ -161,24 +157,39 @@ public class ExpeditionCommandService {
         User expelledUser = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
+                .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionRepository.deleteExpeditionUser(expeditionUser);
 
         return ExpeditionConverter.cancelExpelExpedition(expeditionUser.getId());
     }
 
+    @Transactional
+    public ExpeditionModifyResponse modifyExpedition(
+            ExpeditionModifyCommand dto
+    ) {
+        Expedition expedition = expeditionRepository.findById(dto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+        User user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        checkAdmin(user, expedition);
+
+        expedition.modify(dto.title(), dto.visibility(), dto.password());
+
+        return ExpeditionConverter.modifyExpedition(expedition.getId());
+    }
 
     // -------------------------- helper methods-------------------------------
 
 
     // 사용자의 탐험대 개수 제한
-    private void checkExpeditionLimit(User user) {
+    private void checkExpeditionLimit(User user){
         List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserByUserId(user.getId());
 
         int currentCount = 0;
 
-        for (ExpeditionUser expeditionUser : expeditionUserList) {
+        for (ExpeditionUser expeditionUser : expeditionUserList){
             if (expeditionUser.getStatus().equals(ExpeditionUserStatus.APPROVED)) {
                 currentCount++;
             }
@@ -192,7 +203,7 @@ public class ExpeditionCommandService {
     private void checkExpelled(Expedition expedition, User user) {
         List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserById(expedition.getId());
 
-        for (ExpeditionUser expeditionUser : expeditionUserList) {
+        for (ExpeditionUser expeditionUser : expeditionUserList){
             if (expeditionUser.getUser() == user && expeditionUser.getStatus().equals(ExpeditionUserStatus.EXPELLED)) {
                 throw new BusinessException(ErrorCode.EXPEDITION_EXPELLED);
             }
@@ -220,7 +231,7 @@ public class ExpeditionCommandService {
     }
 
     private void checkAdmin(User user, Expedition expedition) {
-        if (expedition.getAdmin() != user) {
+        if (expedition.getAdmin() != user){
             throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
         }
     }

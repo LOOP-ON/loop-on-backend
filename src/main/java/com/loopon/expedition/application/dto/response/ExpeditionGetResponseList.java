@@ -17,7 +17,7 @@ public record ExpeditionGetResponseList(
             String title,
             ExpeditionCategory category,
             String admin,
-            Integer currentMembers,
+            Integer currentUsers,
             Integer capacity,
             ExpeditionVisibility visibility
     ) {

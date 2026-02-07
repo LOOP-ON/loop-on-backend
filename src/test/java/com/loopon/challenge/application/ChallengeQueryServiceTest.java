@@ -28,6 +28,9 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -313,5 +316,72 @@ class ChallengeQueryServiceTest {
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND);
         }
+    }
+
+    @Test
+    @DisplayName("챌린지 상세 목록 조회 성공 - 연관 엔티티 포함")
+    void detailsChallenge_Success() {
+        // given
+        String nickname = "testUser";
+        Pageable pageable = PageRequest.of(0, 10);
+        ChallengeDetailCommand command = new ChallengeDetailCommand(nickname, pageable);
+
+        User mockUser = mock(User.class);
+        Challenge mockChallenge = mock(Challenge.class);
+        Journey mockJourney = mock(Journey.class);
+        User author = mock(User.class);
+
+
+        List<Challenge> challengeList = List.of(mockChallenge);
+        Slice<Challenge> mockSlice = new SliceImpl<>(challengeList, pageable, false);
+
+
+        given(userRepository.findByNickname(nickname)).willReturn(Optional.of(mockUser));
+        given(mockUser.getId()).willReturn(1L);
+        given(challengeRepository.findAllWithJourneyAndUserByUserId(1L, pageable)).willReturn(mockSlice);
+
+
+        given(mockChallenge.getId()).willReturn(100L);
+        given(mockChallenge.getContent()).willReturn("챌린지 내용");
+        given(mockChallenge.getCreatedAt()).willReturn(LocalDateTime.now());
+        given(mockChallenge.getLikeCount()).willReturn(5);
+
+
+        given(mockChallenge.getJourney()).willReturn(mockJourney);
+        given(mockJourney.getJourneyOrder()).willReturn(1);
+
+        given(mockChallenge.getUser()).willReturn(author);
+        given(author.getNickname()).willReturn("작성자닉네임");
+        given(author.getProfileImageUrl()).willReturn("https://image.com/profile");
+
+        // when
+        Slice<ChallengeDetailResponse> result = challengeQueryService.detailsChallenge(command);
+
+        // then
+        assertNotNull(result);
+        ChallengeDetailResponse firstResponse = result.getContent().getFirst();
+
+        assertEquals(100L, firstResponse.challengeId());
+        assertEquals("작성자닉네임", firstResponse.nickname());
+        assertEquals(1, firstResponse.journeySequence());
+
+        verify(userRepository).findByNickname(nickname);
+        verify(challengeRepository).findAllWithJourneyAndUserByUserId(1L, pageable);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 닉네임 조회 시 예외 발생")
+    void detailsChallenge_UserNotFound() {
+        // given
+
+        ChallengeDetailCommand command = new ChallengeDetailCommand("unknown", PageRequest.of(0, 10));
+        given(userRepository.findByNickname(anyString())).willReturn(Optional.empty());
+
+        // when & then
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                challengeQueryService.detailsChallenge(command)
+        );
+
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
     }
 }

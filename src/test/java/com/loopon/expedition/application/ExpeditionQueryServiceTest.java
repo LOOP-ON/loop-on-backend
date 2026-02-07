@@ -6,6 +6,7 @@ import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.application.dto.command.ExpeditionChallengesCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionGetCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionSearchCommand;
 import com.loopon.expedition.application.dto.command.ExpeditionUsersCommand;
 import com.loopon.expedition.application.dto.response.*;
@@ -38,6 +39,9 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -98,12 +102,12 @@ class ExpeditionQueryServiceTest {
                     .willReturn(List.of(mock(ExpeditionUser.class), mock(ExpeditionUser.class)));
 
             // when
-            ExpeditionGetResponseList result = expeditionQueryService.getExpeditions(userId);
+            ExpeditionGetResponseList result = expeditionQueryService.getExpeditionList(userId);
 
             // then
             assertThat(result.expeditionGetResponses()).hasSize(1);
             assertThat(result.expeditionGetResponses().get(0).admin()).isEqualTo("adminUser");
-            assertThat(result.expeditionGetResponses().get(0).currentMembers()).isEqualTo(2);
+            assertThat(result.expeditionGetResponses().get(0).currentUsers()).isEqualTo(2);
         }
     }
 
@@ -267,6 +271,67 @@ class ExpeditionQueryServiceTest {
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().getFirst().isLiked()).isTrue();
             assertThat(result.getContent().getFirst().hashtags()).contains("hashtag1");
+        }
+
+        @Test
+        @DisplayName("탐험대 상세 조회 성공")
+        void getExpedition_Success() {
+            // given
+            Long expeditionId = 1L;
+            Long userId = 10L;
+            ExpeditionGetCommand command = new ExpeditionGetCommand(expeditionId, userId);
+
+            Expedition mockExpedition = mock(Expedition.class);
+            User mockUser = mock(User.class);
+            lenient().when(mockExpedition.getAdmin()).thenReturn(mockUser);
+
+            // stubbing
+            given(expeditionRepository.findById(expeditionId)).willReturn(Optional.of(mockExpedition));
+            given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
+
+
+            // when
+            ExpeditionGetResponse response = expeditionQueryService.getExpedition(command);
+
+            // then
+            assertNotNull(response);
+            verify(expeditionRepository, times(1)).findById(expeditionId);
+            verify(userRepository, times(1)).findById(userId);
+
+        }
+
+        @Test
+        @DisplayName("사용자가 방장이 아닐 때 권한 예외 발생")
+        void getExpedition_Forbidden_Not_Admin() {
+            // given
+            Long expeditionId = 1L;
+            Long userId = 10L;
+            Long adminId = 99L;
+
+            ExpeditionGetCommand command = new ExpeditionGetCommand(expeditionId, userId);
+
+
+            Expedition mockExpedition = mock(Expedition.class);
+
+            User mockUser = mock(User.class);
+            lenient().when(mockUser.getId()).thenReturn(userId);
+            User mockAdmin = mock(User.class);
+            lenient().when(mockAdmin.getId()).thenReturn(adminId);
+
+
+            given(expeditionRepository.findById(expeditionId)).willReturn(Optional.of(mockExpedition));
+            given(userRepository.findById(userId)).willReturn(Optional.of(mockUser));
+
+
+            given(mockExpedition.getAdmin()).willReturn(mockAdmin);
+
+
+            BusinessException exception = assertThrows(BusinessException.class, () -> {
+                expeditionQueryService.getExpedition(command);
+            });
+
+
+            assertEquals(ErrorCode.NOT_ADMIN_USER, exception.getErrorCode());
         }
     }
 }

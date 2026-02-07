@@ -16,7 +16,7 @@ public record PageResponse<T>(
         boolean last
 ) {
 
-    public static <T> PageResponse<T> of(Page<T> page) {
+    public static <T> PageResponse<T> from(Page<T> page) {
         Objects.requireNonNull(page, "Page 객체는 null일 수 없습니다.");
         return new PageResponse<>(
                 page.getContent(),

@@ -5,15 +5,7 @@ import com.loopon.challenge.application.dto.request.ChallengeLikeCommentRequest;
 import com.loopon.challenge.application.dto.request.ChallengeLikeRequest;
 import com.loopon.challenge.application.dto.request.ChallengeModifyRequest;
 import com.loopon.challenge.application.dto.request.ChallengePostRequest;
-import com.loopon.challenge.application.dto.response.ChallengeCombinedViewResponse;
-import com.loopon.challenge.application.dto.response.ChallengeCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeGetCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeGetResponse;
-import com.loopon.challenge.application.dto.response.ChallengeLikeCommentResponse;
-import com.loopon.challenge.application.dto.response.ChallengeLikeResponse;
-import com.loopon.challenge.application.dto.response.ChallengeModifyResponse;
-import com.loopon.challenge.application.dto.response.ChallengePostResponse;
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
+import com.loopon.challenge.application.dto.response.*;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,10 +117,16 @@ public interface ChallengeApiDocs {
             PrincipalDetails principalDetails
     );
 
-    @Operation(summary = "챌린지 홈 피드 조회. 트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
+    @Operation(summary = "여정광장 챌린지 조회.", description = "트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
     CommonResponse<ChallengeCombinedViewResponse> viewChallenge(
             PrincipalDetails principalDetails,
             @PageableDefault @Qualifier("trending") Pageable trendingPageable,
             @PageableDefault @Qualifier("friends") Pageable friendsPageable
+    );
+
+    @Operation(summary = "개인 챌린지 상세보기.")
+    CommonResponse<Slice<ChallengeDetailResponse>> detailsChallenge(
+            @PathVariable("nickname") String nickname,
+            @PageableDefault Pageable pageable
     );
 }

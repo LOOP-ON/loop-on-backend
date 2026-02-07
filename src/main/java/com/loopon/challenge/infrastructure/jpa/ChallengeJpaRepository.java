@@ -56,4 +56,10 @@ public interface ChallengeJpaRepository extends JpaRepository<Challenge, Long> {
             @Param("excludeIds") List<Long> excludeIds,
             Pageable pageable
     );
+
+    @Query("SELECT DISTINCT c FROM Challenge c " +
+            "JOIN FETCH c.user u " +
+            "JOIN FETCH c.journey j " +
+            "WHERE u.id = :userId")
+    Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable);
 }
