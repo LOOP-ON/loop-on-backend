@@ -1,5 +1,7 @@
 package com.loopon.challenge.domain.repository;
 
+import com.loopon.challenge.domain.*;
+import org.springframework.data.domain.Page;
 import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
@@ -11,6 +13,7 @@ import com.loopon.challenge.domain.CommentLike;
 import com.loopon.challenge.domain.Hashtag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -51,6 +54,8 @@ public interface ChallengeRepository {
 
     Boolean existsChallengeLikeByIdAndUserId(Long challengeId, Long userId);
 
+    Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable);
+  
     void saveAllHashtags(List<Hashtag> hashtagList);
 
     Optional<ChallengeLike> findChallengeLikeByUserIdAndId(Long userId, Long challengeId);

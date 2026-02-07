@@ -19,6 +19,7 @@ import com.loopon.challenge.infrastructure.jpa.CommentLikeJpaRepository;
 import com.loopon.challenge.infrastructure.jpa.HashtagJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
@@ -111,6 +112,11 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         return challengeLikeJpaRepository.existsByChallengeIdAndUserId(challengeId, userId);
     }
 
+    @Override
+    public Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable) {
+        return challengeImageJpaRepository.findThumbnailsByUserId(userId, pageable);
+    }
+  
     @Override
     public List<Hashtag> findAllHashtagByNameIn(List<String> hashtagList) {
         return hashtagJpaRepository.findAllByNameIn(hashtagList);
