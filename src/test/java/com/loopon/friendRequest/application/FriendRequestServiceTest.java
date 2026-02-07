@@ -126,14 +126,14 @@ class FriendRequestServiceTest {
         void getFriendRequests_Success() {
             // given
             Page<Friend> friendPage = new PageImpl<>(List.of(friendRequest));
-            given(friendRequestRepository.findByReceiver_IdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable)).willReturn(friendPage);
+            given(friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable)).willReturn(friendPage);
 
             // when
             PageResponse<FriendRequestReceivedResponse> result = friendRequestService.getFriendRequests(1L, pageable);
 
             // then
             assertThat(result.content()).hasSize(1);
-            verify(friendRequestRepository).findByReceiver_IdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable);
+            verify(friendRequestRepository).findByReceiverIdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable);
         }
 
         @Test
@@ -141,7 +141,7 @@ class FriendRequestServiceTest {
         void getFriendRequests_NoRequests_ReturnsEmptyPage() {
             // given
             Page<Friend> emptyPage = Page.empty(pageable);
-            given(friendRequestRepository.findByReceiver_IdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable)).willReturn(emptyPage);
+            given(friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable)).willReturn(emptyPage);
 
             // when
             PageResponse<FriendRequestReceivedResponse> result = friendRequestService.getFriendRequests(1L, pageable);
