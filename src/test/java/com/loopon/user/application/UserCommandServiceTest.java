@@ -25,6 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -203,20 +204,20 @@ class UserCommandServiceTest {
                     "newNick", "newBio", "Studying...", "newImg.jpg", UserVisibility.PUBLIC
             );
 
-            given(userRepository.findById(userId)).willReturn(java.util.Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
             // when
             UserProfileResponse response = userCommandService.updateProfile(userId, command);
 
             // then
-            org.assertj.core.api.Assertions.assertThat(response.nickname()).isEqualTo(command.nickname());
-            org.assertj.core.api.Assertions.assertThat(response.bio()).isEqualTo(command.bio());
-            org.assertj.core.api.Assertions.assertThat(response.statusMessage()).isEqualTo(command.statusMessage());
-            org.assertj.core.api.Assertions.assertThat(response.profileImageUrl()).isEqualTo(command.profileImageUrl());
+            assertThat(response.nickname()).isEqualTo(command.nickname());
+            assertThat(response.bio()).isEqualTo(command.bio());
+            assertThat(response.statusMessage()).isEqualTo(command.statusMessage());
+            assertThat(response.profileImageUrl()).isEqualTo(command.profileImageUrl());
 
-            org.assertj.core.api.Assertions.assertThat(user.getNickname()).isEqualTo("newNick");
-            org.assertj.core.api.Assertions.assertThat(user.getBio()).isEqualTo("newBio");
-            org.assertj.core.api.Assertions.assertThat(user.getVisibility()).isEqualTo(UserVisibility.PUBLIC);
+            assertThat(user.getNickname()).isEqualTo("newNick");
+            assertThat(user.getBio()).isEqualTo("newBio");
+            assertThat(user.getVisibility()).isEqualTo(UserVisibility.PUBLIC);
         }
 
         @Test
@@ -228,7 +229,7 @@ class UserCommandServiceTest {
                     "newNick", "newBio", "msg", "img.jpg", UserVisibility.PRIVATE
             );
 
-            given(userRepository.findById(userId)).willReturn(java.util.Optional.empty());
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> userCommandService.updateProfile(userId, command))
@@ -264,7 +265,7 @@ class UserCommandServiceTest {
             userCommandService.changePassword(userId, command);
 
             // then
-            org.assertj.core.api.Assertions.assertThat(user.getPassword()).isEqualTo("encodedNewPw");
+            assertThat(user.getPassword()).isEqualTo("encodedNewPw");
         }
 
         @Test
