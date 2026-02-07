@@ -1,5 +1,6 @@
 package com.loopon.notification.application.service;
 
+import com.loopon.challenge.infrastructure.jpa.ChallengeJpaRepository;
 import com.loopon.global.domain.EnvironmentType;
 import com.loopon.notification.domain.repository.DeviceTokenRepository;
 import com.loopon.notification.domain.service.NotificationService;
@@ -16,11 +17,10 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
     private final DeviceTokenRepository deviceTokenRepository;
     private final APNsPushService apnsPushService;
-
+    private  final ChallengeJpaRepository challengeJpaRepository;
+    EnvironmentType env = EnvironmentType.PROD;
     @Override
     public void sendFriendRequestPush(Long receiverId, Long senderId, Long friendRequestId) {
-        EnvironmentType env = EnvironmentType.PROD;
-
         deviceTokenRepository.findByUserIdAndEnvironmentType(receiverId, env)
                 .ifPresent(token -> {
                     Map<String, String> data = Map.of(
@@ -31,8 +31,44 @@ public class NotificationServiceImpl implements NotificationService {
 
                     apnsPushService.send(
                             token.getToken(),
-                            "친구 요청",
-                            "새로운 친구 요청이 도착했습니다.",
+                            "친구 신청 알림",
+                            " ✴️새로운 친구 요청이 있어요",
+                            data
+                    );
+                });
+    }
+    @Override
+    public void sendChallengeLikePush(   Long challengeId, Long challengeOwnerId, int likeCount) {
+        deviceTokenRepository.findByUserIdAndEnvironmentType(challengeOwnerId, env)
+                .ifPresent(token -> {
+                    Map<String, String> data = Map.of(
+                            "type", "CHALLENGE_LIKE",
+                            "challengeId", String.valueOf(challengeId),
+                            "likeCount", String.valueOf(likeCount)
+                    );
+
+                    apnsPushService.send(
+                            token.getToken(),
+                            "좋아요 알림",
+                            " ✴️회원님의 챌린지에 새로운 n개의 좋아요가 있어요",
+                            data
+                    );
+                });
+    }
+    @Override
+    public void sendChallengeCommentPush(Long challengeId,Long challengeOwnerId, Long commentedUserId) {
+        deviceTokenRepository.findByUserIdAndEnvironmentType(challengeOwnerId, env)
+                .ifPresent(token -> {
+                    Map<String, String> data = Map.of(
+                            "type", "CHALLENGE_COMMENT",
+                            "challengeId", String.valueOf(challengeId),
+                            "commentedUserId", String.valueOf(commentedUserId)
+                    );
+
+                    apnsPushService.send(
+                            token.getToken(),
+                            "댓글 알림",
+                            " ✴️회원님의 챌린지에 새로운 댓글이 있어요",
                             data
                     );
                 });

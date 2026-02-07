@@ -16,11 +16,12 @@ import static com.loopon.user.domain.FriendStatus.BLOCKED;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class FriendServiceImpl implements FriendService {
     private final FriendRepository friendRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<FriendResponse> getMyFriends(Long me) {
         List<Friend> friends = friendRepository.findAcceptedFriendsByUserId(me, ACCEPTED);
         return friends.stream()
@@ -29,7 +30,6 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    @Transactional
     public void blockFriend(Long me, Long friendId) {
         int updated = friendRepository.updateStatusByIdAndParticipantAndStatus(
                 friendId,
@@ -43,7 +43,6 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    @Transactional
     public void unblockFriend(Long me, Long friendId) {
         int updated = friendRepository.updateStatusByIdAndParticipantAndStatus(
                 friendId,
@@ -57,7 +56,6 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    @Transactional
     public void deleteFriend(Long me, Long friendId) {
         int deleted = friendRepository.deleteByIdAndParticipant(friendId, me);
         if (deleted == 0) {

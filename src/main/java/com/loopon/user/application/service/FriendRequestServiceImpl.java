@@ -47,6 +47,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponse<FriendRequestReceivedResponse> getFriendRequests(Long me, Pageable pageable) {
         Page<Friend> friendRequests =
                 friendRequestRepository.findByReceiver_IdAndStatusOrderByUpdatedAtDesc(me, PENDING, pageable);
