@@ -77,6 +77,7 @@ public class ExpeditionCommandService {
                 .build();
 
         expeditionRepository.saveExpeditionUser(expeditionUser);
+        expedition.addToCurrentUsers(1);
 
         return ExpeditionConverter.joinExpedition(expeditionUser);
     }
@@ -85,11 +86,15 @@ public class ExpeditionCommandService {
     public ExpeditionWithdrawResponse withdrawExpedition(
             ExpeditionWithdrawCommand commandDto
     ) {
-         ExpeditionUser expeditionUser =
-                 expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
+
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+
+        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
                          .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
-         expeditionRepository.deleteExpeditionUser(expeditionUser);
+        expeditionRepository.deleteExpeditionUser(expeditionUser);
+        expedition.addToCurrentUsers(-1);
 
         return ExpeditionConverter.withdrawExpedition(commandDto.expeditionId());
     }
@@ -133,12 +138,47 @@ public class ExpeditionCommandService {
                         .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionUser.expelUser();
+        expedition.addToCurrentUsers(-1);
 
         return ExpeditionConverter.expelExpedition(expeditionUser.getId());
     }
 
+    @Transactional
+    public ExpeditionCancelExpelResponse cancelExpelExpedition(
+            ExpeditionCancelExpelCommand commandDto
+    ) {
+        User myself = userRepository.findById(commandDto.myUserId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
+        checkAdmin(myself, expedition);
 
+        User expelledUser = userRepository.findById(commandDto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
+                .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
+
+        expeditionRepository.deleteExpeditionUser(expeditionUser);
+
+        return ExpeditionConverter.cancelExpelExpedition(expeditionUser.getId());
+    }
+
+    @Transactional
+    public ExpeditionModifyResponse modifyExpedition(
+            ExpeditionModifyCommand dto
+    ) {
+        Expedition expedition = expeditionRepository.findById(dto.expeditionId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
+        User user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        checkAdmin(user, expedition);
+
+        expedition.modify(dto.title(), dto.visibility(), dto.password());
+
+        return ExpeditionConverter.modifyExpedition(expedition.getId());
+    }
 
     // -------------------------- helper methods-------------------------------
 
@@ -176,7 +216,7 @@ public class ExpeditionCommandService {
 
         int currentUsers = expeditionRepository.countExpeditionUserByExpeditionId(expedition.getId());
 
-        if (currentUsers + 1 >= userLimit) {
+        if (currentUsers + 1 > userLimit) {
             throw new BusinessException(ErrorCode.EXPEDITION_USER_ABOVE_LIMIT);
         }
     }

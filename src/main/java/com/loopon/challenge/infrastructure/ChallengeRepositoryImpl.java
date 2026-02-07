@@ -1,8 +1,22 @@
 package com.loopon.challenge.infrastructure;
 
-import com.loopon.challenge.domain.*;
+import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
+import com.loopon.challenge.domain.Challenge;
+import com.loopon.challenge.domain.ChallengeHashtag;
+import com.loopon.challenge.domain.ChallengeHashtagId;
+import com.loopon.challenge.domain.ChallengeImage;
+import com.loopon.challenge.domain.ChallengeLike;
+import com.loopon.challenge.domain.Comment;
+import com.loopon.challenge.domain.CommentLike;
+import com.loopon.challenge.domain.Hashtag;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
-import com.loopon.challenge.infrastructure.jpa.*;
+import com.loopon.challenge.infrastructure.jpa.ChallengeHashtagJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.ChallengeImageJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.ChallengeJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.ChallengeLikeJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.CommentJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.CommentLikeJpaRepository;
+import com.loopon.challenge.infrastructure.jpa.HashtagJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -10,8 +24,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,9 +38,11 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     private final HashtagJpaRepository hashtagJpaRepository;
     private final ChallengeHashtagJpaRepository challengeHashtagJpaRepository;
     private final ChallengeLikeJpaRepository challengeLikeJpaRepository;
+    private final CommentJpaRepository commentJpaRepository;
+    private final CommentLikeJpaRepository commentLikeJpaRepository;
 
     @Override
-    public Boolean existsByJourneyId(Long journeyId){
+    public Boolean existsByJourneyId(Long journeyId) {
         return challengeJpaRepository.existsByJourneyId(journeyId);
     }
 
@@ -75,8 +93,8 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public void deleteChallengeHashtag(ChallengeHashtagId challengeHashtagId) {
-        challengeHashtagJpaRepository.deleteById(challengeHashtagId);
+    public void deleteChallengeHashtag(ChallengeHashtag challengeHashtag) {
+        challengeHashtagJpaRepository.delete(challengeHashtag);
     }
 
     @Override
@@ -85,7 +103,7 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public Slice<Challenge> findAllWithJourneyAndUserByExpeditionId(Long expeditionId, Pageable pageable){
+    public Slice<Challenge> findAllWithJourneyAndUserByExpeditionId(Long expeditionId, Pageable pageable) {
         return challengeJpaRepository.findAllWithJourneyAndUserByExpeditionId(expeditionId, pageable);
     }
 
@@ -97,5 +115,111 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable) {
         return challengeImageJpaRepository.findThumbnailsByUserId(userId, pageable);
+    }
+  
+    @Override
+    public List<Hashtag> findAllHashtagByNameIn(List<String> hashtagList) {
+        return hashtagJpaRepository.findAllByNameIn(hashtagList);
+    }
+
+    @Override
+    public void saveAllHashtags(List<Hashtag> hashtagList) {
+        hashtagJpaRepository.saveAll(hashtagList);
+    }
+
+    @Override
+    public void deleteChallengeLikeById(Long challengeLikeId) {
+        challengeLikeJpaRepository.deleteById(challengeLikeId);
+    }
+
+    @Override
+    public Optional<ChallengeLike> findChallengeLikeByUserIdAndId(Long userId, Long challengeId) {
+        return challengeLikeJpaRepository.findByUserIdAndChallengeId(userId, challengeId);
+    }
+
+    @Override
+    public void saveChallengeLike(ChallengeLike challengeLike) {
+        challengeLikeJpaRepository.save(challengeLike);
+    }
+
+    @Override
+    public void deleteAllChallengeImageById(Long challengeId) {
+        challengeImageJpaRepository.deleteAllByChallengeId(challengeId);
+        challengeImageJpaRepository.flush();
+    }
+
+    @Override
+    public Optional<Comment> findCommentByCommentId(Long commentId) {
+        return commentJpaRepository.findById(commentId);
+    }
+
+    @Override
+    public Slice<Comment> findCommentsWithUserByChallengeId(Long challengeId, Pageable pageable) {
+        return commentJpaRepository.findWithUserByChallengeId(challengeId, pageable);
+    }
+
+    @Override
+    public Optional<CommentLike> findCommentLikeByCommentIdAndUserId(Long commentId, Long userId) {
+        return commentLikeJpaRepository.findByCommentIdAndUserId(commentId, userId);
+    }
+
+    @Override
+    public void deleteCommentLikeById(Long commentLikeId) {
+        commentLikeJpaRepository.deleteById(commentLikeId);
+    }
+
+    @Override
+    public void saveCommentLike(CommentLike commentLike) {
+        commentLikeJpaRepository.save(commentLike);
+    }
+
+    @Override
+    public void deleteComment(Comment comment) {
+        commentJpaRepository.delete(comment);
+    }
+
+    @Override
+    public void delete(Challenge challenge) {
+        challengeJpaRepository.delete(challenge);
+    }
+
+    @Override
+    public Slice<ChallengePreviewResponse> findViewByUserId(Long userId, Pageable pageable) {
+        return challengeJpaRepository.findViewByUserId(userId, pageable);
+    }
+
+    @Override
+    public List<Comment> findAllCommentWithUserByParentIdIn(List<Long> parentIds) {
+        return commentJpaRepository.findAllWithUserByParentIdIn(parentIds);
+    }
+
+    @Override
+    public Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Pageable pageable) {
+        return challengeJpaRepository.findTrendingChallenges(threeDaysAgo, pageable);
+    }
+
+    @Override
+    public Slice<Challenge> findFriendsChallenges(List<Long> friendsIds, List<Long> trendingIds, Pageable pageable) {
+        return challengeJpaRepository.findFriendsChallenges(friendsIds, trendingIds, pageable);
+    }
+
+    @Override
+    public Set<Long> findLikedChallengeIds(Long userId, List<Long> challengesIds) {
+        return challengeLikeJpaRepository.findLikedChallengeIds(userId, challengesIds);
+    }
+
+    @Override
+    public void saveComment(Comment comment) {
+        commentJpaRepository.save(comment);
+    }
+
+    @Override
+    public Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId) {
+        return commentLikeJpaRepository.existsByIdAndUserId(commentId, userId);
+    }
+
+    @Override
+    public Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable) {
+        return challengeJpaRepository.findAllWithJourneyAndUserByUserId(userId, pageable);
     }
 }

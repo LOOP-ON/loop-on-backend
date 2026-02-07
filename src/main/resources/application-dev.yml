@@ -1,6 +1,7 @@
 spring:
   liquibase:
     enabled: true
+    change-log: classpath:db/db.changelog-master.yaml
 
   servlet:
     multipart:
@@ -16,3 +17,25 @@ cloud:
       static: ${AWS_REGION}
     s3:
       bucket: ${AWS_BUCKET}
+
+loopon:
+  server:
+    url: https://api.loopon.cloud
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: asc
+    tags-sorter: alpha
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+jwt:
+  secret: ${SECRET_KEY}
+  access-token-validity-in-seconds: ${ACCESS_TOKEN_TIME}
+  refresh-token-validity-in-seconds: ${REFRESH_TOKEN_TIME}

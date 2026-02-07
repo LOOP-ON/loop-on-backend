@@ -3,11 +3,10 @@ package com.loopon.friendRequest.application;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.application.dto.request.FriendRequestRespondRequest;
+import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
@@ -20,11 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +45,9 @@ class FriendRequestServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @InjectMocks
     private FriendRequestServiceImpl friendRequestService;
 
@@ -57,28 +58,13 @@ class FriendRequestServiceTest {
 
     @BeforeEach
     void setUp() {
-        user1 = User.createLocalUser(
-                "test1@loopon.com",
-                "loopon1",
-                "password123!",
-                null
-        );
+        user1 = User.createLocalUser("test1@loopon.com", "loopon1", "password123!", null);
         ReflectionTestUtils.setField(user1, "id", 1L);
 
-        user2 = User.createLocalUser(
-                "test2@loopon.com",
-                "loopon2",
-                "password123!",
-                null
-        );
+        user2 = User.createLocalUser("test2@loopon.com", "loopon2", "password123!", null);
         ReflectionTestUtils.setField(user2, "id", 2L);
 
-        friendRequest = Friend.builder()
-                .id(1L)
-                .requester(user1)
-                .receiver(user2)
-                .status(PENDING)
-                .build();
+        friendRequest = Friend.builder().id(1L).requester(user1).receiver(user2).status(PENDING).build();
 
         pageable = PageRequest.of(0, 10, Sort.by("updatedAt").descending());
     }
@@ -94,8 +80,7 @@ class FriendRequestServiceTest {
             String shortQuery = "a";
 
             // when
-            PageResponse<FriendSearchResponse> result =
-                    friendRequestService.findNewFriend(1L, shortQuery, pageable);
+            PageResponse<FriendSearchResponse> result = friendRequestService.findNewFriend(1L, shortQuery, pageable);
 
             // then
             assertThat(result.content()).isEmpty();
@@ -107,8 +92,7 @@ class FriendRequestServiceTest {
         @DisplayName("검색어가 null이면 빈 페이지를 반환한다")
         void findNewFriend_NullQuery_ReturnsEmptyPage() {
             // when
-            PageResponse<FriendSearchResponse> result =
-                    friendRequestService.findNewFriend(1L, null, pageable);
+            PageResponse<FriendSearchResponse> result = friendRequestService.findNewFriend(1L, null, pageable);
 
             // then
             assertThat(result.content()).isEmpty();
@@ -124,8 +108,7 @@ class FriendRequestServiceTest {
             given(userRepository.searchByNickname(1L, query, pageable)).willReturn(userPage);
 
             // when
-            PageResponse<FriendSearchResponse> result =
-                    friendRequestService.findNewFriend(1L, query, pageable);
+            PageResponse<FriendSearchResponse> result = friendRequestService.findNewFriend(1L, query, pageable);
 
             // then
             assertThat(result.content()).hasSize(1);
@@ -143,16 +126,14 @@ class FriendRequestServiceTest {
         void getFriendRequests_Success() {
             // given
             Page<Friend> friendPage = new PageImpl<>(List.of(friendRequest));
-            given(friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable))
-                    .willReturn(friendPage);
+            given(friendRequestRepository.findByReceiver_IdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable)).willReturn(friendPage);
 
             // when
-            PageResponse<FriendRequestReceivedResponse> result =
-                    friendRequestService.getFriendRequests(1L, pageable);
+            PageResponse<FriendRequestReceivedResponse> result = friendRequestService.getFriendRequests(1L, pageable);
 
             // then
             assertThat(result.content()).hasSize(1);
-            verify(friendRequestRepository).findByReceiverIdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable);
+            verify(friendRequestRepository).findByReceiver_IdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable);
         }
 
         @Test
@@ -160,12 +141,10 @@ class FriendRequestServiceTest {
         void getFriendRequests_NoRequests_ReturnsEmptyPage() {
             // given
             Page<Friend> emptyPage = Page.empty(pageable);
-            given(friendRequestRepository.findByReceiverIdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable))
-                    .willReturn(emptyPage);
+            given(friendRequestRepository.findByReceiver_IdAndStatusOrderByUpdatedAtDesc(1L, PENDING, pageable)).willReturn(emptyPage);
 
             // when
-            PageResponse<FriendRequestReceivedResponse> result =
-                    friendRequestService.getFriendRequests(1L, pageable);
+            PageResponse<FriendRequestReceivedResponse> result = friendRequestService.getFriendRequests(1L, pageable);
 
             // then
             assertThat(result.content()).isEmpty();
@@ -180,9 +159,7 @@ class FriendRequestServiceTest {
         @DisplayName("자기 자신에게 친구 요청을 보낼 수 없다")
         void sendFriendRequest_ToSelf_ThrowsException() {
             // when & then
-            assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 1L))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_SELF);
+            assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 1L)).isInstanceOf(BusinessException.class).hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_SELF);
         }
 
         @Test
@@ -192,9 +169,7 @@ class FriendRequestServiceTest {
             given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 2L))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_ALREADY_FRIEND);
+            assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 2L)).isInstanceOf(BusinessException.class).hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_ALREADY_FRIEND);
         }
 
         @Test
@@ -204,9 +179,7 @@ class FriendRequestServiceTest {
             given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(false);
             given(friendRequestRepository.existsFriendship(1L, 2L, PENDING)).willReturn(true);
             // when & then
-            assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 2L))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
+            assertThatThrownBy(() -> friendRequestService.sendFriendRequest(1L, 2L)).isInstanceOf(BusinessException.class).hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
         }
 
         @Test
@@ -218,181 +191,119 @@ class FriendRequestServiceTest {
             given(userRepository.findById(1L)).willReturn(Optional.ofNullable(user1));
             given(userRepository.findById(2L)).willReturn(Optional.ofNullable(user2));
 
-            given(friendRequestRepository.save(any(Friend.class)))
-                    .willAnswer(inv -> inv.getArgument(0));
+            given(friendRequestRepository.save(any(Friend.class))).willAnswer(inv -> inv.getArgument(0));
 
             FriendRequestCreateResponse result = friendRequestService.sendFriendRequest(1L, 2L);
 
             assertThat(result).isNotNull();
             verify(friendRequestRepository).save(any(Friend.class));
+
+            verify(applicationEventPublisher).publishEvent(any(FriendRequestCreatedEvent.class));
         }
     }
 
     @Nested
-    @DisplayName("친구 요청 응답")
-    class RespondFriendRequest {
+    @DisplayName("친구 요청 단건 처리")
+    class OneRequestActions {
 
         @Test
-        @DisplayName("존재하지 않는 요청에 응답하면 예외가 발생한다")
-        void respondOneFriendRequest_NotFound_ThrowsException() {
-            // given
-            FriendRequestRespondRequest request = new FriendRequestRespondRequest(2L, ACCEPTED);
-            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING))
-                    .willReturn(Optional.empty());
+        @DisplayName("acceptOneFriendRequest: PENDING 요청 수락")
+        void acceptOne_success() {
+            Friend pending = Friend.request(user2, user1); // requester=2, receiver=1
+            ReflectionTestUtils.setField(pending, "id", 10L);
 
-            // when & then
-            assertThatThrownBy(() -> friendRequestService.respondOneFriendRequest(1L, request))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_NOT_FOUND);
+            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING)).willReturn(Optional.of(pending));
+            given(friendRepository.save(any(Friend.class))).willAnswer(inv -> inv.getArgument(0));
+
+            FriendRequestRespondResponse res = friendRequestService.acceptOneFriendRequest(1L, 2L);
+
+            assertThat(res).isNotNull();
+            assertThat(pending.getStatus()).isEqualTo(ACCEPTED);
+            then(friendRepository).should(times(1)).save(pending);
         }
 
         @Test
-        @DisplayName("수신자가 아닌 사용자가 응답하면 예외가 발생한다")
-        void respondOneFriendRequest_Forbidden_ThrowsException() {
-            // given
-            User user3 = User.createLocalUser(
-                            "test3@loopon.com",
-                            "loopon3",
-                            "password123!",
-                            null
-                    );
+        @DisplayName("acceptOneFriendRequest: 요청이 없으면 예외")
+        void acceptOne_notFound_throws() {
+            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING)).willReturn(Optional.empty());
 
-            FriendRequestRespondRequest request = new FriendRequestRespondRequest(1L, ACCEPTED);
-            Friend wrongReceiverRequest = Friend.builder()
-                    .id(1L)
-                    .requester(user1)
-                    .receiver(user2)
-                    .status(PENDING)
-                    .build();
-
-            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(1L, 3L, PENDING))
-                    .willReturn(Optional.of(wrongReceiverRequest));
-
-            // when & then
-            assertThatThrownBy(() -> friendRequestService.respondOneFriendRequest(3L, request))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_FORBIDDEN);
+            assertThatThrownBy(() -> friendRequestService.acceptOneFriendRequest(1L, 2L)).isInstanceOf(BusinessException.class).hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_NOT_FOUND);
         }
 
         @Test
-        @DisplayName("친구 요청을 수락한다")
-        void respondOneFriendRequest_Accept_Success() {
-            // given
-            FriendRequestRespondRequest request = new FriendRequestRespondRequest(1L, ACCEPTED);
-            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(1L, 2L, PENDING))
-                    .willReturn(Optional.of(friendRequest));
-            given(friendRepository.save(any(Friend.class))).willReturn(friendRequest);
+        @DisplayName("deleteOneFriendRequest: PENDING 요청 삭제")
+        void deleteOne_success() {
+            Friend pending = Friend.request(user2, user1);
+            ReflectionTestUtils.setField(pending, "id", 10L);
+            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING)).willReturn(Optional.of(pending));
 
-            // when
-            FriendRequestRespondResponse result =
-                    friendRequestService.respondOneFriendRequest(2L, request);
+            friendRequestService.deleteOneFriendRequest(1L, 2L);
 
-            // then
-            assertThat(result).isNotNull();
-            verify(friendRepository).save(any(Friend.class));
+            then(friendRequestRepository).should(times(1)).delete(pending);
+            then(friendRepository).shouldHaveNoInteractions();
         }
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  accept/delete all
+    // ─────────────────────────────────────────────────────────────
     @Nested
-    @DisplayName("친구 요청 일괄 응답")
-    class RespondAllFriendRequests {
+    @DisplayName("친구 요청 일괄 처리")
+    class BulkActions {
 
         @Test
-        @DisplayName("요청이 없으면 0을 반환한다")
-        void respondAllFriendRequests_NoRequests_ReturnsZero() {
-            // given
-            given(friendRequestRepository.getAllRequesterIdByStatus(1L, PENDING))
-                    .willReturn(Collections.emptyList());
+        @DisplayName("acceptAllFriendRequests: 없으면 0 반환")
+        void acceptAll_empty_returns0() {
+            given(friendRequestRepository.findAllByReceiverIdAndStatus(1L, PENDING)).willReturn(List.of());
 
-            // when
-            FriendRequestBulkRespondResponse result =
-                    friendRequestService.respondAllFriendRequests(1L, ACCEPTED);
+            FriendRequestBulkRespondResponse res = friendRequestService.acceptAllFriendRequests(1L);
 
-            // then
-            assertThat(result.processCount()).isZero();
+            assertThat(res.processCount()).isZero();
+            then(friendRepository).shouldHaveNoInteractions();
         }
 
         @Test
-        @DisplayName("잘못된 상태로 일괄 응답하면 예외가 발생한다")
-        void respondAllFriendRequests_InvalidStatus_ThrowsException() {
-            // given
-            given(friendRequestRepository.getAllRequesterIdByStatus(1L, PENDING))
-                    .willReturn(List.of(2L));
+        @DisplayName("acceptAllFriendRequests: 모두 ACCEPTED로 변경 후 saveAll")
+        void acceptAll_success() {
+            Friend fr1 = Friend.request(user2, user1);
+            Friend fr2 = Friend.request(user2, user1);
 
-            // when & then
-            assertThatThrownBy(() -> friendRequestService.respondAllFriendRequests(1L, PENDING))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FRIEND_REQUEST_INVALID_STATUS);
+            given(friendRequestRepository.findAllByReceiverIdAndStatus(1L, PENDING)).willReturn(List.of(fr1, fr2));
+
+            FriendRequestBulkRespondResponse res = friendRequestService.acceptAllFriendRequests(1L);
+
+            assertThat(fr1.getStatus()).isEqualTo(ACCEPTED);
+            assertThat(fr2.getStatus()).isEqualTo(ACCEPTED);
+            assertThat(res.processCount()).isEqualTo(2L);
+
+            then(friendRepository).should(times(1)).saveAll(anyList());
         }
 
         @Test
-        @DisplayName("모든 친구 요청을 일괄 수락한다")
-        void respondAllFriendRequests_AcceptAll_Success() {
-            // given
-            User user3 = User.createLocalUser(
-                    "test3@loopon.com",
-                    "loopon3",
-                    "password123!",
-                    null
-            );
+        @DisplayName("deleteAllFriendRequests: 없으면 0 반환")
+        void deleteAll_empty_returns0() {
+            given(friendRequestRepository.findAllByReceiverIdAndStatus(1L, PENDING)).willReturn(List.of());
 
-            Friend request1 = Friend.builder()
-                    .id(1L)
-                    .requester(user2)
-                    .receiver(user1)
-                    .status(PENDING)
-                    .build();
+            FriendRequestBulkRespondResponse res = friendRequestService.deleteAllFriendRequests(1L);
 
-            Friend request2 = Friend.builder()
-                    .id(2L)
-                    .requester(user3)
-                    .receiver(user1)
-                    .status(PENDING)
-                    .build();
-
-            given(friendRequestRepository.getAllRequesterIdByStatus(1L, PENDING))
-                    .willReturn(Arrays.asList(2L, 3L));
-            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING))
-                    .willReturn(Optional.of(request1));
-            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(3L, 1L, PENDING))
-                    .willReturn(Optional.of(request2));
-            given(friendRepository.saveAll(anyList()))
-                    .willReturn(Arrays.asList(request1, request2));
-
-            // when
-            FriendRequestBulkRespondResponse result =
-                    friendRequestService.respondAllFriendRequests(1L, ACCEPTED);
-
-            // then
-            assertThat(result.processCount()).isEqualTo(2);
-            verify(friendRepository).saveAll(anyList());
+            assertThat(res.processCount()).isZero();
+            then(friendRequestRepository).should(never()).deleteAllInBatch(anyList());
         }
 
         @Test
-        @DisplayName("모든 친구 요청을 일괄 거절한다")
-        void respondAllFriendRequests_RejectAll_Success() {
-            // given
-            Friend request = Friend.builder()
-                    .id(1L)
-                    .requester(user2)
-                    .receiver(user1)
-                    .status(PENDING)
-                    .build();
+        @DisplayName("deleteAllFriendRequests: 요청들 batch 삭제")
+        void deleteAll_success() {
+            Friend fr1 = Friend.request(user2, user1);
+            Friend fr2 = Friend.request(user2, user1);
 
-            given(friendRequestRepository.getAllRequesterIdByStatus(1L, PENDING))
-                    .willReturn(List.of(2L));
-            given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING))
-                    .willReturn(Optional.of(request));
-            given(friendRepository.saveAll(anyList()))
-                    .willReturn(List.of(request));
+            given(friendRequestRepository.findAllByReceiverIdAndStatus(1L, PENDING)).willReturn(List.of(fr1, fr2));
 
-            // when
-            FriendRequestBulkRespondResponse result =
-                    friendRequestService.respondAllFriendRequests(1L, REJECTED);
+            FriendRequestBulkRespondResponse res = friendRequestService.deleteAllFriendRequests(1L);
 
-            // then
-            assertThat(result.processCount()).isEqualTo(1);
-            verify(friendRepository).saveAll(anyList());
+            assertThat(res.processCount()).isEqualTo(2L);
+            then(friendRequestRepository).should(times(1)).deleteAllInBatch(anyList());
+            then(friendRepository).shouldHaveNoInteractions();
         }
     }
+
 }

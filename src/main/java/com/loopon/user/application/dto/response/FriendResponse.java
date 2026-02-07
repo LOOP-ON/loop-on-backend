@@ -7,14 +7,14 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record FriendResponse (
-    @NotNull Long friend_id,
-    @NotNull FriendStatus friendStatus,
-    @NotNull String friend_image_url,//추가 건의
-    @NotNull String friend_nickname,
-    @NotNull LocalDateTime created_at,
-    @NotNull LocalDateTime updated_at
-){
+public record FriendResponse(
+        @NotNull Long friend_id,
+        @NotNull FriendStatus friendStatus,
+        @NotNull String friend_image_url,//추가 건의
+        @NotNull String friend_nickname,
+        @NotNull LocalDateTime created_at,
+        @NotNull LocalDateTime updated_at
+) {
     public static FriendResponse from(Friend friend, Long me) {
         User opponent;
 

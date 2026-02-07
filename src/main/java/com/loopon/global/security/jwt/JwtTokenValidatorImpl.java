@@ -5,7 +5,6 @@ import com.loopon.global.exception.AuthorizationException;
 import com.loopon.global.security.dto.AuthUser;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.global.security.token.JwtAuthenticationToken;
-import com.loopon.user.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

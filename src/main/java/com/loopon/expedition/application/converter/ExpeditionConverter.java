@@ -2,7 +2,9 @@ package com.loopon.expedition.application.converter;
 
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.expedition.application.dto.command.*;
+import com.loopon.expedition.application.dto.request.ExpeditionCancelExpelRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionJoinRequest;
+import com.loopon.expedition.application.dto.request.ExpeditionModifyRequest;
 import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
@@ -12,28 +14,27 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-import static com.loopon.expedition.application.dto.response.ExpeditionGetResponseList.*;
 
 public class ExpeditionConverter {
 
-    public static ExpeditionGetResponse getExpeditions(
+    public static ExpeditionGetResponseList.ExpeditionGetResponse getExpeditions(
             Expedition expedition,
             String adminName,
-            Integer currentMembers
+            Integer currentUsers
     ) {
-        return ExpeditionGetResponse.builder()
+        return ExpeditionGetResponseList.ExpeditionGetResponse.builder()
                 .expeditionId(expedition.getId())
                 .title(expedition.getTitle())
                 .category(expedition.getCategory())
                 .capacity(expedition.getUserLimit())
                 .visibility(expedition.getVisibility())
                 .admin(adminName)
-                .currentMembers(currentMembers)
+                .currentUsers(currentUsers)
                 .build();
     }
 
     public static ExpeditionGetResponseList getExpeditionList(
-            List<ExpeditionGetResponse> responseList
+            List<ExpeditionGetResponseList.ExpeditionGetResponse> responseList
     ) {
         return ExpeditionGetResponseList.builder()
                 .expeditionGetResponses(responseList)
@@ -230,12 +231,75 @@ public class ExpeditionConverter {
     ) {
         return ExpeditionChallengesResponse.builder()
                 .challengeId(challenge.getId())
-                .journeyNumber(challenge.getJourney().getId().intValue()) // n번째 여정 필드 아직 없음.
+                .journeyNumber(challenge.getJourney().getJourneyOrder())
                 .imageUrls(imageUrls)
                 .content(challenge.getContent())
                 .hashtags(hashtags)
                 .createdAt(challenge.getCreatedAt())
                 .isLiked(isLiked)
+                .build();
+    }
+
+    public static ExpeditionCancelExpelCommand cancelExpelExpedition(
+            Long expeditionId,
+            ExpeditionCancelExpelRequest requestDto,
+            Long userId
+    ) {
+        return ExpeditionCancelExpelCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(requestDto.userId())
+                .myUserId(userId)
+                .build();
+    }
+
+    public static ExpeditionCancelExpelResponse cancelExpelExpedition(
+            Long userId
+    ) {
+        return ExpeditionCancelExpelResponse.builder()
+                .userId(userId)
+                .build();
+    }
+
+    public static ExpeditionGetCommand getExpedition(
+            Long expeditionId,
+            Long userId
+    ) {
+        return ExpeditionGetCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(userId)
+                .build();
+    }
+
+    public static ExpeditionGetResponse getExpedition(
+            Expedition expedition
+    ) {
+        return ExpeditionGetResponse.builder()
+                .title(expedition.getTitle())
+                .currentUsers(expedition.getCurrentUsers())
+                .visibility(expedition.getVisibility())
+                .password(expedition.getPassword())
+                .build();
+    }
+
+    public static ExpeditionModifyCommand modifyExpedition(
+            Long expeditionId,
+            ExpeditionModifyRequest dto,
+            Long userId
+    ) {
+        return ExpeditionModifyCommand.builder()
+                .expeditionId(expeditionId)
+                .userId(userId)
+                .title(dto.title())
+                .visibility(dto.visibility())
+                .password(dto.password())
+                .build();
+    }
+
+    public static ExpeditionModifyResponse modifyExpedition(
+            Long expeditionId
+    ) {
+        return ExpeditionModifyResponse.builder()
+                .expeditionId(expeditionId)
                 .build();
     }
 }

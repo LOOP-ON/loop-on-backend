@@ -1,6 +1,6 @@
 package com.loopon.auth.presentation.docs;
 
-import com.loopon.auth.application.dto.request.KakaoLoginRequest;
+import com.loopon.auth.application.dto.request.SocialLoginRequest;
 import com.loopon.auth.application.dto.request.LoginRequest;
 import com.loopon.auth.application.dto.response.AccessTokenResponse;
 import com.loopon.auth.application.dto.response.LoginSuccessResponse;
@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "2. 인증(Auth)", description = "인증 관련 API")
+@Tag(name = "03. 인증(Auth)", description = "인증 관련 API")
 public interface AuthApiDocs {
 
     @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하여 Access Token 및 Refresh Token을 발급받습니다.")
@@ -27,11 +27,22 @@ public interface AuthApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<LoginSuccessResponse>> login(@RequestBody LoginRequest request);
 
-    @Operation(summary = "카카오 로그인", description = "카카오 액세스 토큰으로 로그인하여 Access Token 및 Refresh Token을 발급받습니다.")
+    @Operation(
+            summary = "소셜 로그인 (카카오 / 애플)",
+            description = """
+                    소셜 계정(카카오, 애플)으로 로그인하여 Access Token 및 Refresh Token을 발급받습니다.
+                    
+                    **[요청 필드 설명]**
+                    - `provider`: `KAKAO` 또는 `APPLE`
+                    - `accessToken`: 
+                        - **KAKAO**: 카카오 `Access Token`
+                        - **APPLE**: 애플 `Authorization Code` (프론트에서 받은 코드)
+                    """
+    )
     @ApiResponse(responseCode = "200", description = "로그인 성공", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<LoginSuccessResponse>> loginKakao(@RequestBody KakaoLoginRequest request);
+    ResponseEntity<CommonResponse<LoginSuccessResponse>> loginSocial(@RequestBody SocialLoginRequest request);
 
     @Operation(summary = "토큰 재발급 (RTR)", description = "쿠키에 담긴 Refresh Token을 이용하여 Access Token을 재발급받습니다.")
     @ApiResponse(responseCode = "200", description = "재발급 성공 (새로운 Access Token 반환)", useReturnTypeSchema = true)

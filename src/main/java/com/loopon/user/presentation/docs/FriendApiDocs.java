@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@Tag(name = "4. 친구(Friend)", description = "친구 목록 조회 및 친구 삭제 API")
+@Tag(name = "07. 친구(Friend)", description = "친구 목록 조회 및 친구 삭제 API")
 public interface FriendApiDocs {
     @Operation(summary = "친구 목록 조회", description = "친구 목록을 가져옵니다.")
     @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
@@ -30,4 +30,17 @@ public interface FriendApiDocs {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long friendId
     );
+
+    @Operation(summary = "친구 차단", description = "친구 목록에서 친구를 차단합니다.")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<Void>> blockFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId);
+
+    @Operation(summary = "친구 차단 해제", description = "친구 목록에서 친구 차단을 해제합니다.")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<Void>> unblockFriend(
+            @AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable Long friendId);
 }

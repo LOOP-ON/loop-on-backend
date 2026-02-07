@@ -38,4 +38,6 @@ public interface ExpeditionRepository {
     void deleteAllExpeditionUsersById(Long expeditionId);
 
     List<ExpeditionUser> findAllExpeditionUserWithUserById(Long expeditionId);
+
+    Boolean existsExpeditionUserByIdAndUserId(Long expeditionId, Long userId);
 }

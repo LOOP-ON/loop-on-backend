@@ -38,11 +38,10 @@ public class SecurityConfig {
             "/api/terms",
             "/api/terms/{termId}",
             "/api/users/**",
-            "/api/auth/login",
+            "/api/auth/login/**",
             "/api/auth/reissue",
             "/api/auth/logout",
-            "/api/auth/verification/**",
-            "/api/auth/login/kakao"
+            "/api/auth/verification/**"
     };
 
     private static final String[] API_URLS = {
@@ -72,9 +71,9 @@ public class SecurityConfig {
                                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                                 .contentTypeOptions(Customizer.withDefaults())
                                 .cacheControl(HeadersConfigurer.CacheControlConfig::disable)
-                                .contentSecurityPolicy(csp -> csp
-                                        .policyDirectives("default-src 'self'; frame-ancestors 'self'")
-                                )
+//                                .contentSecurityPolicy(csp -> csp
+//                                        .policyDirectives("default-src 'self'; frame-ancestors 'self'")
+//                                )
                                 .referrerPolicy(rp -> rp
                                         .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)
                                 )

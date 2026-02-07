@@ -13,4 +13,5 @@ public record ExpeditionJoinCommand(
         ExpeditionVisibility expeditionVisibility,
 
         String password
-) {}
+) {
+}

@@ -12,4 +12,5 @@ public record ExpeditionSearchRequest(
 
         @Size(min = 3, max = 3)
         List<@NotNull Boolean> categories
-) {}
+) {
+}

@@ -19,4 +19,6 @@ public interface ChallengeImageJpaRepository extends JpaRepository<ChallengeImag
                 AND ci.displayOrder = 0
             """)
     Page<ChallengeImage> findThumbnailsByUserId(@Param("userId") Long userId, Pageable pageable);
+           
+    void deleteAllByChallengeId(Long challengeId);
 }
