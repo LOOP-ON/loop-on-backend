@@ -18,6 +18,7 @@ public class NotificationSettingServiceImpl implements NotificationSettingServic
     private final NotificationSettingRepository notificationSettingRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public NotificationSettingResponse getNotificationSetting(Long userId) {
         NotificationSetting setting = notificationSettingRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
 

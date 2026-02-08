@@ -105,8 +105,9 @@ public class APNsPushService {
 
         aps.put("alert", alert);
         aps.put("sound", "default");
-        aps.put("badge", 1);
 
+        // ★ 같은 thread-id끼리 iOS에서 묶음
+        aps.put("thread-id", resolveThreadId(data));
         payload.put("aps", aps);
 
         if (data != null && !data.isEmpty()) {
@@ -115,7 +116,19 @@ public class APNsPushService {
 
         return objectMapper.writeValueAsString(payload);
     }
+    //분류별로 알림을 나누고 모아보기
+    private String resolveThreadId(Map<String, String> data) {
+        if (data == null) return "default";
+        String type = data.get("type");
+        if (type == null) return "default";
 
+        return switch (type) {
+            case "FRIEND_REQUEST" -> "friend_request";
+            case "CHALLENGE_LIKE" -> "challenge_like";
+            case "CHALLENGE_COMMENT" -> "challenge_comment";
+            default -> "default";
+        };
+    }
     private String maskToken(String token) {
         if (token == null || token.length() < 10) return "***";
         return token.substring(0, 8) + "..." + token.substring(token.length() - 8);

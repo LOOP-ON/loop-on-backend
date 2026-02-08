@@ -12,21 +12,26 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
+import com.loopon.notification.application.event.ChallengeLikeEvent;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -43,6 +48,7 @@ class ChallengeCommandServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private ExpeditionRepository expeditionRepository;
     @Mock private S3Service s3Service;
+    @Mock ApplicationEventPublisher applicationEventPublisher;
 
     // --- 테스트용 더미 데이터 생성 헬퍼 ---
     private User createUser(Long id) {
@@ -232,6 +238,7 @@ class ChallengeCommandServiceTest {
 
             // then
             verify(challengeRepository).deleteChallengeLikeById(50L);
+            verify(applicationEventPublisher, never()).publishEvent(any());
         }
 
         @Test
@@ -250,6 +257,17 @@ class ChallengeCommandServiceTest {
 
             // then
             verify(challengeRepository).saveChallengeLike(any(ChallengeLike.class));
+
+            ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+            verify(applicationEventPublisher, times(1)).publishEvent(eventCaptor.capture());
+
+            Object event = eventCaptor.getValue();
+            assertTrue(event instanceof ChallengeLikeEvent);
+
+            ChallengeLikeEvent e = (ChallengeLikeEvent) event;
+            assertEquals(10L, e.challengeId());
+            assertEquals(2L, e.challengeOwnerId());
+            assertEquals(1L, e.likedUserId());
         }
     }
 

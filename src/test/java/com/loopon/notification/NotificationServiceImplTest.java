@@ -1,5 +1,6 @@
 package com.loopon.notification;
 
+import com.loopon.challenge.infrastructure.jpa.ChallengeJpaRepository;
 import com.loopon.global.domain.EnvironmentType;
 import com.loopon.notification.application.service.NotificationServiceImpl;
 import com.loopon.notification.domain.DeviceToken;
@@ -23,15 +24,16 @@ class NotificationServiceImplTest {
 
     @Mock DeviceTokenRepository deviceTokenRepository;
     @Mock APNsPushService apnsPushService;
+    @Mock ChallengeJpaRepository challengeJpaRepository;
 
     private NotificationServiceImpl sut() {
-        return new NotificationServiceImpl(deviceTokenRepository, apnsPushService);
+        return new NotificationServiceImpl(deviceTokenRepository, apnsPushService, challengeJpaRepository);
     }
 
     @Test
     @DisplayName("토큰이 있으면 FRIEND_REQUEST 푸시를 전송한다")
     void sendFriendRequestPush_whenTokenExists_sendPush() {
-        // given
+
         Long receiverId = 10L;
         Long senderId = 20L;
         Long friendRequestId = 30L;
@@ -52,8 +54,8 @@ class NotificationServiceImplTest {
 
         then(apnsPushService).should(times(1)).send(
                 eq("apns-token-xyz"),
-                eq("친구 요청"),
-                eq("새로운 친구 요청이 도착했습니다."),
+                eq("친구 신청 알림"),
+                eq(" ✴️새로운 친구 요청이 있어요"),
                 dataCaptor.capture()
         );
 
@@ -66,7 +68,7 @@ class NotificationServiceImplTest {
     }
 
     @Test
-    @DisplayName("토큰이 없으면 푸시를 전송하지 않는다")
+    @DisplayName("토큰이 없으면 FRIEND_REQUEST 푸시를 전송하지 않는다")
     void sendFriendRequestPush_whenNoToken_doNothing() {
         Long receiverId = 10L;
         Long senderId = 20L;
@@ -79,6 +81,116 @@ class NotificationServiceImplTest {
 
         then(deviceTokenRepository).should(times(1))
                 .findByUserIdAndEnvironmentType(receiverId, EnvironmentType.PROD);
+
+        then(apnsPushService).shouldHaveNoInteractions();
+    }
+
+    @Test
+    @DisplayName("토큰이 있으면 CHALLENGE_LIKE 푸시를 전송하고 likeCount를 data에 포함한다")
+    void sendChallengeLikePush_whenTokenExists_sendPushWithLikeCount() {
+
+        Long challengeId = 101L;
+        Long ownerId = 202L;
+        int likeCount = 7;
+
+        DeviceToken token = mock(DeviceToken.class);
+        given(token.getToken()).willReturn("apns-token-like");
+
+        given(deviceTokenRepository.findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD))
+                .willReturn(Optional.of(token));
+
+        sut().sendChallengeLikePush(challengeId, ownerId, likeCount);
+
+        then(deviceTokenRepository).should(times(1))
+                .findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Map<String, String>> dataCaptor = ArgumentCaptor.forClass((Class) Map.class);
+
+        then(apnsPushService).should(times(1)).send(
+                eq("apns-token-like"),
+                eq("좋아요 알림"),
+                eq(" ✴️회원님의 챌린지에 새로운 n개의 좋아요가 있어요"),
+                dataCaptor.capture()
+        );
+
+        Map<String, String> data = dataCaptor.getValue();
+        assertEquals("CHALLENGE_LIKE", data.get("type"));
+        assertEquals(String.valueOf(challengeId), data.get("challengeId"));
+        assertEquals(String.valueOf(likeCount), data.get("likeCount"));
+
+        then(apnsPushService).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("토큰이 없으면 CHALLENGE_LIKE 푸시를 전송하지 않는다")
+    void sendChallengeLikePush_whenNoToken_doNothing() {
+
+        Long challengeId = 101L;
+        Long ownerId = 202L;
+
+        given(deviceTokenRepository.findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD))
+                .willReturn(Optional.empty());
+
+        sut().sendChallengeLikePush(challengeId, ownerId, 3);
+
+        then(deviceTokenRepository).should(times(1))
+                .findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD);
+
+        then(apnsPushService).shouldHaveNoInteractions();
+    }
+
+    @Test
+    @DisplayName("토큰이 있으면 CHALLENGE_COMMENT 푸시를 전송한다")
+    void sendChallengeCommentPush_whenTokenExists_sendPush() {
+
+        Long challengeId = 11L;
+        Long ownerId = 22L;
+        Long commentedUserId = 33L;
+
+        DeviceToken token = mock(DeviceToken.class);
+        given(token.getToken()).willReturn("apns-token-comment");
+
+        given(deviceTokenRepository.findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD))
+                .willReturn(Optional.of(token));
+
+        sut().sendChallengeCommentPush(challengeId, ownerId, commentedUserId);
+
+        then(deviceTokenRepository).should(times(1))
+                .findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Map<String, String>> dataCaptor = ArgumentCaptor.forClass((Class) Map.class);
+
+        then(apnsPushService).should(times(1)).send(
+                eq("apns-token-comment"),
+                eq("댓글 알림"),
+                eq(" ✴️회원님의 챌린지에 새로운 댓글이 있어요"),
+                dataCaptor.capture()
+        );
+
+        Map<String, String> data = dataCaptor.getValue();
+        assertEquals("CHALLENGE_COMMENT", data.get("type"));
+        assertEquals(String.valueOf(challengeId), data.get("challengeId"));
+        assertEquals(String.valueOf(commentedUserId), data.get("commentedUserId"));
+
+        then(apnsPushService).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("토큰이 없으면 CHALLENGE_COMMENT 푸시를 전송하지 않는다")
+    void sendChallengeCommentPush_whenNoToken_doNothing() {
+
+        Long challengeId = 11L;
+        Long ownerId = 22L;
+
+        given(deviceTokenRepository.findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD))
+                .willReturn(Optional.empty());
+
+        sut().sendChallengeCommentPush(challengeId, ownerId, 33L);
+
+        then(deviceTokenRepository).should(times(1))
+                .findByUserIdAndEnvironmentType(ownerId, EnvironmentType.PROD);
 
         then(apnsPushService).shouldHaveNoInteractions();
     }
