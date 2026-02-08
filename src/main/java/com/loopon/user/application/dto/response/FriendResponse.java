@@ -12,6 +12,7 @@ public record FriendResponse(
         @NotNull FriendStatus friendStatus,
         @NotNull String friend_image_url,//추가 건의
         @NotNull String friend_nickname,
+        @NotNull String friend_bio,
         @NotNull LocalDateTime created_at,
         @NotNull LocalDateTime updated_at
 ) {
@@ -31,6 +32,7 @@ public record FriendResponse(
                 friend.getStatus(),             // friendStatus
                 opponent.getProfileImageUrl(),  // friend_image_url = 상대방 이미지 (판단 필요)
                 opponent.getNickname(),
+                opponent.getBio(),
                 friend.getCreatedAt(),          // created_at
                 friend.getUpdatedAt()           // updated_at
         );
