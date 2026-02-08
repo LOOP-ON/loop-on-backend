@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -39,7 +40,7 @@ public class LoopGenerationService {
         );
 
         List<String> loopGoals = llmService.parseLoops(llmResponse);
-        List<Journey> journeys = saveJourneys(loopGoals, user, goal);
+        List<Journey> journeys = saveJourneys(user, JourneyCategory.ROUTINE, loopGoals);
 
         return LoopGenerationResponse.builder()
                 .goalId(goal.getId())
@@ -60,14 +61,21 @@ public class LoopGenerationService {
         return goalRepository.save(goal);
     }
 
-    private List<Journey> saveJourneys(List<String> loopGoals, User user, Goal goal) {
-        return loopGoals.stream()
-                .map(loopGoal -> Journey.builder()
-                        .user(user)
-                        .category(JourneyCategory.ROUTINE)
-                        .goal(loopGoal)
-                        .build())
-                .map(journeyRepository::save)
-                .toList();
+    private List<Journey> saveJourneys(User user, JourneyCategory category, List<String> loops) {
+        int base = journeyRepository.findMaxJourneyOrderByUserId(user.getId());
+        int order = base + 1;
+
+        List<Journey> saved = new ArrayList<>();
+        for (String loopGoal : loops) {
+            Journey journey = Journey.builder()
+                    .user(user)
+                    .category(category)     // ✅ 절대 null이면 안됨
+                    .goal(loopGoal)
+                    .journeyOrder(order++)
+                    .build();
+            saved.add(journeyRepository.save(journey));
+        }
+        return saved;
     }
+
 }
