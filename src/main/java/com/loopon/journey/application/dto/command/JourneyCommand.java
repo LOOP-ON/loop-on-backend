@@ -2,8 +2,8 @@ package com.loopon.journey.application.dto.command;
 
 import com.loopon.journey.domain.JourneyCategory;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public class JourneyCommand {
     public record AddJourneyGoalCommand(
@@ -16,7 +16,7 @@ public class JourneyCommand {
     public record PostponeRoutineCommand(
             Long userId,
             Long journeyId,
-            Optional<List<Long>> routineIds,
+            List<Long> routineProgressIds,
             String reason
     ) {
     }

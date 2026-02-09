@@ -66,19 +66,17 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
             throw new IllegalStateException("진행 중인 여정이 아닙니다.");
         }
 
-        //여정에 포함된 루틴 아이디를 불러오기 (단일 조회일 경우 routine 테이블 하나, 전체 미루기일 경우 list)
-        List<Routine> routines = resolveRoutines(command, journey);
-
-        // 오늘 날짜
-        LocalDate today = LocalDate.now();
-
-        // 루틴 프로그레스 조회
+        //요청한 progress들 중에 IN_PROGRESS인 경우만 조회
         List<RoutineProgress> progresses =
-                routineProgressRepository.findAllByRoutineInAndProgressDateAndStatus(
-                        routines,
-                        today,
-                        ProgressStatus.IN_PROGRESS
-                );
+                routineProgressRepository
+                        .findAllByIdInAndStatus(
+                                command.routineProgressIds(),
+                                ProgressStatus.IN_PROGRESS
+                        );
+
+        if (progresses.isEmpty()) {
+            throw new IllegalStateException("미룰 수 있는 루틴 진행 정보가 없습니다.");
+        }
 
         //각 프로그레스의 postpone 이유 입력
         progresses.forEach(progress ->
@@ -87,30 +85,10 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
 
         return new JourneyResponse.PostponeRoutineDto(
                 progresses.stream()
-                        .map(p -> p.getRoutine().getId())
+                        .map(RoutineProgress::getId)
                         .distinct()
                         .toList(),
                 command.reason()
         );
-    }
-
-    private List<Routine> resolveRoutines(
-            JourneyCommand.PostponeRoutineCommand command,
-            Journey journey
-    ) {
-        // routineId가 있는 경우 선택 미루기
-        if (command.routineIds().isPresent()
-                && !command.routineIds().get().isEmpty()) {
-
-            List<Long> routineIds = command.routineIds().get();
-
-            return routineRepository.findAllByIdInAndJourney(
-                    routineIds,
-                    journey
-            );
-        }
-
-        // routineId가 없는 경우 전체 미루기
-        return routineRepository.findAllByJourney(journey);
     }
 }

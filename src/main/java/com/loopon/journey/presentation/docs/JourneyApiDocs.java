@@ -30,19 +30,8 @@ public interface JourneyApiDocs {
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
-    @Operation(summary = "루틴을 미룹니다.", description = "진행 중인 여정의 루틴을 미루는 API")
-    @ApiResponse(responseCode = "200", description = "루틴 미루기에 성공하였습니다.", useReturnTypeSchema = true)
-    @CommonBadRequestResponseDocs
-    @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
-            @PathVariable Long journeyId,
-            @PathVariable Long routineId,
-            @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    );
-
     //여정에 해당하는 루틴 전체 미루기 API
-    @Operation(summary = "미완료 된 루틴을 전체 미룹니다.", description = "진행 중인 여정의 루틴을 미루는 API")
+    @Operation(summary = "미완료 된 루틴을 미룹니다.", description = "진행 중인 여정의 루틴을 미루는 API")
     @ApiResponse(responseCode = "200", description = "루틴 미루기에 성공하였습니다.", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs

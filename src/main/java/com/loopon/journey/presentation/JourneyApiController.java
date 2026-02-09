@@ -48,34 +48,9 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(journeyId));
     }
 
-    // 여정에 해당하는 루틴 단일 미루기 API
+    //여정에 해당하는 루틴 미루기 API (단일, 전체 다 가능)
     @Override
-    @PostMapping("/{journeyId}/routines/{routineId}/postpone")
-    public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
-            @PathVariable Long journeyId,
-            @PathVariable Long routineId,
-            @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ) {
-        Long userId = principalDetails.getUserId();
-
-        JourneyCommand.PostponeRoutineCommand command =
-                new JourneyCommand.PostponeRoutineCommand(
-                        userId,
-                        journeyId,
-                        Optional.of(List.of(routineId)),
-                        reqBody.reason()
-                );
-
-        JourneyResponse.PostponeRoutineDto response =
-                journeyCommandService.postponeRoutine(command);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
-    }
-
-    //여정에 해당하는 루틴 전체 미루기 API
-    @Override
-    @PostMapping("/{journeyId}/routines/postpone/all")
+    @PostMapping("/{journeyId}/routines/postpone/")
     public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeAllRoutine(
             @PathVariable Long journeyId,
             @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
@@ -87,7 +62,7 @@ public class JourneyApiController implements JourneyApiDocs {
                 new JourneyCommand.PostponeRoutineCommand(
                         userId,
                         journeyId,
-                        Optional.empty(),
+                        reqBody.progressIds(),
                         reqBody.reason()
                 );
 

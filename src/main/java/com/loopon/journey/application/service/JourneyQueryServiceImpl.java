@@ -88,11 +88,14 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                         .map(routine -> {
                             RoutineProgress progress = progressMap.get(routine.getId());
 
+                            Long progressId = progress != null ? progress.getId() : null;
+
                             ProgressStatus status =
                                     progress != null ? progress.getStatus() : ProgressStatus.IN_PROGRESS;
 
                             return new JourneyResponse.RoutineDto(
                                     routine.getId(),
+                                    progressId,
                                     routine.getContent(),
                                     routine.getNotificationTime(),
                                     status
@@ -112,7 +115,8 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                         routines.size()
                 ),
                 routineDtos,
-                isNotReady
+                isNotReady,
+                targetDate
         );
     }
 }

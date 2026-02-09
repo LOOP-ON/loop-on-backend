@@ -23,9 +23,8 @@ public interface RoutineProgressJpaRepository extends JpaRepository<RoutineProgr
             LocalDate date,
             ProgressStatus status
     );
-    List<RoutineProgress> findAllByRoutineInAndProgressDateAndStatus(
-            List<Routine> routines,
-            LocalDate progressDate,
+    List<RoutineProgress> findAllByIdInAndStatus(
+            List<Long> ids,
             ProgressStatus status
     );
 }

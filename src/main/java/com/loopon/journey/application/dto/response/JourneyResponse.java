@@ -4,6 +4,7 @@ import com.loopon.journey.domain.JourneyCategory;
 import com.loopon.journey.domain.ProgressStatus;
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -25,7 +26,8 @@ public class JourneyResponse {
             JourneyInfoDto journey,
             TodayProgressDto todayProgress,
             List<RoutineDto> routines,
-            boolean isNotReady
+            boolean isNotReady,
+            LocalDate targetDate
     ) {
     }
 
@@ -47,6 +49,7 @@ public class JourneyResponse {
     //루틴 정보
     public record RoutineDto(
             Long routineId,
+            Long routineProgressId,
             String content,
             LocalTime notificationTime,
             ProgressStatus status
