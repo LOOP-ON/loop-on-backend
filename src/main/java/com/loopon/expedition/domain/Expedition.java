@@ -70,10 +70,11 @@ public class Expedition {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void modify(String title, ExpeditionVisibility visibility, String password) {
+    public void modify(String title, ExpeditionVisibility visibility, String password, Integer userLimit) {
         this.title = title;
         this.visibility = visibility;
         this.password = password;
+        this.userLimit = userLimit;
     }
 
     public void addToCurrentUsers(int currentUsers) {

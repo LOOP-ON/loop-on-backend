@@ -175,7 +175,9 @@ public class ExpeditionCommandService {
 
         checkAdmin(user, expedition);
 
-        expedition.modify(dto.title(), dto.visibility(), dto.password());
+        checkUserLimitChange(expedition, dto.userLimit());
+
+        expedition.modify(dto.title(), dto.visibility(), dto.password(), dto.userLimit());
 
         return ExpeditionConverter.modifyExpedition(expedition.getId());
     }
@@ -236,5 +238,9 @@ public class ExpeditionCommandService {
         }
     }
 
-
+    private void checkUserLimitChange(Expedition expedition, Integer userLimit) {
+        if (expedition.getCurrentUsers() > userLimit) {
+            throw new BusinessException(ErrorCode.USER_LIMIT_TOO_SMALL);
+        }
+    }
 }
