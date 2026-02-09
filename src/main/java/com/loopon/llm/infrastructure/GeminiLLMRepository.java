@@ -2,9 +2,9 @@ package com.loopon.llm.infrastructure;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loopon.journey.infrastructure.llm.GeminiProperties;
 import com.loopon.llm.domain.LLMProvider;
 import com.loopon.llm.domain.repository.LLMRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
@@ -14,11 +14,11 @@ import java.util.Map;
 public class GeminiLLMRepository implements LLMRepository {
 
     private final RestClient restClient;
-    private final String apiKey;
+    private final GeminiProperties props;
     private final ObjectMapper objectMapper;
 
-    public GeminiLLMRepository(@Value("${gemini.api.key}") String apiKey, RestClient geminiRestClient) {
-        this.apiKey = apiKey;
+    public GeminiLLMRepository(GeminiProperties props, RestClient geminiRestClient) {
+        this.props = props;
         this.restClient = geminiRestClient;
         this.objectMapper = new ObjectMapper();
     }
@@ -29,13 +29,15 @@ public class GeminiLLMRepository implements LLMRepository {
 
         try {
             String response = restClient.post()
-                    .uri("/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey)
+                    .uri("/v1beta/models/gemini-2.5-flash:generateContent?key=" + props.apiKey())
                     .body(Map.of(
-                            "contents", Map.of(
-                                    "parts", Map.of(
-                                            "text", prompt
+                            "contents", new Object[]{
+                                    Map.of(
+                                            "parts", new Object[]{
+                                                    Map.of("text", prompt)
+                                            }
                                     )
-                            )
+                            }
                     ))
                     .retrieve()
                     .body(String.class);
