@@ -9,6 +9,7 @@ public record ExpeditionModifyCommand(
         String title,
         ExpeditionVisibility visibility,
         String password,
+        Integer userLimit,
         Long userId
 ) {
 }
