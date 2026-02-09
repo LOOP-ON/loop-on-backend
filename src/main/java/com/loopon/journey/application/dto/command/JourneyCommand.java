@@ -2,7 +2,6 @@ package com.loopon.journey.application.dto.command;
 
 import com.loopon.journey.domain.JourneyCategory;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class JourneyCommand {

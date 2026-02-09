@@ -34,6 +34,8 @@ public class JourneyResponse {
     //여정 기본 정보
     public record JourneyInfoDto(
             Long journeyId,
+            int journeyOrder,
+            int journeyDate,
             JourneyCategory journeyCategory,
             String goal
     ) {

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,10 +78,16 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                                 rp -> rp
                         ));
 
-        // 5. 완료 개수 계산
+        // 완료 개수 계산
         long completedCount = progresses.stream()
                 .filter(p -> p.getStatus() == ProgressStatus.COMPLETED)
                 .count();
+
+        // jourey 일수 계산
+        long days =
+                ChronoUnit.DAYS.between(journey.getStartDate(), LocalDate.now());
+
+        int journeyDay = (int) days + 1;
 
         //루틴 dto로 변환
         List<JourneyResponse.RoutineDto> routineDtos =
@@ -107,6 +114,8 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         return new JourneyResponse.CurrentJourneyDto(
                 new JourneyResponse.JourneyInfoDto(
                         journey.getId(),
+                        journey.getJourneyOrder(),
+                        journeyDay,
                         journey.getCategory(),
                         journey.getGoal()
                 ),

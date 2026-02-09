@@ -44,8 +44,13 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
                     throw new IllegalArgumentException("이미 진행중인 여정이 있습니다.");
                 });
 
+        int nextJourneyOrder = journeyRepository
+                .findTopByGoalAndCategoryOrderByCreatedAtDesc(command.goal(), command.category())
+                .map(j -> j.getJourneyOrder() + 1)
+                .orElse(1);
+
         //여정 객체 생성
-        Journey journey = JourneyConverter.commandToJourney(command, user);
+        Journey journey = JourneyConverter.commandToJourney(command, user, nextJourneyOrder);
 
         //여정 생성
         journeyRepository.save(journey);
