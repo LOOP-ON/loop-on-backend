@@ -41,5 +41,22 @@ public class RoutineProgress {
     public void postpone(String reason) {
         this.status = ProgressStatus.POSTPONED;
         this.postponedReason = reason;
+        this.completedAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    private void prePersist() {
+        this.status = ProgressStatus.IN_PROGRESS;
+    }
+
+    // 루틴 프로그레스 생성을 위핸 create 메서드 추가
+    public static RoutineProgress create(
+            Routine routine,
+            LocalDate progressDate
+    ) {
+        RoutineProgress progress = new RoutineProgress();
+        progress.routine = routine;
+        progress.progressDate = progressDate;
+        return progress;
     }
 }

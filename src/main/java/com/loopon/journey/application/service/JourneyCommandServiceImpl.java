@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -65,29 +66,51 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
             throw new IllegalStateException("진행 중인 여정이 아닙니다.");
         }
 
-        // 해당 여정에 속한 완료되지 않은 루틴인지 판단
-        Routine routine = routineRepository
-                .findByIdAndJourneyId(command.journeyId(), command.routineId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 여정에 속한 루틴이 아닙니다."));
+        //여정에 포함된 루틴 아이디를 불러오기 (단일 조회일 경우 routine 테이블 하나, 전체 미루기일 경우 list)
+        List<Routine> routines = resolveRoutines(command, journey);
 
         // 오늘 날짜
         LocalDate today = LocalDate.now();
 
         // 루틴 프로그레스 조회
-        RoutineProgress progress = routineProgressRepository
-                .findByRoutineAndProgressDate(routine, today)
-                .orElseThrow(() -> new IllegalStateException("오늘의 루틴 진행 정보가 없습니다."));
+        List<RoutineProgress> progresses =
+                routineProgressRepository.findAllByRoutineInAndProgressDateAndStatus(
+                        routines,
+                        today,
+                        ProgressStatus.IN_PROGRESS
+                );
 
-        //이미 완료된 루틴일 경우 미루기 불가
-        if (progress.getStatus() == ProgressStatus.COMPLETED) {
-            throw new IllegalStateException("이미 완료 된 루틴입니다.");
-        }
-
-        // 3️⃣ 상태 변경
-        progress.postpone(command.reason());
+        //각 프로그레스의 postpone 이유 입력
+        progresses.forEach(progress ->
+                progress.postpone(command.reason())
+        );
 
         return new JourneyResponse.PostponeRoutineDto(
-                routine.getId(),
-                command.reason());
+                progresses.stream()
+                        .map(p -> p.getRoutine().getId())
+                        .distinct()
+                        .toList(),
+                command.reason()
+        );
+    }
+
+    private List<Routine> resolveRoutines(
+            JourneyCommand.PostponeRoutineCommand command,
+            Journey journey
+    ) {
+        // routineId가 있는 경우 선택 미루기
+        if (command.routineIds().isPresent()
+                && !command.routineIds().get().isEmpty()) {
+
+            List<Long> routineIds = command.routineIds().get();
+
+            return routineRepository.findAllByIdInAndJourney(
+                    routineIds,
+                    journey
+            );
+        }
+
+        // routineId가 없는 경우 전체 미루기
+        return routineRepository.findAllByJourney(journey);
     }
 }

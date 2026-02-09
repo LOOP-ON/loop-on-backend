@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "09. 여정(Journey)", description = "여정 생성 및 조회 API")
@@ -36,6 +37,17 @@ public interface JourneyApiDocs {
     ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
             @PathVariable Long journeyId,
             @PathVariable Long routineId,
+            @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    //여정에 해당하는 루틴 전체 미루기 API
+    @Operation(summary = "미완료 된 루틴을 전체 미룹니다.", description = "진행 중인 여정의 루틴을 미루는 API")
+    @ApiResponse(responseCode = "200", description = "루틴 미루기에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeAllRoutine(
+            @PathVariable Long journeyId,
             @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );

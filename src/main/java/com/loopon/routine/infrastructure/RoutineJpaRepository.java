@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface RoutineJpaRepository extends JpaRepository<Routine, Long> {
     Optional<Routine> findByIdAndJourneyId(Long routineId, Long journeyId);
     List<Routine> findAllByJourney(Journey journey);
+    List<Routine> findAllByIdInAndJourney(
+            List<Long> ids,
+            Journey journey
+    );
 }

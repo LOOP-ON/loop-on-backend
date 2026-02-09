@@ -16,7 +16,7 @@ public class JourneyResponse {
     }
 
     public record PostponeRoutineDto(
-            Long routineId,
+            List<Long> routineIds,
             String reason
     ) {
     }
