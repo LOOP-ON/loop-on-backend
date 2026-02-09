@@ -1,5 +1,6 @@
 package com.loopon.routine.infrastructure;
 
+import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +17,10 @@ public interface RoutineProgressJpaRepository extends JpaRepository<RoutineProgr
     List<RoutineProgress> findAllByRoutineInAndProgressDate(
             List<Routine> routines,
             LocalDate progressDate
+    );
+    Optional<RoutineProgress> findFirstByRoutineInAndProgressDateBeforeAndStatusOrderByProgressDateAsc(
+            List<Routine> routines,
+            LocalDate date,
+            ProgressStatus status
     );
 }

@@ -24,7 +24,8 @@ public class JourneyResponse {
     public record CurrentJourneyDto(
             JourneyInfoDto journey,
             TodayProgressDto todayProgress,
-            List<RoutineDto> routines
+            List<RoutineDto> routines,
+            boolean isNotReady
     ) {
     }
 
