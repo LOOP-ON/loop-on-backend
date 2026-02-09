@@ -275,7 +275,7 @@ public class ExpeditionConverter {
     ) {
         return ExpeditionGetResponse.builder()
                 .title(expedition.getTitle())
-                .currentUsers(expedition.getCurrentUsers())
+                .userLimit(expedition.getUserLimit())
                 .visibility(expedition.getVisibility())
                 .password(expedition.getPassword())
                 .build();
@@ -292,6 +292,7 @@ public class ExpeditionConverter {
                 .title(dto.title())
                 .visibility(dto.visibility())
                 .password(dto.password())
+                .userLimit(dto.userLimit())
                 .build();
     }
 
