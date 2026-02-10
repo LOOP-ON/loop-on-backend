@@ -5,8 +5,10 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
+import com.loopon.journey.application.dto.response.JourneyContinueResponse;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
+import com.loopon.journey.application.service.JourneyContinueService;
 import com.loopon.journey.application.service.LoopRegenerationService;
 import com.loopon.journey.domain.service.JourneyCommandService;
 import com.loopon.journey.domain.service.JourneyQueryService;
@@ -30,6 +32,7 @@ public class JourneyApiController implements JourneyApiDocs {
     private final JourneyCommandService journeyCommandService;
     private final JourneyQueryService journeyQueryService;
     private final LoopRegenerationService loopRegenerationService;
+    private final JourneyContinueService journeyContinueService;
 
     @Override
     @PostMapping("/goals")
@@ -91,6 +94,17 @@ public class JourneyApiController implements JourneyApiDocs {
             @Valid @RequestBody LoopRegenerationRequest request
     ) {
         LoopRegenerationResponse response = loopRegenerationService.regenerateLoop(request);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @PostMapping("/{journeyId}/continue")
+    public ResponseEntity<CommonResponse<JourneyContinueResponse>> continueJourney(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        Long userId = principalDetails.getUserId();
+        JourneyContinueResponse response = journeyContinueService.continueJourney(journeyId, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

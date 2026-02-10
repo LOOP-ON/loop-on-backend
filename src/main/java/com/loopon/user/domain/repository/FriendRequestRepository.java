@@ -1,5 +1,6 @@
 package com.loopon.user.domain.repository;
 
+import com.loopon.user.application.dto.response.FriendSearchResponse;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,29 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
     List<Long> getAllRequesterIdByStatus(
             @Param("me") Long me,
             @Param("status") FriendStatus status
+    );
+    @Query("""
+    select new com.loopon.user.application.dto.response.FriendSearchResponse(
+        u.nickname,
+        u.bio,
+        coalesce(f.status, com.loopon.user.domain.FriendStatus.NOT_FRIENDS),
+        u.profileImageUrl,
+        u.id
+    )
+    from User u
+    left join Friend f
+        on (
+            (f.requester.id = :me and f.receiver.id = u.id)
+            or
+            (f.receiver.id = :me and f.requester.id = u.id)
+        )
+    where u.id <> :me
+      and lower(u.nickname) like lower(concat('%', :query, '%'))
+""")
+    Page<FriendSearchResponse> searchByNickname(
+            @Param("me") Long me,
+            @Param("query") String query,
+            Pageable pageable
     );
 
     @Query("""
