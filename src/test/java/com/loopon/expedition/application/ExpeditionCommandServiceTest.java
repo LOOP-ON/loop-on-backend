@@ -55,12 +55,12 @@ class ExpeditionCommandServiceTest {
         return user;
     }
 
-    private Expedition createMockExpedition(Long id, String title, User admin, int userLimit) {
+    private Expedition createMockExpedition(Long id, String title, User admin) {
         Expedition expedition = mock(Expedition.class);
         lenient().when(expedition.getId()).thenReturn(id);
         lenient().when(expedition.getTitle()).thenReturn(title);
         lenient().when(expedition.getAdmin()).thenReturn(admin);
-        lenient().when(expedition.getUserLimit()).thenReturn(userLimit);
+        lenient().when(expedition.getUserLimit()).thenReturn(10);
         lenient().when(expedition.getPassword()).thenReturn("1234");
         return expedition;
     }
@@ -125,7 +125,7 @@ class ExpeditionCommandServiceTest {
             Long userId = 1L;
             Long expId = 100L;
             User user = createMockUser(userId, "tester");
-            Expedition expedition = createMockExpedition(expId, "Exp", null, 10);
+            Expedition expedition = createMockExpedition(expId, "Exp", null);
             ExpeditionJoinCommand command = new ExpeditionJoinCommand(expId, userId, ExpeditionVisibility.PUBLIC, null);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -146,7 +146,7 @@ class ExpeditionCommandServiceTest {
             Long userId = 1L;
             Long expId = 100L;
             User user = createMockUser(userId, "tester");
-            Expedition expedition = createMockExpedition(expId, "Exp", null, 10);
+            Expedition expedition = createMockExpedition(expId, "Exp", null);
             ExpeditionUser expelledRecord = createMockExpeditionUser(500L, user, ExpeditionUserStatus.EXPELLED);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -166,7 +166,7 @@ class ExpeditionCommandServiceTest {
             Long userId = 1L;
             Long expId = 100L;
             User user = createMockUser(userId, "tester");
-            Expedition expedition = createMockExpedition(expId, "Exp", null, 10); // 기본 비번 "1234"
+            Expedition expedition = createMockExpedition(expId, "Exp", null); // 기본 비번 "1234"
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
@@ -190,7 +190,7 @@ class ExpeditionCommandServiceTest {
             Long userId = 1L;
             Long expId = 100L;
             User admin = createMockUser(userId, "admin");
-            Expedition expedition = createMockExpedition(expId, "Title", admin, 10);
+            Expedition expedition = createMockExpedition(expId, "Title", admin);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(admin));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
@@ -210,7 +210,7 @@ class ExpeditionCommandServiceTest {
             // given
             User admin = createMockUser(1L, "admin");
             User normalUser = createMockUser(2L, "normal");
-            Expedition expedition = createMockExpedition(100L, "Title", admin, 10);
+            Expedition expedition = createMockExpedition(100L, "Title", admin);
 
             given(userRepository.findById(2L)).willReturn(Optional.of(normalUser));
             given(expeditionRepository.findById(100L)).willReturn(Optional.of(expedition));
@@ -234,7 +234,7 @@ class ExpeditionCommandServiceTest {
             Long expId = 100L;
             User admin = createMockUser(myId, "admin");
             User target = createMockUser(targetId, "target");
-            Expedition expedition = createMockExpedition(expId, "Title", admin, 10);
+            Expedition expedition = createMockExpedition(expId, "Title", admin);
             ExpeditionUser targetEU = mock(ExpeditionUser.class);
 
             given(userRepository.findById(myId)).willReturn(Optional.of(admin));
@@ -262,7 +262,7 @@ class ExpeditionCommandServiceTest {
             Long expId = 100L;
             User admin = createMockUser(myId, "admin");
             User target = createMockUser(targetId, "target");
-            Expedition expedition = createMockExpedition(expId, "Title", admin, 10);
+            Expedition expedition = createMockExpedition(expId, "Title", admin);
             ExpeditionUser targetEU = createMockExpeditionUser(500L, target, ExpeditionUserStatus.EXPELLED);
 
             given(userRepository.findById(myId)).willReturn(Optional.of(admin));
@@ -282,7 +282,7 @@ class ExpeditionCommandServiceTest {
     @DisplayName("탐험대 수정 성공 - 모든 조건 충족 시")
     void modifyExpedition_Success() {
         // given
-        ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "새 제목", ExpeditionVisibility.PUBLIC, "1234", 10L);
+        ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "새 제목", ExpeditionVisibility.PUBLIC, "1234", 10,10L);
 
         Expedition mockExpedition = mock(Expedition.class);
         User mockUser = mock(User.class);
@@ -300,14 +300,14 @@ class ExpeditionCommandServiceTest {
         assertNotNull(response);
         assertEquals(1L, response.expeditionId());
 
-        verify(mockExpedition).modify(command.title(), command.visibility(), command.password());
+        verify(mockExpedition).modify(command.title(), command.visibility(), command.password(), command.userLimit());
     }
 
     @Test
     @DisplayName("수정 실패 - 방장 권한이 없는 경우")
     void modifyExpedition_Forbidden_Not_Admin() {
         // given
-        ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "제목", ExpeditionVisibility.PUBLIC, null, 10L);
+        ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "제목", ExpeditionVisibility.PUBLIC, null, 10, 10L);
 
         Expedition mockExpedition = mock(Expedition.class);
         User mockUser = mock(User.class);

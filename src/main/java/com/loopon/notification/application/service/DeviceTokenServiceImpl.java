@@ -21,7 +21,7 @@ public class DeviceTokenServiceImpl implements DeviceTokenService {
     private final DeviceTokenRepository deviceTokenRepository;
     private final UserJpaRepository userJpaRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public DeviceTokenResponse saveDeviceToken(Long me, DeviceTokenRequest req) {
 
@@ -44,8 +44,8 @@ public class DeviceTokenServiceImpl implements DeviceTokenService {
         return new DeviceTokenResponse(saved.getId(), isNew);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteDeviceToken(Long me, DeviceTokenRequest deviceTokenRequest) {
 
         DeviceToken deviceToken = deviceTokenRepository

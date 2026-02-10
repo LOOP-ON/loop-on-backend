@@ -2,39 +2,23 @@ package com.loopon.journey.application.service;
 
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
-import com.loopon.journey.domain.Journey;
-import com.loopon.journey.domain.repository.JourneyRepository;
 import com.loopon.llm.application.service.LLMApplicationServiceImpl;
 import com.loopon.llm.domain.dto.LoopGenerationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class LoopRegenerationService {
 
-    private final JourneyRepository journeyRepository;
     private final LLMApplicationServiceImpl llmService;
 
-    @Transactional
-    public LoopRegenerationResponse regenerateLoop(Long journeyId, LoopRegenerationRequest request, Long userId) {
-        Journey existingJourney = journeyRepository.findById(journeyId)
-                .orElseThrow(() -> new RuntimeException("Journey not found"));
-
-        if (!existingJourney.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized access to journey");
-        }
-
+    public LoopRegenerationResponse regenerateLoop(LoopRegenerationRequest request) {
         String prompt = createRegenerationPrompt(request.getMainGoal(), request.getOriginalGoal());
         String newGoalContent = generateSingleLoop(prompt);
 
-        existingJourney.updateGoal(newGoalContent);
-        Journey updatedJourney = journeyRepository.save(existingJourney);
-
         return LoopRegenerationResponse.builder()
-                .journeyId(updatedJourney.getId())
-                .newGoal(updatedJourney.getGoal())
+                .newGoal(newGoalContent)
                 .build();
     }
 
