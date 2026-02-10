@@ -98,6 +98,7 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
+    @Override
     @PostMapping("/{journeyId}/continue")
     public ResponseEntity<CommonResponse<JourneyContinueResponse>> continueJourney(
             @PathVariable Long journeyId,

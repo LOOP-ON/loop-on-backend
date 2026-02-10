@@ -24,17 +24,20 @@ public class LoopRegenerationService {
 
     private String createRegenerationPrompt(String mainGoal, String originalGoal) {
         return String.format("""
-                당신은 목표 달성을 위한 여정(루프)을 개선하는 전문가입니다.
+                전체 목표: %s
+                안되는 여정: %s
                 
-                사용자의 전체 목표: %s
-                마음에 들지 않는 기존 여정: %s
+                더 나은 여정 1개를 제안해주세요.
                 
-                위 전체 목표를 달성하기 위한 더 나은 여정을 1개만 제안해주세요.
-                다음 지침을 따라주세요:
-                - 기존 여정과는 다른 새로운 접근 방식을 제안해주세요
-                - 구체적이고 실행 가능해야 합니다
-                - 사용자의 목표와 직접적으로 관련이 있어야 합니다
-                - 간결하고 명확하게 표현해주세요 (한 문장으로)
+                조건:
+                - 기존과 다른 접근
+                - 한 문장으로 (15자 이내)
+                - 구체적이고 실행 가능
+                
+                예시:
+                전체 목표: 운동하기
+                안되는 여정: 매일 1시간 헬스
+                제안: 주 3회 20분 산책
                 """, mainGoal, originalGoal);
     }
 
