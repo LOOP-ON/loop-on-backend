@@ -13,4 +13,6 @@ public class RoutineRequest {
             String content,
             String notificationTime // "15:00"
     ) {}
+
+    public record RoutineCertifyDataDto(){ }
 }

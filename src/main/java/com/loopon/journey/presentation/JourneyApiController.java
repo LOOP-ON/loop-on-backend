@@ -5,23 +5,25 @@ import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
+import com.loopon.journey.application.dto.response.JourneyContinueResponse;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
+import com.loopon.journey.application.service.JourneyContinueService;
 import com.loopon.journey.application.service.LoopRegenerationService;
 import com.loopon.journey.domain.service.JourneyCommandService;
 import com.loopon.journey.domain.service.JourneyQueryService;
 import com.loopon.journey.presentation.docs.JourneyApiDocs;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/journeys")
@@ -30,6 +32,7 @@ public class JourneyApiController implements JourneyApiDocs {
     private final JourneyCommandService journeyCommandService;
     private final JourneyQueryService journeyQueryService;
     private final LoopRegenerationService loopRegenerationService;
+    private final JourneyContinueService journeyContinueService;
 
     @Override
     @PostMapping("/goals")
@@ -45,22 +48,21 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(journeyId));
     }
 
-    // 여정 미루기 API
+    //여정에 해당하는 루틴 미루기 API (단일, 전체 다 가능)
     @Override
-    @PostMapping("/{journeyId}/routines/{routineId}/postpone")
-    public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeRoutine(
+    @PostMapping("/{journeyId}/routines/postpone/")
+    public ResponseEntity<CommonResponse<JourneyResponse.PostponeRoutineDto>> postponeAllRoutine(
             @PathVariable Long journeyId,
-            @PathVariable Long routineId,
             @Valid @RequestBody JourneyRequest.PostponeRoutineDto reqBody,
             @AuthenticationPrincipal PrincipalDetails principalDetails
-    ) {
+    ){
         Long userId = principalDetails.getUserId();
 
         JourneyCommand.PostponeRoutineCommand command =
                 new JourneyCommand.PostponeRoutineCommand(
                         userId,
                         journeyId,
-                        routineId,
+                        reqBody.progressIds(),
                         reqBody.reason()
                 );
 
@@ -68,6 +70,8 @@ public class JourneyApiController implements JourneyApiDocs {
                 journeyCommandService.postponeRoutine(command);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
+
+
     }
 
     // 여정 전체 조회
@@ -90,6 +94,47 @@ public class JourneyApiController implements JourneyApiDocs {
             @Valid @RequestBody LoopRegenerationRequest request
     ) {
         LoopRegenerationResponse response = loopRegenerationService.regenerateLoop(request);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @PostMapping("/{journeyId}/continue")
+    public ResponseEntity<CommonResponse<JourneyContinueResponse>> continueJourney(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        Long userId = principalDetails.getUserId();
+        JourneyContinueResponse response = journeyContinueService.continueJourney(journeyId, userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Override
+    @GetMapping("/passport")
+    public ResponseEntity<CommonResponse<Slice<JourneyResponse.JourneyPreviewDto>>> getJourneyList(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PageableDefault Pageable pageable
+    ) {
+        Long userId = principalDetails.getUserId();
+
+        Slice<JourneyResponse.JourneyPreviewDto> response =
+                journeyQueryService.getJourneyList(userId, pageable);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Override
+    @GetMapping("/passport/search")
+    public ResponseEntity<CommonResponse<Slice<JourneyResponse.JourneyPreviewDto>>> searchJourney(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestParam String keyword,
+            @RequestParam @Size(min = 3, max = 3) List<Boolean> categories,
+            @PageableDefault Pageable pageable
+    ) {
+        Long userId = principalDetails.getUserId();
+
+        Slice<JourneyResponse.JourneyPreviewDto> response =
+                journeyQueryService.searchJourney(userId, keyword, categories, pageable);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

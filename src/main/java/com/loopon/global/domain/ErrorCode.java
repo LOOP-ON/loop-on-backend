@@ -102,7 +102,12 @@ public enum ErrorCode {
 
     //설정-알림
     NOTIFICATION_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "유저에 해당하는 알림 설정 목록을 찾을 수 없습니다."),
-    INVALID_REMINDER_TIME(HttpStatus.NO_CONTENT, "S002", "미완료 리만인더의 시간을 설정해주세요.");
+    INVALID_REMINDER_TIME(HttpStatus.NO_CONTENT, "S002", "미완료 리만인더의 시간을 설정해주세요."),
+
+    // Journey (여정, J-xxx)
+    JOURNEY_NOT_FOUND(HttpStatus.NOT_FOUND, "J001", "해당 여정을 찾을 수 없습니다.");
+
+
     private final HttpStatus status;
     private final String code;
     private final String message;

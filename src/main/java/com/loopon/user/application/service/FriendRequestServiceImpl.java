@@ -38,12 +38,15 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponse<FriendSearchResponse> findNewFriend(Long me, String query, Pageable pageable) {
         if (query == null || query.trim().length() < 2) {
             return PageResponse.from(Page.empty(pageable));
         }
-        Page<User> newFriend = userRepository.searchByNickname(me, query, pageable);
-        return PageResponse.from(newFriend.map(FriendSearchResponse::from));
+        Page<FriendSearchResponse> page =
+                friendRequestRepository.searchByNickname(me, query.trim(), pageable);
+
+        return PageResponse.from(page);
     }
 
     @Override
