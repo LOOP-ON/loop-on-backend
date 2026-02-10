@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoopRegenerationResponse {
-    private Long journeyId;
     private String newGoal;
 }

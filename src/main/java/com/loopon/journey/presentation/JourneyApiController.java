@@ -85,13 +85,11 @@ public class JourneyApiController implements JourneyApiDocs {
     }
 
     @Override
-    @PutMapping("/{journeyId}/regenerate")
+    @PostMapping("/regenerate")
     public ResponseEntity<CommonResponse<LoopRegenerationResponse>> regenerateLoop(
-            @PathVariable Long journeyId,
-            @Valid @RequestBody LoopRegenerationRequest request,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
+            @Valid @RequestBody LoopRegenerationRequest request
     ) {
-        LoopRegenerationResponse response = loopRegenerationService.regenerateLoop(journeyId, request, principalDetails.getUserId());
+        LoopRegenerationResponse response = loopRegenerationService.regenerateLoop(request);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
