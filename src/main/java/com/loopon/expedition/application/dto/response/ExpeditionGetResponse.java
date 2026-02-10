@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record ExpeditionGetResponse(
         String title,
-        Integer currentUsers,
+        Integer userLimit,
         ExpeditionVisibility visibility,
         String password
 ) {
