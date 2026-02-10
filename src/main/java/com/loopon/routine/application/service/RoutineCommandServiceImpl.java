@@ -80,13 +80,15 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
             throw new IllegalArgumentException("사용자의 루틴이 아닙니다.");
         }
 
+        //이미지 업로드 전 progress 상태 검증
+        progress.validateCertifiable();
+
         // s3에 이미지 업로드
         String imageUrl = s3Service.uploadFile(image);
 
         // imageUrl을 progress에 업로드 후 데이터 변경
         progress.certify(imageUrl);
 
-        // 5. 응답 DTO 변환
         return RoutineConverter.toRoutineCertifyDto(progress);
     };
 

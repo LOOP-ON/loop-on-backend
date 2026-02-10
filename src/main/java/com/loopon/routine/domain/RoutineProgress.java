@@ -64,15 +64,26 @@ public class RoutineProgress {
     public void certify(String imageUrl) {
 
         if (!this.progressDate.equals(LocalDate.now())) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("오늘 인증할 수 있는 루틴이 아닙니다.");
         }
 
         if (this.status != ProgressStatus.IN_PROGRESS) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("이미 완료된 루틴입니다.");
         }
 
         this.status = ProgressStatus.COMPLETED;
         this.imageUrl = imageUrl;
         this.completedAt = LocalDateTime.now();
+    }
+
+    public void validateCertifiable() {
+
+        if (!this.progressDate.equals(LocalDate.now())) {
+            throw new IllegalArgumentException("오늘 인증할 수 있는 루틴이 아닙니다.");
+        }
+
+        if (this.status != ProgressStatus.IN_PROGRESS) {
+            throw new IllegalArgumentException("이미 완료된 루틴입니다.");
+        }
     }
 }
