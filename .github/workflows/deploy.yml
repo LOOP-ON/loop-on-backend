@@ -61,37 +61,63 @@ jobs:
       - name: Deploy via SSM (run /opt/loopon/deploy.sh on EC2)
         run: |
           set -euo pipefail
+
+          # 1) send-command (executionTimeout을 넉넉히)
           CMD_ID=$(aws ssm send-command \
             --region "$AWS_REGION" \
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters commands="sudo /opt/loopon/deploy.sh" \
+            --parameters '{"commands":["sudo bash -lc \"/opt/loopon/deploy.sh\""],"executionTimeout":["3600"]}' \
             --query 'Command.CommandId' \
             --output text)
+
           echo "SSM CommandId: $CMD_ID"
-          aws ssm wait command-executed \
-            --region "$AWS_REGION" \
-            --command-id "$CMD_ID" \
-            --instance-id "$EC2_INSTANCE_ID"
-          STATUS=$(aws ssm get-command-invocation \
-            --region "$AWS_REGION" \
-            --command-id "$CMD_ID" \
-            --instance-id "$EC2_INSTANCE_ID" \
-            --query 'Status' --output text)
-          echo "SSM Status: $STATUS"
-          echo "---- STDOUT ----"
-          aws ssm get-command-invocation \
-            --region "$AWS_REGION" \
-            --command-id "$CMD_ID" \
-            --instance-id "$EC2_INSTANCE_ID" \
-            --query 'StandardOutputContent' --output text || true
-          echo "---- STDERR ----"
-          aws ssm get-command-invocation \
-            --region "$AWS_REGION" \
-            --command-id "$CMD_ID" \
-            --instance-id "$EC2_INSTANCE_ID" \
-            --query 'StandardErrorContent' --output text || true
-          if [ "$STATUS" != "Success" ]; then
-            echo "::error title=Deploy failed::SSM command did not succeed (Status=$STATUS)"
-            exit 1
-          fi
+
+          # 2) 폴링(최대 30분)으로 상태 확인
+          for i in {1..180}; do  # 180*10s = 30분
+            STATUS=$(aws ssm get-command-invocation \
+              --region "$AWS_REGION" \
+              --command-id "$CMD_ID" \
+              --instance-id "$EC2_INSTANCE_ID" \
+              --query 'Status' --output text)
+
+            echo "SSM Status: $STATUS"
+
+            if [ "$STATUS" = "Success" ]; then
+              echo "---- STDOUT ----"
+              aws ssm get-command-invocation \
+                --region "$AWS_REGION" \
+                --command-id "$CMD_ID" \
+                --instance-id "$EC2_INSTANCE_ID" \
+                --query 'StandardOutputContent' --output text || true
+              echo "---- STDERR ----"
+              aws ssm get-command-invocation \
+                --region "$AWS_REGION" \
+                --command-id "$CMD_ID" \
+                --instance-id "$EC2_INSTANCE_ID" \
+                --query 'StandardErrorContent' --output text || true
+              exit 0
+            fi
+
+            if [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ] || [ "$STATUS" = "TimedOut" ]; then
+              echo "---- STDOUT ----"
+              aws ssm get-command-invocation \
+                --region "$AWS_REGION" \
+                --command-id "$CMD_ID" \
+                --instance-id "$EC2_INSTANCE_ID" \
+                --query 'StandardOutputContent' --output text || true
+              echo "---- STDERR ----"
+              aws ssm get-command-invocation \
+                --region "$AWS_REGION" \
+                --command-id "$CMD_ID" \
+                --instance-id "$EC2_INSTANCE_ID" \
+                --query 'StandardErrorContent' --output text || true
+              echo "::error title=Deploy failed::SSM command did not succeed (Status=$STATUS)"
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          echo "::error title=Deploy failed::Timed out waiting for SSM command to finish"
+          exit 1
