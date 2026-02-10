@@ -2,6 +2,8 @@ package com.loopon.user.application;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
+import com.loopon.notificationsetting.domain.NotificationSetting;
+import com.loopon.notificationsetting.domain.repository.NotificationSettingRepository;
 import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
 import com.loopon.term.domain.repository.TermRepository;
@@ -28,6 +30,7 @@ public class UserCommandService {
     private final UserRepository userRepository;
     private final TermRepository termRepository;
     private final UserTermAgreementRepository agreementRepository;
+    private final NotificationSettingRepository notificationSettingRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -42,7 +45,12 @@ public class UserCommandService {
         Long userId = userRepository.save(user);
 
         saveUserTermAgreements(user, allTerms, command.agreedTermIds());
+        //마케팅 동의 여부 확인
+        boolean marketingEnabled = command.agreedTermIds().contains(6L);
 
+        notificationSettingRepository.save(
+                NotificationSetting.createAllEnabled(user, marketingEnabled)
+        );
         return userId;
     }
 

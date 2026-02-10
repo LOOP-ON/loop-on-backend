@@ -2,6 +2,7 @@ package com.loopon.user.application;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
+import com.loopon.notificationsetting.domain.repository.NotificationSettingRepository;
 import com.loopon.term.domain.Term;
 import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
@@ -27,8 +28,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -47,6 +47,9 @@ class UserCommandServiceTest {
 
     @Mock
     private UserTermAgreementRepository userTermAgreementRepository;
+
+    @Mock
+    private NotificationSettingRepository notificationSettingRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -73,28 +76,23 @@ class UserCommandServiceTest {
         }
 
         @Test
-        @DisplayName("성공: 필수 약관을 모두 동의하고 검증을 통과하면 회원을 저장한다")
-        void 회원가입_성공_모든_검증_통과() {
+        @DisplayName("성공: 필수 약관 동의 + 마케팅 미동의(6 없음)면 NotificationSetting.marketingEnabled=false로 저장")
+        void 회원가입_성공_마케팅_미동의() {
             // given
             Term mandatoryTerm = createTerm(1L, true);
-            Term optionalTerm = createTerm(2L, false);
-            given(termRepository.findAllForSignUp()).willReturn(List.of(mandatoryTerm, optionalTerm));
+            Term marketingTerm = createTerm(6L, false); // 마케팅 약관(선택)
+            given(termRepository.findAllForSignUp()).willReturn(List.of(mandatoryTerm, marketingTerm));
 
             UserSignUpCommand command = createCommand(
-                    "test@loopon.com", "pw123", "pw123", "loopon", List.of(1L, 2L)
+                    "test@loopon.com", "pw123", "pw123", "loopon", List.of(1L) // 6L 없음
             );
 
             given(userRepository.existsByEmail(command.email())).willReturn(false);
             given(userRepository.existsByNickname(command.nickname())).willReturn(false);
             given(passwordEncoder.encode(command.password())).willReturn("encodedPassword");
 
-            User savedUser = User.createLocalUser(
-                    "test@loopon.com",
-                    "loopon",
-                    "encodedPassword",
-                    null
-            );
-            ReflectionTestUtils.setField(savedUser, "id", 1L);
+            // ★ 서비스가 Long을 리턴 받으므로 stub 필요
+            given(userRepository.save(any(User.class))).willReturn(1L);
 
             // when
             userCommandService.signUp(command);
@@ -102,6 +100,40 @@ class UserCommandServiceTest {
             // then
             verify(userRepository).save(any(User.class));
             verify(userTermAgreementRepository).saveAll(anyList());
+
+            // NotificationSetting 저장 검증
+            verify(notificationSettingRepository).save(argThat(setting ->
+                    setting.isAllEnabled() &&
+                            !setting.isMarketingEnabled()
+            ));
+        }
+
+        @Test
+        @DisplayName("성공: 필수 약관 동의 + 마케팅 동의(6 포함)면 NotificationSetting.marketingEnabled=true로 저장")
+        void 회원가입_성공_마케팅_동의() {
+            // given
+            Term mandatoryTerm = createTerm(1L, true);
+            Term marketingTerm = createTerm(6L, false);
+            given(termRepository.findAllForSignUp()).willReturn(List.of(mandatoryTerm, marketingTerm));
+
+            UserSignUpCommand command = createCommand(
+                    "test2@loopon.com", "pw123", "pw123", "loopon2", List.of(1L, 6L) // ✅ 6L 포함
+            );
+
+            given(userRepository.existsByEmail(command.email())).willReturn(false);
+            given(userRepository.existsByNickname(command.nickname())).willReturn(false);
+            given(passwordEncoder.encode(command.password())).willReturn("encodedPassword");
+
+            given(userRepository.save(any(User.class))).willReturn(2L);
+
+            // when
+            userCommandService.signUp(command);
+
+            // then
+            verify(notificationSettingRepository).save(argThat(setting ->
+                    setting.isAllEnabled() &&
+                            setting.isMarketingEnabled() // ✅ 마케팅 true
+            ));
         }
 
         @Test
@@ -122,6 +154,7 @@ class UserCommandServiceTest {
 
             verify(userRepository, never()).save(any());
             verify(userTermAgreementRepository, never()).saveAll(any());
+            verify(notificationSettingRepository, never()).save(any());
         }
 
         @Test
