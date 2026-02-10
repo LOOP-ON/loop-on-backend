@@ -4,6 +4,7 @@ import com.loopon.routine.application.dto.request.RoutineRequest;
 import com.loopon.routine.application.dto.response.RoutineResponse;
 import com.loopon.routine.domain.Routine;
 import com.loopon.journey.domain.Journey;
+import com.loopon.routine.domain.RoutineProgress;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -42,6 +43,16 @@ public class RoutineConverter {
                 .routineId(routine.getId())
                 .content(routine.getContent())
                 .notificationTime(routine.getNotificationTime())
+                .build();
+    }
+
+    public static RoutineResponse.RoutineCertifyDto toRoutineCertifyDto(
+            RoutineProgress progress
+    ) {
+        return RoutineResponse.RoutineCertifyDto.builder()
+                .progressId(progress.getId())
+                .status(progress.getStatus())
+                .imageUrl(progress.getImageUrl())
                 .build();
     }
 }

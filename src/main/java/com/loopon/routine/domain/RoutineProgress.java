@@ -59,4 +59,20 @@ public class RoutineProgress {
         progress.progressDate = progressDate;
         return progress;
     }
+
+    // 루틴 인증을 위한 certify 메서드 추가
+    public void certify(String imageUrl) {
+
+        if (!this.progressDate.equals(LocalDate.now())) {
+            throw new IllegalArgumentException("");
+        }
+
+        if (this.status != ProgressStatus.IN_PROGRESS) {
+            throw new IllegalArgumentException("");
+        }
+
+        this.status = ProgressStatus.COMPLETED;
+        this.imageUrl = imageUrl;
+        this.completedAt = LocalDateTime.now();
+    }
 }

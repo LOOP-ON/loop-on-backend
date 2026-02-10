@@ -1,5 +1,6 @@
 package com.loopon.routine.application.service;
 
+import com.loopon.global.s3.S3Service;
 import com.loopon.routine.application.dto.converter.RoutineConverter;
 import com.loopon.routine.application.dto.request.RoutineRequest;
 import com.loopon.routine.application.dto.response.RoutineResponse;
@@ -13,6 +14,7 @@ import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +26,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
     private final JourneyJpaRepository journeyRepository;
     private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
+    private final S3Service s3Service;
 
     @Transactional
     @Override
@@ -62,6 +65,29 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
 
         //response 형태 맞추어 리턴
         return RoutineConverter.toPostRoutinesDto(routines);
-    }
+    };
+
+    @Transactional
+    @Override
+    public RoutineResponse.RoutineCertifyDto certifyRoutine(Long progressId, Long userId, MultipartFile image){
+        //progress 조회
+        RoutineProgress progress = routineProgressRepository
+                .findById(progressId)
+                .orElseThrow(() -> new IllegalArgumentException(""));
+
+        // 사용자의 루틴이 아닐 경우 : error -> 너무 깊어서
+        if (!progress.getRoutine().getJourney().getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("사용자의 루틴이 아닙니다.");
+        }
+
+        // s3에 이미지 업로드
+        String imageUrl = s3Service.uploadFile(image);
+
+        // imageUrl을 progress에 업로드 후 데이터 변경
+        progress.certify(imageUrl);
+
+        // 5. 응답 DTO 변환
+        return RoutineConverter.toRoutineCertifyDto(progress);
+    };
 
 }

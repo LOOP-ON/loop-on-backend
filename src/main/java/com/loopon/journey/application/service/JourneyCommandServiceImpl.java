@@ -52,9 +52,7 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         journeyRepository.save(journey);
 
         return new JourneyResponse.PostJourneyGoalDto(journey.getId());
-    }
-
-    ;
+    };
 
     @Transactional
     @Override
