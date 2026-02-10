@@ -1,8 +1,6 @@
 package com.loopon.journey.application.service;
 
-import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
-import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.converter.JourneyConverter;
@@ -18,14 +16,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class JourneyCommandServiceImpl implements JourneyCommandService {
     private final JourneyJpaRepository journeyRepository;
     private final UserJpaRepository userRepository;
-    private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
 
     @Override
@@ -43,16 +40,19 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
                     throw new IllegalArgumentException("이미 진행중인 여정이 있습니다.");
                 });
 
+        int nextJourneyOrder = journeyRepository
+                .findTopByGoalAndCategoryOrderByCreatedAtDesc(command.goal(), command.category())
+                .map(j -> j.getJourneyOrder() + 1)
+                .orElse(1);
+
         //여정 객체 생성
-        Journey journey = JourneyConverter.commandToJourney(command, user);
+        Journey journey = JourneyConverter.commandToJourney(command, user, nextJourneyOrder);
 
         //여정 생성
         journeyRepository.save(journey);
 
         return new JourneyResponse.PostJourneyGoalDto(journey.getId());
-    }
-
-    ;
+    };
 
     @Transactional
     @Override
@@ -65,29 +65,29 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
             throw new IllegalStateException("진행 중인 여정이 아닙니다.");
         }
 
-        // 해당 여정에 속한 완료되지 않은 루틴인지 판단
-        Routine routine = routineRepository
-                .findByIdAndJourneyId(command.journeyId(), command.routineId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 여정에 속한 루틴이 아닙니다."));
+        //요청한 progress들 중에 IN_PROGRESS인 경우만 조회
+        List<RoutineProgress> progresses =
+                routineProgressRepository
+                        .findAllByIdInAndStatus(
+                                command.routineProgressIds(),
+                                ProgressStatus.IN_PROGRESS
+                        );
 
-        // 오늘 날짜
-        LocalDate today = LocalDate.now();
-
-        // 루틴 프로그레스 조회
-        RoutineProgress progress = routineProgressRepository
-                .findByRoutineAndProgressDate(routine, today)
-                .orElseThrow(() -> new IllegalStateException("오늘의 루틴 진행 정보가 없습니다."));
-
-        //이미 완료된 루틴일 경우 미루기 불가
-        if (progress.getStatus() == ProgressStatus.COMPLETED) {
-            throw new IllegalStateException("이미 완료 된 루틴입니다.");
+        if (progresses.isEmpty()) {
+            throw new IllegalStateException("미룰 수 있는 루틴 진행 정보가 없습니다.");
         }
 
-        // 3️⃣ 상태 변경
-        progress.postpone(command.reason());
+        //각 프로그레스의 postpone 이유 입력
+        progresses.forEach(progress ->
+                progress.postpone(command.reason())
+        );
 
         return new JourneyResponse.PostponeRoutineDto(
-                routine.getId(),
-                command.reason());
+                progresses.stream()
+                        .map(RoutineProgress::getId)
+                        .distinct()
+                        .toList(),
+                command.reason()
+        );
     }
 }

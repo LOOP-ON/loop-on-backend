@@ -16,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,8 +49,26 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         //오늘 날짜 기준 값 설정후 오늘의 여정 조회
         LocalDate today = LocalDate.now();
 
+        //오늘 날짜 기준 이전에 완료 되지 않은 여정이 있는지 확인
+        Optional<RoutineProgress> notCompletedProgressOpt =
+                routineProgressRepository
+                        .findFirstByRoutineInAndProgressDateBeforeAndStatusOrderByProgressDateAsc(
+                                routines,
+                                today,
+                                ProgressStatus.IN_PROGRESS
+                        );
+
+        boolean isNotReady = notCompletedProgressOpt.isPresent();
+
+        // 조회할 날짜 결정
+        LocalDate targetDate =
+                notCompletedProgressOpt
+                        .map(RoutineProgress::getProgressDate)
+                        .orElse(today);
+
+        //target Date에 해당되는 루틴들 조회
         List<RoutineProgress> progresses =
-                routineProgressRepository.findAllByRoutineInAndProgressDate(routines, today);
+                routineProgressRepository.findAllByRoutineInAndProgressDate(routines, targetDate);
 
         // routineId → progress 매핑
         Map<Long, RoutineProgress> progressMap =
@@ -58,10 +78,16 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                                 rp -> rp
                         ));
 
-        // 5. 완료 개수 계산
+        // 완료 개수 계산
         long completedCount = progresses.stream()
                 .filter(p -> p.getStatus() == ProgressStatus.COMPLETED)
                 .count();
+
+        // jourey 일수 계산
+        long days =
+                ChronoUnit.DAYS.between(journey.getStartDate(), LocalDate.now());
+
+        int journeyDay = (int) days + 1;
 
         //루틴 dto로 변환
         List<JourneyResponse.RoutineDto> routineDtos =
@@ -69,11 +95,14 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                         .map(routine -> {
                             RoutineProgress progress = progressMap.get(routine.getId());
 
+                            Long progressId = progress != null ? progress.getId() : null;
+
                             ProgressStatus status =
                                     progress != null ? progress.getStatus() : ProgressStatus.IN_PROGRESS;
 
                             return new JourneyResponse.RoutineDto(
                                     routine.getId(),
+                                    progressId,
                                     routine.getContent(),
                                     routine.getNotificationTime(),
                                     status
@@ -85,6 +114,8 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         return new JourneyResponse.CurrentJourneyDto(
                 new JourneyResponse.JourneyInfoDto(
                         journey.getId(),
+                        journey.getJourneyOrder(),
+                        journeyDay,
                         journey.getCategory(),
                         journey.getGoal()
                 ),
@@ -92,7 +123,9 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                         (int) completedCount,
                         routines.size()
                 ),
-                routineDtos
+                routineDtos,
+                isNotReady,
+                targetDate
         );
     }
 }
