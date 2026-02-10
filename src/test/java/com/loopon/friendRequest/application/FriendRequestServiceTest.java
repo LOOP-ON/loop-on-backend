@@ -7,6 +7,7 @@ import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
+import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
@@ -80,23 +81,32 @@ class FriendRequestServiceTest {
             String shortQuery = "a";
 
             // when
-            PageResponse<FriendSearchResponse> result = friendRequestService.findNewFriend(1L, shortQuery, pageable);
+            PageResponse<FriendSearchResponse> result =
+                    friendRequestService.findNewFriend(1L, shortQuery, pageable);
 
             // then
             assertThat(result.content()).isEmpty();
             assertThat(result.totalElements()).isZero();
-            verify(userRepository, never()).searchByNickname(anyLong(), anyString(), any());
+
+            // null 가능성/매칭 이슈 없이 안전하게 검증
+            verify(friendRequestRepository, never())
+                    .searchByNickname(anyLong(), any(), any(Pageable.class));
         }
 
         @Test
         @DisplayName("검색어가 null이면 빈 페이지를 반환한다")
         void findNewFriend_NullQuery_ReturnsEmptyPage() {
             // when
-            PageResponse<FriendSearchResponse> result = friendRequestService.findNewFriend(1L, null, pageable);
+            PageResponse<FriendSearchResponse> result =
+                    friendRequestService.findNewFriend(1L, null, pageable);
 
             // then
             assertThat(result.content()).isEmpty();
-            verify(userRepository, never()).searchByNickname(anyLong(), anyString(), any());
+            assertThat(result.totalElements()).isZero();
+
+            // anyString()은 null 매칭이 안 되므로 any()로
+            verify(friendRequestRepository, never())
+                    .searchByNickname(anyLong(), any(), any(Pageable.class));
         }
 
         @Test
@@ -104,16 +114,31 @@ class FriendRequestServiceTest {
         void findNewFriend_ValidQuery_ReturnsUsers() {
             // given
             String query = "user";
-            Page<User> userPage = new PageImpl<>(List.of(user2));
-            given(userRepository.searchByNickname(1L, query, pageable)).willReturn(userPage);
+            String trimmed = query.trim();
+
+            FriendSearchResponse response = new FriendSearchResponse(
+                    user2.getNickname(),
+                    user2.getBio(),
+                    NOT_FRIENDS,           // 또는 null (서비스/프론트 정책에 맞게)
+                    user2.getProfileImageUrl(),
+                    user2.getId()
+            );
+            Page<FriendSearchResponse> page =
+                    new PageImpl<>(List.of(response), pageable, 1);
+
+            given(friendRequestRepository.searchByNickname(1L, trimmed, pageable))
+                    .willReturn(page);
 
             // when
-            PageResponse<FriendSearchResponse> result = friendRequestService.findNewFriend(1L, query, pageable);
+            PageResponse<FriendSearchResponse> result =
+                    friendRequestService.findNewFriend(1L, query, pageable);
 
             // then
             assertThat(result.content()).hasSize(1);
             assertThat(result.totalElements()).isEqualTo(1);
-            verify(userRepository).searchByNickname(1L, query, pageable);
+
+            // query.trim() 적용 여부에 따라 verify 인자도 맞춰야 함
+            verify(friendRequestRepository).searchByNickname(1L, trimmed, pageable);
         }
     }
 

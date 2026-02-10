@@ -19,12 +19,6 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     @Query("""
-            select u from User u where u.id <> :me
-                and lower(u.nickname) like lower(concat('%', :query, '%'))
-            """)
-    Page<User> searchByNickname(@Param("me") Long me, @Param("query") String query, Pageable pageable);
-
-    @Query("""
             select u from User u
                     where u.socialId = :id and u.provider = :provider
             """)
