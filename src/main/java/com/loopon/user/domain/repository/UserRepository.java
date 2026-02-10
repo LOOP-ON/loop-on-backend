@@ -19,7 +19,6 @@ public interface UserRepository {
 
     Optional<User> findById(Long id);
 
-    Page<User> searchByNickname(Long me, String query, Pageable pageable);
 
     Optional<User> findBySocialIdAndProvider(String id, UserProvider provider);
 

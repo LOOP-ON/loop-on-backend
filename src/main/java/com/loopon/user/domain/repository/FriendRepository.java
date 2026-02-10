@@ -23,19 +23,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             @Param("me") Long me,
             @Param("status") FriendStatus status
     );
-
-    @Query("""
-            select (count(f) > 0)
-            from Friend f
-            where f.id = :friendId
-              and (f.requester.id = :me or f.receiver.id = :me)
-            """)
-    boolean existsByIdAndUserId(
-            @Param("friendId") Long friendId,
-            @Param("me") Long me
-    );
-
-
     Long countByReceiver_IdAndStatus(Long me, FriendStatus friendStatus);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)

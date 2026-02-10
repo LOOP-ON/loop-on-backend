@@ -4,8 +4,6 @@ import com.loopon.user.domain.User;
 import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -41,10 +39,6 @@ public class UserRepositoryImpl implements UserRepository {
         return userJpaRepository.findById(id);
     }
 
-    @Override
-    public Page<User> searchByNickname(Long me, String q, Pageable pageable) {
-        return userJpaRepository.searchByNickname(me, q, pageable);
-    }
 
     @Override
     public Optional<User> findBySocialIdAndProvider(String id, UserProvider provider) {
