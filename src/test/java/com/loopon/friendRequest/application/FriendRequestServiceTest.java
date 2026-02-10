@@ -7,7 +7,6 @@ import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
@@ -28,7 +27,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.loopon.user.domain.FriendStatus.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;

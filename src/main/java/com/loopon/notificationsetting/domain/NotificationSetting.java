@@ -1,19 +1,7 @@
 package com.loopon.notificationsetting.domain;
 
 import com.loopon.user.domain.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +15,6 @@ import java.time.LocalTime;
 @Table(name = "notification_settings", uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class NotificationSetting {
 
     @Id
@@ -104,6 +91,56 @@ public class NotificationSetting {
 
         this.updatedAt = LocalDateTime.now();
     }
+    @Builder
+    private NotificationSetting(
+            User user,
+            boolean allEnabled,
+            boolean routineEnabled,
+            AlertMode routineAlertMode,
+            boolean unfinishedGoalReminderEnabled,
+            boolean dayEndJourneyReminderEnabled,
+            LocalTime dayEndJourneyReminderTime,
+            boolean journeyCompleteEnabled,
+            boolean friendRequestEnabled,
+            boolean likeEnabled,
+            boolean commentEnabled,
+            boolean noticeEnabled,
+            boolean marketingEnabled,
+            LocalDateTime updatedAt
+    ) {
+        this.user = user;
+        this.allEnabled = allEnabled;
+        this.routineEnabled = routineEnabled;
+        this.routineAlertMode = routineAlertMode;
+        this.unfinishedGoalReminderEnabled = unfinishedGoalReminderEnabled;
+        this.dayEndJourneyReminderEnabled = dayEndJourneyReminderEnabled;
+        this.dayEndJourneyReminderTime = dayEndJourneyReminderTime;
+        this.journeyCompleteEnabled = journeyCompleteEnabled;
+        this.friendRequestEnabled = friendRequestEnabled;
+        this.likeEnabled = likeEnabled;
+        this.commentEnabled = commentEnabled;
+        this.noticeEnabled = noticeEnabled;
+        this.marketingEnabled = marketingEnabled;
+        this.updatedAt = updatedAt;
+    }
+    public static NotificationSetting createAllEnabled(User user, boolean marketingEnabled) {
+        return NotificationSetting.builder()
+                .user(user)
+                .allEnabled(true)
+                .routineEnabled(true)
+                .routineAlertMode(AlertMode.SOUND)
+                .unfinishedGoalReminderEnabled(true)
+                .dayEndJourneyReminderEnabled(true)
+                .dayEndJourneyReminderTime(LocalTime.of(23, 0))
+                .journeyCompleteEnabled(true)
+                .friendRequestEnabled(true)
+                .likeEnabled(true)
+                .commentEnabled(true)
+                .noticeEnabled(true)
+                .marketingEnabled(marketingEnabled)
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
     @Getter
     @Builder
@@ -112,7 +149,6 @@ public class NotificationSetting {
         private Boolean routineEnabled;
         private AlertMode routineAlertMode;
         private Boolean unfinishedGoalReminderEnabled;
-        private LocalTime unfinishedGoalReminderTime;
         private Boolean dayEndJourneyReminderEnabled;
         private LocalTime dayEndJourneyReminderTime;
         private Boolean journeyCompleteEnabled;
@@ -141,12 +177,18 @@ public class NotificationSetting {
             case ROUTINE -> this.routineEnabled;
         };
     }
-
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
     //리마인드 알림 기본 시각 23시
     @PrePersist
     public void prePersist() {
         if (dayEndJourneyReminderTime == null) {
             this.dayEndJourneyReminderTime = LocalTime.of(23, 0);
+        }
+        if (updatedAt == null) {
+            this.updatedAt = LocalDateTime.now();
         }
     }
 }

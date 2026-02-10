@@ -6,6 +6,7 @@ import com.loopon.notification.application.service.NotificationServiceImpl;
 import com.loopon.notification.domain.DeviceToken;
 import com.loopon.notification.domain.repository.DeviceTokenRepository;
 import com.loopon.notification.infrastructure.apns.APNsPushService;
+import com.loopon.notificationsetting.domain.repository.NotificationSettingRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,10 +25,11 @@ class NotificationServiceImplTest {
 
     @Mock DeviceTokenRepository deviceTokenRepository;
     @Mock APNsPushService apnsPushService;
-    @Mock ChallengeJpaRepository challengeJpaRepository;
+    @Mock
+    NotificationSettingRepository notificationSettingRepository;
 
     private NotificationServiceImpl sut() {
-        return new NotificationServiceImpl(deviceTokenRepository, apnsPushService, challengeJpaRepository);
+        return new NotificationServiceImpl(deviceTokenRepository, apnsPushService, notificationSettingRepository);
     }
 
     @Test
