@@ -53,8 +53,6 @@ public interface JourneyApiDocs {
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<LoopRegenerationResponse>> regenerateLoop(
-            @PathVariable Long journeyId,
-            @Valid @RequestBody LoopRegenerationRequest request,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
+            @Valid @RequestBody LoopRegenerationRequest request
     );
 }
