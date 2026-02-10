@@ -7,7 +7,6 @@ import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
