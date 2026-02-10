@@ -1,5 +1,8 @@
 package com.loopon.journey.application.service;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
+import com.loopon.journey.domain.JourneyCategory;
 import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
@@ -13,10 +16,14 @@ import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.user.domain.User;
 import com.loopon.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,5 +134,60 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                 isNotReady,
                 targetDate
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<JourneyResponse.JourneyPreviewDto> getJourneyList(Long userId, Pageable pageable) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Journey> journeys = journeyRepository.findDistinctJourneyByUserId(user.getId(), pageable);
+
+        return journeys.map(journey -> new JourneyResponse.JourneyPreviewDto(
+                journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
+        ));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<JourneyResponse.JourneyPreviewDto> searchJourney(
+            Long userId,
+            String keyword,
+            List<Boolean> categories,
+            Pageable pageable
+    ) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // 카테고리 분류
+        List<JourneyCategory> journeyCategories = new ArrayList<>();
+        JourneyCategory[] temp = JourneyCategory.values();
+
+        for (int i=0; i<3; i++) {
+            if (categories.get(i) == true) {
+                journeyCategories.add(temp[i]);
+            }
+        }
+
+        if (journeyCategories.isEmpty()) {
+            journeyCategories.add(temp[0]);
+            journeyCategories.add(temp[1]);
+            journeyCategories.add(temp[2]);
+        }
+
+        Slice<Journey> journeys = journeyRepository.findDistinctJourneyBySearch(
+                keyword,
+                journeyCategories,
+                user.getId(),
+                pageable
+        );
+
+        return journeys.map(journey -> new JourneyResponse.JourneyPreviewDto(
+                journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
+        ));
+
     }
 }

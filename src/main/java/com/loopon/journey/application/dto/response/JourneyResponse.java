@@ -57,4 +57,14 @@ public class JourneyResponse {
             ProgressStatus status
     ) {
     }
+
+    //여권 여정 조회
+    public record JourneyPreviewDto(
+            Long journeyId,
+            String goal,
+            JourneyCategory journeyCategory,
+            Integer journeyOrder
+    ) {
+    }
+
 }
