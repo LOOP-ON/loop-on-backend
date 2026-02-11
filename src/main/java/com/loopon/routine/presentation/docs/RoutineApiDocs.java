@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "11. 루틴(Routine)", description = "루틴 생성 및 조회 API")
+@Tag(name = "10. 루틴(Routine)", description = "루틴 생성 및 조회 API")
 public interface RoutineApiDocs {
 
     @Operation(summary = "여정 시작 및 루틴 생성 (온보딩 완료)",

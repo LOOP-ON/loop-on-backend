@@ -7,6 +7,9 @@ import org.springframework.data.domain.Slice;
 import java.util.List;
 
 public interface JourneyQueryService {
+
+    JourneyResponse.JourneyOrderDto getNextJourneyOrder(Long userId);
+
     JourneyResponse.CurrentJourneyDto getCurrentJourney(Long userId);
 
     Slice<JourneyResponse.JourneyPreviewDto> getJourneyList(Long userId, Pageable pageable);

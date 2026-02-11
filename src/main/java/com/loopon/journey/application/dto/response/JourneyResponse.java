@@ -12,8 +12,14 @@ import java.util.List;
 public class JourneyResponse {
 
     public record GoalRecommendationResponse(
-            List<String> recommendations // AI가 추천한 5가지 행동 (예: "기상 후 물 마시기" 등)
-    ) {}
+            List<String> recommendations
+    ) {
+    }
+
+    public record JourneyOrderDto(
+            Integer order
+    ) {
+    }
 
     public record PostponeRoutineDto(
             List<Long> routineIds,

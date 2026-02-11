@@ -1,4 +1,4 @@
-package com.loopon.journey.infrastructure.llm;
+package com.loopon.llm.infrastructure.gemini;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

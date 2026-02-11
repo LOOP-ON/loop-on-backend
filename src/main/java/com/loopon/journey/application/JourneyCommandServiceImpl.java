@@ -1,4 +1,4 @@
-package com.loopon.journey.application.service;
+package com.loopon.journey.application;
 
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.response.JourneyResponse;
