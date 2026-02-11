@@ -255,7 +255,6 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(exp));
             given(challengeRepository.findAllWithJourneyAndUserByExpeditionId(eq(expId), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(challenge)));
-            given(expeditionRepository.existsExpeditionUserByIdAndUserId(expId, userId)).willReturn(true);
 
 
             // 해시태그 모킹
