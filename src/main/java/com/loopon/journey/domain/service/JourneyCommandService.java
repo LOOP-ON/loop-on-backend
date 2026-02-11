@@ -7,10 +7,5 @@ import org.springframework.transaction.annotation.Transactional;
 public interface JourneyCommandService {
 
     @Transactional
-    JourneyResponse.PostJourneyGoalDto postJourneyGoal(
-            JourneyCommand.AddJourneyGoalCommand command
-    );
-
-    @Transactional
     JourneyResponse.PostponeRoutineDto postponeRoutine(JourneyCommand.PostponeRoutineCommand command);
 }
