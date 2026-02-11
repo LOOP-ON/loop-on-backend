@@ -84,7 +84,7 @@ class ExpeditionCommandServiceTest {
             // given
             Long userId = 1L;
             User user = createMockUser(userId, "tester");
-            ExpeditionPostCommand command = new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.SKILL, "pw", userId);
+            ExpeditionPostCommand command = new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.GROWTH, "pw", userId);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(new ArrayList<>());
@@ -109,7 +109,7 @@ class ExpeditionCommandServiceTest {
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(fullList);
 
             // when & then
-            assertThatThrownBy(() -> expeditionCommandService.postExpedition(new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.SKILL, "pw", userId)))
+            assertThatThrownBy(() -> expeditionCommandService.postExpedition(new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.GROWTH, "pw", userId)))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EXPEDITION_ABOVE_LIMIT);
         }
