@@ -27,12 +27,12 @@ import java.util.List;
 @Tag(name = "09. 여정(Journey)", description = "여정 생성 및 조회 API")
 public interface JourneyApiDocs {
 
-    @Operation(summary = "여정을 시작합니다.", description = "새로운 여정 생성 API")
-    @ApiResponse(responseCode = "200", description = "여정생성에 성공하였습니다.", useReturnTypeSchema = true)
+    @Operation(summary = "목표 분석 및 AI 목표 추천", description = "사용자의 목표와 카테고리를 기반으로 AI가 실천 가능한 목표 5가지를 추천합니다. (DB 저장 X)")
+    @ApiResponse(responseCode = "200", description = "AI 루프 추천에 성공하였습니다.", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<JourneyResponse.PostJourneyGoalDto>> postJourneyGoal(
-            @Valid @RequestBody JourneyRequest.AddJourneyDto reqBody,
+    ResponseEntity<CommonResponse<JourneyResponse.GoalRecommendationResponse>> analyzeGoal(
+            @Valid @RequestBody JourneyRequest.GoalRequest request,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 

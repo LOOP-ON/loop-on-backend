@@ -2,6 +2,7 @@ package com.loopon.journey.application.dto.response;
 
 import com.loopon.journey.domain.JourneyCategory;
 import com.loopon.journey.domain.ProgressStatus;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -10,11 +11,9 @@ import java.util.List;
 
 public class JourneyResponse {
 
-    @Builder
-    public record PostJourneyGoalDto(
-            Long journeyId
-    ) {
-    }
+    public record GoalRecommendationResponse(
+            List<String> recommendations // AI가 추천한 5가지 행동 (예: "기상 후 물 마시기" 등)
+    ) {}
 
     public record PostponeRoutineDto(
             List<Long> routineIds,

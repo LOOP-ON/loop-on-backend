@@ -2,6 +2,7 @@ package com.loopon.journey.presentation;
 
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
+import com.loopon.journey.application.JourneyRecommendationService;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
@@ -34,18 +35,18 @@ public class JourneyApiController implements JourneyApiDocs {
     private final LoopRegenerationService loopRegenerationService;
     private final JourneyContinueService journeyContinueService;
 
+    private final JourneyRecommendationService journeyRecommendationService;
+
     @Override
     @PostMapping("/goals")
-    public ResponseEntity<CommonResponse<JourneyResponse.PostJourneyGoalDto>> postJourneyGoal(
-            @Valid @RequestBody JourneyRequest.AddJourneyDto reqBody,
+    public ResponseEntity<CommonResponse<JourneyResponse.GoalRecommendationResponse>> analyzeGoal(
+            @Valid @RequestBody JourneyRequest.GoalRequest request,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        Long userId = principalDetails.getUserId();
-        JourneyCommand.AddJourneyGoalCommand command = new JourneyCommand.AddJourneyGoalCommand(userId, reqBody.goal(), reqBody.category());
+        JourneyResponse.GoalRecommendationResponse response =
+                journeyRecommendationService.recommendActions(request.category(), request.goal());
 
-        JourneyResponse.PostJourneyGoalDto journeyId = journeyCommandService.postJourneyGoal(command);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(journeyId));
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
     //여정에 해당하는 루틴 미루기 API (단일, 전체 다 가능)
