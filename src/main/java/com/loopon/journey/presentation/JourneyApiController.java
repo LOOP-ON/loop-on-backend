@@ -114,6 +114,7 @@ public class JourneyApiController implements JourneyApiDocs {
 
     //사용자 달별로 루틴 진행 개수 확인
     @GetMapping("/monthly")
+    @Override
     public ResponseEntity<CommonResponse<List<JourneyResponse.MonthlyCompletedDto>>> getMonthlyCompleted(
             @RequestParam int year,
             @RequestParam int month,
@@ -129,6 +130,7 @@ public class JourneyApiController implements JourneyApiDocs {
     }
 
     @GetMapping("/daily-report")
+    @Override
     public ResponseEntity<CommonResponse<JourneyResponse.DailyJourneyReportDto>> getDailyReport(
             @RequestParam LocalDate date,
             @AuthenticationPrincipal PrincipalDetails principalDetails

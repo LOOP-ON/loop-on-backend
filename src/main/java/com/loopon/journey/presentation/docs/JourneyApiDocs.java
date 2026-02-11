@@ -18,11 +18,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "09. 여정(Journey)", description = "여정 생성 및 조회 API")
@@ -65,9 +63,32 @@ public interface JourneyApiDocs {
     );
 
     //여정 완료 후 기록하기
-    @PostMapping("/{journeyId}/record")
+    @Operation(summary = "여정 완료 후 기록 API", description = "사용자가 3일 루프를 끝낸 뒤 여정 완료 -> 리포트 생성API")
+    @ApiResponse(responseCode = "200", description = "현재 진행 중인 여정 조회에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
             @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    //사용자 달별로 루틴 진행 개수 확인
+    @Operation(summary = "monthly 진행 루틴 확인", description = "달별 루틴 진행 개수 확인 API")
+    @ApiResponse(responseCode = "200", description = "현재 진행 중인 여정 조회에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<List<JourneyResponse.MonthlyCompletedDto>>> getMonthlyCompleted(
+            @RequestParam int year,
+            @RequestParam int month,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    @Operation(summary = "해당 날짜 리포트 불러오기", description = "사용자가 해당 날짜에 진행한 리포트를 생성 후 조회힙니다.")
+    @ApiResponse(responseCode = "200", description = "현재 진행 중인 여정 조회에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<JourneyResponse.DailyJourneyReportDto>> getDailyReport(
+            @RequestParam LocalDate date,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
