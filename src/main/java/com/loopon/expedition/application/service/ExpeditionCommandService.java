@@ -2,8 +2,20 @@ package com.loopon.expedition.application.service;
 
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.expedition.application.converter.ExpeditionConverter;
-import com.loopon.expedition.application.dto.command.*;
-import com.loopon.expedition.application.dto.response.*;
+import com.loopon.expedition.application.dto.command.ExpeditionCancelExpelCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionDeleteCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionExpelCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionJoinCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionModifyCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionPostCommand;
+import com.loopon.expedition.application.dto.command.ExpeditionWithdrawCommand;
+import com.loopon.expedition.application.dto.response.ExpeditionCancelExpelResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionDeleteResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionExpelResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionJoinResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionModifyResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionPostResponse;
+import com.loopon.expedition.application.dto.response.ExpeditionWithdrawResponse;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionUser;
 import com.loopon.expedition.domain.ExpeditionUserStatus;
@@ -13,14 +25,14 @@ import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ExpeditionCommandService {
 
     private final ExpeditionRepository expeditionRepository;

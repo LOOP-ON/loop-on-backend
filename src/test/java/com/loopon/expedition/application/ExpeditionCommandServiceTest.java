@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -166,12 +167,30 @@ class ExpeditionCommandServiceTest {
             Long userId = 1L;
             Long expId = 100L;
             User user = createMockUser(userId, "tester");
-            Expedition expedition = createMockExpedition(expId, "Exp", null); // 기본 비번 "1234"
 
+            Expedition expedition = Expedition.builder()
+                    .id(expId)
+                    .title("Private Exp")
+                    .admin(user)
+                    .userLimit(10)
+                    .currentUsers(1)
+                    .visibility(ExpeditionVisibility.PRIVATE)
+                    .password("real_pw")
+                    .build();
+
+            // Repository Stubbing
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
 
-            ExpeditionJoinCommand command = new ExpeditionJoinCommand(expId, userId, ExpeditionVisibility.PRIVATE, "wrong_pw");
+            given(expeditionRepository.findAllExpeditionUserByUserId(userId))
+                    .willReturn(List.of());
+
+            ExpeditionJoinCommand command = new ExpeditionJoinCommand(
+                    expId,
+                    userId,
+                    ExpeditionVisibility.PRIVATE,
+                    "wrong_pw"
+            );
 
             // when & then
             assertThatThrownBy(() -> expeditionCommandService.joinExpedition(command))

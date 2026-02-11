@@ -31,6 +31,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class ExpeditionQueryService {
 
     private final ExpeditionRepository expeditionRepository;
@@ -38,24 +39,19 @@ public class ExpeditionQueryService {
     private final FriendRepository friendRepository;
     private final ChallengeRepository challengeRepository;
 
-    @Transactional(readOnly = true)
     public ExpeditionGetResponseList getExpeditionList(Long userId) {
-
         List<Expedition> expeditions = expeditionRepository.findApprovedExpeditionsByUserId(userId);
 
-        List<ExpeditionGetResponseList.ExpeditionGetResponse> responseList = new ArrayList<>();
-        for (Expedition expedition : expeditions) {
+        List<ExpeditionGetResponseList.ExpeditionGetResponse> responseList = expeditions.stream()
+                .map(expedition -> {
+                    boolean isAdmin = expedition.getAdmin().getId().equals(userId);
 
-            List<ExpeditionUser> memberList = expeditionRepository.findAllExpeditionUserById(expedition.getId());
-            Integer memberCount = memberList.size();
-            String adminName = expedition.getAdmin().getNickname();
+                    return ExpeditionConverter.getExpeditions(expedition, isAdmin);
+                })
+                .toList();
 
-            responseList.add(ExpeditionConverter.getExpeditions(expedition, adminName, memberCount));
-        }
-
-        return ExpeditionConverter.getExpeditionList(responseList);
+        return new ExpeditionGetResponseList(responseList);
     }
-
 
     @Transactional(readOnly = true)
     public Slice<ExpeditionSearchResponse> searchExpedition(

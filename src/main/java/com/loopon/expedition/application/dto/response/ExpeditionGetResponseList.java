@@ -19,7 +19,8 @@ public record ExpeditionGetResponseList(
             String admin,
             Integer currentUsers,
             Integer capacity,
-            ExpeditionVisibility visibility
+            ExpeditionVisibility visibility,
+            Boolean isAdmin
     ) {
     }
 }
