@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class JourneyRecommendationService {
+public class GoalRecommendationService {
 
     private final LLMApplicationServiceImpl llmService;
 

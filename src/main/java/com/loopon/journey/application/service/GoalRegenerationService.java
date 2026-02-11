@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class LoopRegenerationService {
+public class GoalRegenerationService {
 
     private final LLMApplicationServiceImpl llmService;
 
