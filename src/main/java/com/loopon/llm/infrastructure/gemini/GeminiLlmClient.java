@@ -2,7 +2,6 @@ package com.loopon.llm.infrastructure.gemini;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loopon.journey.infrastructure.llm.GeminiProperties;
 import com.loopon.llm.domain.LLMProvider;
 import com.loopon.llm.infrastructure.LlmClient;
 import org.springframework.stereotype.Repository;
