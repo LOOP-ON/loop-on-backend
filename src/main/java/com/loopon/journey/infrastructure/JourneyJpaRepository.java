@@ -16,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface JourneyJpaRepository extends JpaRepository<Journey, Long> {
     Optional<Journey> findByUserAndStatus(User user, JourneyStatus status);
+    
     Optional<Journey> findTopByGoalAndCategoryOrderByCreatedAtDesc(
             String goal,
             JourneyCategory category
@@ -50,4 +51,8 @@ public interface JourneyJpaRepository extends JpaRepository<Journey, Long> {
             @Param("userId") Long userId,
             Pageable pageable
     );
+
+    boolean existsByUserAndStatus(User user, JourneyStatus status);
+
+    Integer findMaxJourneyOrderByUser(User user);
 }

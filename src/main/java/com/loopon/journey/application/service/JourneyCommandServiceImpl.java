@@ -1,17 +1,14 @@
 package com.loopon.journey.application.service;
 
-import com.loopon.routine.domain.RoutineProgress;
-import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.journey.application.dto.command.JourneyCommand;
-import com.loopon.journey.application.dto.converter.JourneyConverter;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyStatus;
 import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.journey.domain.service.JourneyCommandService;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
-import com.loopon.user.domain.User;
-import com.loopon.user.infrastructure.UserJpaRepository;
+import com.loopon.routine.domain.RoutineProgress;
+import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JourneyCommandServiceImpl implements JourneyCommandService {
     private final JourneyJpaRepository journeyRepository;
-    private final UserJpaRepository userRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
 
     @Transactional

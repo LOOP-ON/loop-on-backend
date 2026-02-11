@@ -51,7 +51,7 @@ public class Journey {
     private JourneyStatus status;
 
     @Column(name = "journey_order", nullable = false)
-    Integer journeyOrder;
+    private Integer journeyOrder;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
