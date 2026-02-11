@@ -98,6 +98,19 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
+    //여정 완료 후 기록하기
+    @PostMapping("/{journeyId}/record")
+    @Override
+    public ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ){
+        Long userId = principalDetails.getUserId();
+        JourneyResponse.JourneyRecordDto record = journeyCommandService.completeJourney(journeyId, userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(record));
+    }
+
     @PostMapping("/{journeyId}/continue")
     public ResponseEntity<CommonResponse<JourneyContinueResponse>> continueJourney(
             @PathVariable Long journeyId,

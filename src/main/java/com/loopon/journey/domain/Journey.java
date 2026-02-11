@@ -80,6 +80,16 @@ public class Journey {
         }
     }
 
+    public void complete() {
+
+        // 이미 완료된 에러 처리 해주기.
+        if (this.status == JourneyStatus.COMPLETED) {
+            throw new IllegalStateException("이미 완료된 여정입니다.");
+        }
+
+        this.status = JourneyStatus.COMPLETED;
+    }
+
     public void updateGoal(String newGoal) {
         this.goal = newGoal;
     }

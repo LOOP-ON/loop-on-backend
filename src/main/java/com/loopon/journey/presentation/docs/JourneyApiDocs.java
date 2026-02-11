@@ -19,6 +19,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -61,6 +62,13 @@ public interface JourneyApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<LoopRegenerationResponse>> regenerateLoop(
             @Valid @RequestBody LoopRegenerationRequest request
+    );
+
+    //여정 완료 후 기록하기
+    @PostMapping("/{journeyId}/record")
+    ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
     @Operation(summary = "여권 여정 목록 조회", description = "여권에서 보이는 여정들을 목록 조회합니다.")

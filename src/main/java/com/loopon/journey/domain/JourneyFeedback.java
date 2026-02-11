@@ -44,10 +44,12 @@ public class JourneyFeedback {
 
     @Column
     private Integer totalRate;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public void complete(int totalRate) {
+        this.totalRate = totalRate;
+    }
 }

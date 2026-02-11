@@ -67,4 +67,21 @@ public class JourneyResponse {
     ) {
     }
 
+    public record JourneyRecordDto(
+            Long journeyId,
+            String goal,
+
+            List<RoutineSummaryDto> routines,
+
+            Integer day1Rate,
+            Integer day2Rate,
+            Integer day3Rate,
+            Integer totalRate
+    ) {}
+
+    public record RoutineSummaryDto(
+            Long routineId,
+            String routineName
+    ) {}
+
 }
