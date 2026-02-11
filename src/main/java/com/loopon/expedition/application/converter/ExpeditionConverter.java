@@ -17,19 +17,16 @@ import java.util.List;
 
 public class ExpeditionConverter {
 
-    public static ExpeditionGetResponseList.ExpeditionGetResponse getExpeditions(
-            Expedition expedition,
-            String adminName,
-            Integer currentUsers
-    ) {
+    public static ExpeditionGetResponseList.ExpeditionGetResponse getExpeditions(Expedition expedition, boolean isAdmin) {
         return ExpeditionGetResponseList.ExpeditionGetResponse.builder()
                 .expeditionId(expedition.getId())
                 .title(expedition.getTitle())
                 .category(expedition.getCategory())
+                .admin(expedition.getAdmin().getNickname())
+                .currentUsers(expedition.getCurrentUsers())
                 .capacity(expedition.getUserLimit())
                 .visibility(expedition.getVisibility())
-                .admin(adminName)
-                .currentUsers(currentUsers)
+                .isAdmin(isAdmin)
                 .build();
     }
 
@@ -134,8 +131,9 @@ public class ExpeditionConverter {
 
     public static ExpeditionSearchResponse searchExpedition(
             Expedition expedition,
-
-            boolean isJoined
+            boolean isAdmin,
+            boolean isJoined,
+            boolean canJoin
     ) {
         return ExpeditionSearchResponse.builder()
                 .expeditionId(expedition.getId())
@@ -143,9 +141,11 @@ public class ExpeditionConverter {
                 .category(expedition.getCategory())
                 .capacity(expedition.getUserLimit())
                 .visibility(expedition.getVisibility())
-                .isJoined(isJoined)
                 .title(expedition.getTitle())
-
+                .currentUsers(expedition.getCurrentUsers())
+                .isAdmin(isAdmin)
+                .isJoined(isJoined)
+                .canJoin(canJoin)
                 .build();
     }
 
