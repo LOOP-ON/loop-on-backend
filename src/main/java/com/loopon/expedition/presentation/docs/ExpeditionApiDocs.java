@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -82,9 +81,10 @@ public interface ExpeditionApiDocs {
     );
 
     @Operation(summary = "탐험대 내 챌린지 조회", description = "탐험대원들이 올린 챌린지 게시글들을 조회합니다.")
-    CommonResponse<Slice<ExpeditionChallengesResponse>> challengesExpedition (
-            @PathVariable Long expeditionId,
-            @PageableDefault Pageable pageable
+    CommonResponse<Slice<ExpeditionChallengesResponse>> challengesExpedition(
+            @Parameter(description = "탐험대 ID") @PathVariable("expeditionId") Long expeditionId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            Pageable pageable
     );
 
     @Operation(summary = "추방 취소 (방장 전용)", description = "추방했던 멤버의 추방 상태를 해제합니다.")

@@ -44,8 +44,7 @@ public class SecurityConfig {
             "/api/auth/login/**",
             "/api/auth/reissue",
             "/api/auth/logout",
-            "/api/auth/verification/**",
-            "/api/expeditions/{expeditionId}/challenges"
+            "/api/auth/verification/**"
     };
 
     private static final String[] API_URLS = {

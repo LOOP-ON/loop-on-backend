@@ -210,10 +210,12 @@ public class ExpeditionConverter {
 
     public static ExpeditionChallengesCommand challengesExpedition(
             Long expeditionId,
+            Long userId,
             Pageable pageable
     ) {
         return ExpeditionChallengesCommand.builder()
                 .expeditionId(expeditionId)
+                .userId(userId)
                 .pageable(pageable)
                 .build();
     }
