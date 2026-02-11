@@ -1,4 +1,4 @@
-package com.loopon.journey.application.service;
+package com.loopon.journey.application;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;

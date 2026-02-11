@@ -1,4 +1,4 @@
-package com.loopon.journey.application.service;
+package com.loopon.journey.application;
 
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
