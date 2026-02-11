@@ -1,7 +1,7 @@
-package com.loopon.llm.domain.repository;
+package com.loopon.llm.infrastructure;
 
 import com.loopon.llm.domain.LLMProvider;
 
-public interface LLMRepository {
+public interface LlmClient {
     String generateLoops(String goal, LLMProvider provider);
 }
