@@ -66,7 +66,7 @@ public class ExpeditionCommandService {
 
         checkUserLimit(expedition);
 
-        if (commandDto.expeditionVisibility() == ExpeditionVisibility.PRIVATE) {
+        if (expedition.getVisibility() == ExpeditionVisibility.PRIVATE) {
             checkExpeditionPassword(expedition, commandDto.password());
         }
 
