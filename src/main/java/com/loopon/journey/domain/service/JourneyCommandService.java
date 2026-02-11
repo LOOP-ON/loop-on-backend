@@ -7,6 +7,5 @@ public interface JourneyCommandService {
 
     JourneyResponse.PostponeRoutineDto postponeRoutine(JourneyCommand.PostponeRoutineCommand command);
 
-    @Transactional
     JourneyResponse.JourneyRecordDto completeJourney(Long journeyId, Long userId);
 }
