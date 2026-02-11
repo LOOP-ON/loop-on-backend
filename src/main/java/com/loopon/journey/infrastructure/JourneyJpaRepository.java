@@ -9,6 +9,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,5 +50,17 @@ public interface JourneyJpaRepository extends JpaRepository<Journey, Long> {
             @Param("categories") List<JourneyCategory> categories,
             @Param("userId") Long userId,
             Pageable pageable
+    );
+
+    @Query("""
+    select j
+    from Journey j
+    where j.user.id = :userId
+    and j.startDate <= :date
+    and (j.endDate is null or j.endDate >= :date)
+""")
+    Optional<Journey> findActiveJourneyByUserAndDate(
+            @Param("userId") Long userId,
+            @Param("date") LocalDate date
     );
 }

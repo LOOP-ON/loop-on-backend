@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -109,6 +110,36 @@ public class JourneyApiController implements JourneyApiDocs {
         JourneyResponse.JourneyRecordDto record = journeyCommandService.completeJourney(journeyId, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(record));
+    }
+
+    //사용자 달별로 루틴 진행 개수 확인
+    @GetMapping("/monthly")
+    public ResponseEntity<CommonResponse<List<JourneyResponse.MonthlyCompletedDto>>> getMonthlyCompleted(
+            @RequestParam int year,
+            @RequestParam int month,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+
+        Long userId = principalDetails.getUserId();
+
+        List<JourneyResponse.MonthlyCompletedDto> response =
+                journeyQueryService.getMonthlyCompleted(userId, year, month);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @GetMapping("/daily-report")
+    public ResponseEntity<CommonResponse<JourneyResponse.DailyJourneyReportDto>> getDailyReport(
+            @RequestParam LocalDate date,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+
+        Long userId = principalDetails.getUserId();
+
+        JourneyResponse.DailyJourneyReportDto response =
+                journeyQueryService.getDailyJourneyReport(userId, date);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
     @PostMapping("/{journeyId}/continue")

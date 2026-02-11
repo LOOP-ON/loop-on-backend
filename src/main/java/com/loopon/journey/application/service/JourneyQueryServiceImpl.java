@@ -2,17 +2,17 @@ package com.loopon.journey.application.service;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.journey.domain.JourneyCategory;
+import com.loopon.journey.domain.*;
+import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
 import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
+import com.loopon.routine.domain.RoutineReport;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.journey.application.dto.response.JourneyResponse;
-import com.loopon.journey.domain.Journey;
-import com.loopon.journey.domain.JourneyStatus;
-import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.journey.domain.service.JourneyQueryService;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
+import com.loopon.routine.infrastructure.RoutineReportJpaRepository;
 import com.loopon.user.domain.User;
 import com.loopon.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
     private final JourneyJpaRepository journeyRepository;
     private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
+    private final JourneyFeedbackJpaRepository journeyFeedbackRepository;
+    private final RoutineReportJpaRepository routineReportRepository;
 
     @Override
     public JourneyResponse.CurrentJourneyDto getCurrentJourney(Long userId) {
@@ -189,5 +192,117 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                 journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
         ));
 
+    }
+
+    @Transactional
+    @Override
+    public List<JourneyResponse.MonthlyCompletedDto> getMonthlyCompleted(
+            Long userId,
+            int year,
+            int month
+    ) {
+
+        YearMonth yearMonth = YearMonth.of(year, month);
+
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        List<Object[]> results =
+                routineProgressRepository.findCompletedCountByUserAndMonth(
+                        userId,
+                        startDate,
+                        endDate
+                );
+
+        //각 날짜 별로 mapping -> 0개인 날도 추가해서 반환.
+        Map<LocalDate, Long> completedMap = results.stream()
+                .collect(Collectors.toMap(
+                        r -> (LocalDate) r[0],
+                        r -> (Long) r[1]
+                ));
+
+        // 전체 날짜 생성-> 후 매핑
+        List<JourneyResponse.MonthlyCompletedDto> response = new ArrayList<>();
+
+        LocalDate current = startDate;
+
+        while (!current.isAfter(endDate)) {
+
+            Long count = completedMap.getOrDefault(current, 0L);
+
+            response.add(
+                    JourneyResponse.MonthlyCompletedDto.builder()
+                            .date(current)
+                            .completedCount(count)
+                            .build()
+            );
+
+            current = current.plusDays(1);
+        }
+
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public JourneyResponse.DailyJourneyReportDto getDailyJourneyReport(
+            Long userId,
+            LocalDate date
+    ) {
+
+        //날짜 여정 찾기
+        Journey journey = journeyRepository
+                .findActiveJourneyByUserAndDate(userId, date)
+                .orElseThrow(() -> new IllegalArgumentException("해당 날짜에 진행 중인 여정이 없습니다."));
+
+        Long journeyId = journey.getId();
+
+        // 날짜 progress 전체 조회
+        List<RoutineProgress> progresses =
+                routineProgressRepository.findByJourneyAndDate(journeyId, date);
+
+        //루틴 dto 생성
+        List<JourneyResponse.DailyRoutineDto> routineDtos =
+                progresses.stream()
+                        .map(rp -> new JourneyResponse.DailyRoutineDto(
+                                rp.getRoutine().getId(),
+                                rp.getRoutine().getContent(),
+                                rp.getStatus().name()
+                        ))
+                        .toList();
+
+        // 완료 개수 찾기
+        Long completedCount = progresses.stream()
+                .filter(rp -> rp.getStatus() == ProgressStatus.COMPLETED)
+                .count();
+
+        // JourneyFeedback 조회
+        JourneyFeedback feedback = journeyFeedbackRepository
+                .findByJourneyId(journeyId)
+                .orElseThrow(() -> new IllegalStateException("피드백 데이터가 존재하지 않습니다."));
+
+        // RoutineReport 조회
+        Optional<RoutineReport> routineReport =
+                routineReportRepository.findByUserAndJourneyAndDate(
+                        userId,
+                        journeyId,
+                        date
+                );
+
+        return new JourneyResponse.DailyJourneyReportDto(
+                journeyId,
+                journey.getGoal(),
+
+                feedback.getDay1Rate(),
+                feedback.getDay2Rate(),
+                feedback.getDay3Rate(),
+                feedback.getTotalRate(),
+
+                completedCount,
+
+                routineReport.map(RoutineReport::getContent),
+
+                routineDtos
+        );
     }
 }

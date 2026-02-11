@@ -7,6 +7,7 @@ import lombok.Builder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public class JourneyResponse {
 
@@ -84,4 +85,32 @@ public class JourneyResponse {
             String routineName
     ) {}
 
+    @Builder
+    public record MonthlyCompletedDto(
+            LocalDate date,
+            Long completedCount
+    ) {}
+
+    public record DailyJourneyReportDto(
+            Long journeyId,
+            String goal,
+
+            Integer day1Rate,
+            Integer day2Rate,
+            Integer day3Rate,
+            Integer totalRate,
+
+            Long completedRoutineCount,
+
+            Optional<String> recordContent,
+
+            List<DailyRoutineDto> routines
+    )
+    {}
+
+    public record DailyRoutineDto(
+            Long routineId,
+            String content,
+            String status
+    ) {}
 }
