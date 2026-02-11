@@ -143,7 +143,7 @@ class ExpeditionQueryServiceTest {
             Slice<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
 
             // then
-            assertThat(result.getContent().get(0).isJoined()).isTrue();
+            assertThat(result.getContent().get(0).canJoin()).isTrue();
         }
 
         @Test

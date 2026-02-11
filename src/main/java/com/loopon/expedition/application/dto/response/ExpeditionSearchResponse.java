@@ -14,6 +14,7 @@ public record ExpeditionSearchResponse(
         Integer capacity,
         ExpeditionVisibility visibility,
         Boolean isJoined,
-        Boolean isAdmin
+        Boolean isAdmin,
+        Boolean canJoin
 ) {
 }

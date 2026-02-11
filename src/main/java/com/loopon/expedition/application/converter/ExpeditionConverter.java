@@ -132,7 +132,8 @@ public class ExpeditionConverter {
     public static ExpeditionSearchResponse searchExpedition(
             Expedition expedition,
             boolean isAdmin,
-            boolean isJoined
+            boolean isJoined,
+            boolean canJoin
     ) {
         return ExpeditionSearchResponse.builder()
                 .expeditionId(expedition.getId())
@@ -140,10 +141,11 @@ public class ExpeditionConverter {
                 .category(expedition.getCategory())
                 .capacity(expedition.getUserLimit())
                 .visibility(expedition.getVisibility())
-                .isJoined(isJoined)
                 .title(expedition.getTitle())
                 .currentUsers(expedition.getCurrentUsers())
                 .isAdmin(isAdmin)
+                .isJoined(isJoined)
+                .canJoin(canJoin)
                 .build();
     }
 
