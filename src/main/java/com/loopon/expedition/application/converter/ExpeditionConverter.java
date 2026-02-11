@@ -142,7 +142,7 @@ public class ExpeditionConverter {
                 .visibility(expedition.getVisibility())
                 .isJoined(isJoined)
                 .title(expedition.getTitle())
-
+                .currentUsers(expedition.getCurrentUsers())
                 .build();
     }
 
