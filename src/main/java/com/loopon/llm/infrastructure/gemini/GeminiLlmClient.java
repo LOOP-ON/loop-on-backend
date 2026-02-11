@@ -1,23 +1,22 @@
-package com.loopon.llm.infrastructure;
+package com.loopon.llm.infrastructure.gemini;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loopon.journey.infrastructure.llm.GeminiProperties;
 import com.loopon.llm.domain.LLMProvider;
-import com.loopon.llm.domain.repository.LLMRepository;
+import com.loopon.llm.infrastructure.LlmClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
 @Repository
-public class GeminiLLMRepository implements LLMRepository {
+public class GeminiLlmClient implements LlmClient {
 
     private final RestClient restClient;
     private final GeminiProperties props;
     private final ObjectMapper objectMapper;
 
-    public GeminiLLMRepository(GeminiProperties props, RestClient geminiRestClient) {
+    public GeminiLlmClient(GeminiProperties props, RestClient geminiRestClient) {
         this.props = props;
         this.restClient = geminiRestClient;
         this.objectMapper = new ObjectMapper();

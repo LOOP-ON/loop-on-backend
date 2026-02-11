@@ -37,7 +37,10 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/api/terms",
             "/api/terms/{termId}",
-            "/api/users/**",
+            "/api/users",
+            "/api/users/check-email",
+            "/api/users/check-nickname",
+            "/api/users/upload-profile-image",
             "/api/auth/login/**",
             "/api/auth/reissue",
             "/api/auth/logout",
@@ -45,7 +48,9 @@ public class SecurityConfig {
     };
 
     private static final String[] API_URLS = {
-            // TODO API URL 패턴 추가 필요
+            "/api/users/me",
+            "/api/users/profile",
+            "/api/users/password",
     };
 
     @Bean

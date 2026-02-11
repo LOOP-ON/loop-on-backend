@@ -1,6 +1,11 @@
 package com.loopon.routine.application.service;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
+import com.loopon.journey.domain.Journey;
+import com.loopon.journey.domain.JourneyStatus;
+import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.routine.application.dto.converter.RoutineConverter;
 import com.loopon.routine.application.dto.request.RoutineRequest;
 import com.loopon.routine.application.dto.response.RoutineResponse;
@@ -8,88 +13,98 @@ import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
 import com.loopon.routine.domain.service.RoutineCommandService;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
-import com.loopon.journey.domain.Journey;
-import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
+import com.loopon.user.domain.User;
+import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RoutineCommandServiceImpl implements RoutineCommandService {
+    private final UserRepository userRepository;
     private final JourneyJpaRepository journeyRepository;
     private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
     private final S3Service s3Service;
 
-    @Transactional
     @Override
+    @Transactional
     public RoutineResponse.PostRoutinesDto postRoutine(
-            RoutineRequest.AddJRoutineDto routineRequest
-    ){
-        //여정 찾기
-        Journey journey = journeyRepository.getReferenceById(routineRequest.journeyId());
+            Long userId,
+            RoutineRequest.CreateJourneyWithRoutineDto request
+    ) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        //루틴 객체 생성
-        List<Routine> routines = routineRequest.routines().stream()
-                .map(dto -> RoutineConverter.bodyToRoutine(journey, dto))
-                .toList();
+        if (journeyRepository.existsByUserAndStatus(user, JourneyStatus.IN_PROGRESS)) {
+            throw new BusinessException(ErrorCode.JOURNEY_IN_PROGRESS);
+        }
 
-        //루틴 생성
-        List<Routine> routineList = routineRepository.saveAll(routines);
+        Integer maxOrder = journeyRepository.findMaxJourneyOrderByUser(user);
+        int nextOrder = (maxOrder == null ? 0 : maxOrder) + 1;
 
-        //루틴 Progress 3일치 생성
+        Journey journey = Journey.builder()
+                .user(user)
+                .goal(request.goal())
+                .category(request.category())
+                .status(JourneyStatus.IN_PROGRESS)
+                .journeyOrder(nextOrder)
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(2)) // 3일간
+                .build();
+
+        journeyRepository.save(journey);
+
+        List<Routine> routines = request.routines().stream()
+                .map(dto -> Routine.builder()
+                        .journey(journey)
+                        .content(dto.content())
+                        .notificationTime(dto.time())
+                        .build())
+                .collect(Collectors.toList());
+
+        routineRepository.saveAll(routines);
+
+        List<RoutineProgress> progressList = new ArrayList<>();
         LocalDate today = LocalDate.now();
 
-        List<RoutineProgress> progressList =
-                routineList.stream()
-                        .flatMap(routine ->
-                                Stream.of(
-                                            today,
-                                            today.plusDays(1),
-                                            today.plusDays(2)
-                                        )
-                                        .map(date ->
-                                                RoutineProgress.create(routine, date)
-                                        )
-                        )
-                        .toList();
+        for (int day = 0; day < 3; day++) {
+            LocalDate targetDate = today.plusDays(day);
+
+            for (Routine routine : routines) {
+                RoutineProgress progress = RoutineProgress.create(routine, targetDate);
+
+                progressList.add(progress);
+            }
+        }
 
         routineProgressRepository.saveAll(progressList);
 
-        //response 형태 맞추어 리턴
-        return RoutineConverter.toPostRoutinesDto(routines);
-    };
+        return new RoutineResponse.PostRoutinesDto(journey.getId());
+    }
 
     @Transactional
     @Override
-    public RoutineResponse.RoutineCertifyDto certifyRoutine(Long progressId, Long userId, MultipartFile image){
-        //progress 조회
-        RoutineProgress progress = routineProgressRepository
-                .findById(progressId)
-                .orElseThrow(() -> new IllegalArgumentException(""));
+    public RoutineResponse.RoutineCertifyDto certifyRoutine(Long progressId, Long userId, MultipartFile image) {
+        RoutineProgress progress = routineProgressRepository.findById(progressId)
+                .orElseThrow(() -> new IllegalArgumentException("진행 정보를 찾을 수 없습니다."));
 
-        // 사용자의 루틴이 아닐 경우 : error -> 너무 깊어서
         if (!progress.getRoutine().getJourney().getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("사용자의 루틴이 아닙니다.");
         }
 
-        //이미지 업로드 전 progress 상태 검증
         progress.validateCertifiable();
-
-        // s3에 이미지 업로드
         String imageUrl = s3Service.uploadFile(image);
-
-        // imageUrl을 progress에 업로드 후 데이터 변경
         progress.certify(imageUrl);
 
         return RoutineConverter.toRoutineCertifyDto(progress);
-    };
-
+    }
 }

@@ -80,23 +80,18 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi challengeApi() {
-        return createGroup("10. 챌린지(Challenge)", "/api/challenges/**");
-    }
-
-    @Bean
     public GroupedOpenApi routineApi() {
-        return createGroup("11. 루틴(Routine)", "/api/routines/**");
+        return createGroup("10. 루틴(Routine)", "/api/routines/**");
     }
 
     @Bean
-    public GroupedOpenApi goalApi() {
-        return createGroup("12. 목표(Goal)", "/api/goals/**");
+    public GroupedOpenApi challengeApi() {
+        return createGroup("11. 챌린지(Challenge)", "/api/challenges/**");
     }
 
     @Bean
     public GroupedOpenApi expeditionApi() {
-        return createGroup("13. 탐험대(Expedition)", "/api/expeditions/**");
+        return createGroup("12. 탐험대(Expedition)", "/api/expeditions/**");
     }
 
     private Info apiInfo() {

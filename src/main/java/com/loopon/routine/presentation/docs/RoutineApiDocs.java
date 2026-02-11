@@ -19,16 +19,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "11. 루틴(Routine)", description = "루틴 생성 및 조회 API")
+@Tag(name = "10. 루틴(Routine)", description = "루틴 생성 및 조회 API")
 public interface RoutineApiDocs {
 
-    @Operation(summary = "루틴을 생성합니다.", description = "새로운 루틴 생성 API")
-    @ApiResponse(responseCode = "200", description = "루틴 생성에 성공하였습니다.", useReturnTypeSchema = true)
+    @Operation(summary = "여정 시작 및 루틴 생성 (온보딩 완료)",
+            description = "온보딩의 마지막 단계입니다. 1~3단계에서 수집한 [목표, 카테고리, 선택한 루프, 루틴 3개]를 모두 받아 **새로운 여정을 생성**하고, 오늘부터 3일간의 실천표를 생성합니다.")
+    @ApiResponse(responseCode = "200", description = "여정 및 루틴 생성 성공 (여정 ID 반환)", useReturnTypeSchema = true)
     @CommonBadRequestResponseDocs
     @CommonInternalServerErrorResponseDocs
-    @PostMapping
     ResponseEntity<CommonResponse<RoutineResponse.PostRoutinesDto>> postRoutine(
-            @Valid @RequestBody RoutineRequest.AddJRoutineDto routineRequest
+            @Valid @RequestBody RoutineRequest.CreateJourneyWithRoutineDto routineRequest,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
     @Operation(summary = "루틴을 인증합니다.", description = "루틴 인증, 이미지 업로드 API")

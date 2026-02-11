@@ -34,7 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui.html",
             "/api/terms",
             "/api/terms/{termId}",
-            "/api/users/**",
+            "/api/users",
+            "/api/users/check-email",
+            "/api/users/check-nickname",
+            "/api/users/upload-profile-image",
             "/api/auth/login/**",
             "/api/auth/reissue",
             "/api/auth/verification/**"

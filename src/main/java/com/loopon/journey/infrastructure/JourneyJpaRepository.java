@@ -15,13 +15,13 @@ import java.util.Optional;
 import org.springframework.data.repository.query.Param;
 
 public interface JourneyJpaRepository extends JpaRepository<Journey, Long> {
-    Optional<Journey> findByUserAndStatus(User user, JourneyStatus status);
-    Optional<Journey> findTopByGoalAndCategoryOrderByCreatedAtDesc(
-            String goal,
-            JourneyCategory category
-    );
 
-    @Query("select coalesce(max(j.journeyOrder), 0) from Journey j where j.user.id = :userId")
+    Optional<Journey> findByUserAndStatus(User user, JourneyStatus status);
+
+    @Query("SELECT COALESCE(MAX(j.journeyOrder), 0) FROM Journey j WHERE j.user = :user")
+    Integer findMaxJourneyOrderByUser(@Param("user") User user);
+
+    @Query("SELECT COALESCE(MAX(j.journeyOrder), 0) FROM Journey j WHERE j.user.id = :userId")
     Integer findMaxJourneyOrderByUserId(@Param("userId") Long userId);
 
     @Query("SELECT j " +
@@ -50,4 +50,6 @@ public interface JourneyJpaRepository extends JpaRepository<Journey, Long> {
             @Param("userId") Long userId,
             Pageable pageable
     );
+
+    boolean existsByUserAndStatus(User user, JourneyStatus status);
 }
