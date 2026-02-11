@@ -81,8 +81,9 @@ public class ExpeditionQueryService {
             boolean notJoined = !joinedExpeditionIds.contains(expedition.getId());
             boolean notAboveUserLimit = expedition.getCurrentUsers() < expedition.getUserLimit();
             boolean canJoin = notJoined && notAboveUserLimit && notAboveExpeditionLimit;
+            boolean isAdmin = expedition.getAdmin().getId().equals(user.getId());
 
-            return ExpeditionConverter.searchExpedition(expedition, canJoin);
+            return ExpeditionConverter.searchExpedition(expedition, isAdmin, canJoin);
         });
 
     }

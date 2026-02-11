@@ -131,7 +131,7 @@ public class ExpeditionConverter {
 
     public static ExpeditionSearchResponse searchExpedition(
             Expedition expedition,
-
+            boolean isAdmin,
             boolean isJoined
     ) {
         return ExpeditionSearchResponse.builder()
@@ -143,6 +143,7 @@ public class ExpeditionConverter {
                 .isJoined(isJoined)
                 .title(expedition.getTitle())
                 .currentUsers(expedition.getCurrentUsers())
+                .isAdmin(isAdmin)
                 .build();
     }
 

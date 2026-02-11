@@ -13,6 +13,7 @@ public record ExpeditionSearchResponse(
         Integer currentUsers,
         Integer capacity,
         ExpeditionVisibility visibility,
-        Boolean isJoined
+        Boolean isJoined,
+        Boolean isAdmin
 ) {
 }
