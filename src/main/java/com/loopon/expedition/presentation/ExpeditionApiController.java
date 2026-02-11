@@ -145,11 +145,10 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
     @GetMapping("/api/expeditions/{expeditionId}/challenges")
     public CommonResponse<Slice<ExpeditionChallengesResponse>> challengesExpedition (
             @PathVariable Long expeditionId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PageableDefault Pageable pageable
     ) {
         ExpeditionChallengesCommand commandDto
-                = ExpeditionConverter.challengesExpedition(expeditionId, principalDetails.getUserId(), pageable);
+                = ExpeditionConverter.challengesExpedition(expeditionId, pageable);
 
         return CommonResponse.onSuccess(
                 expeditionQueryService.challengesExpedition(commandDto)
