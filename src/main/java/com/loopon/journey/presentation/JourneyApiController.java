@@ -2,7 +2,7 @@ package com.loopon.journey.presentation;
 
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
-import com.loopon.journey.application.JourneyRecommendationService;
+import com.loopon.journey.application.GoalRecommendationService;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
@@ -10,7 +10,7 @@ import com.loopon.journey.application.dto.response.JourneyContinueResponse;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
 import com.loopon.journey.application.service.JourneyContinueService;
-import com.loopon.journey.application.service.LoopRegenerationService;
+import com.loopon.journey.application.service.GoalRegenerationService;
 import com.loopon.journey.domain.service.JourneyCommandService;
 import com.loopon.journey.domain.service.JourneyQueryService;
 import com.loopon.journey.presentation.docs.JourneyApiDocs;
@@ -32,10 +32,10 @@ import java.util.List;
 public class JourneyApiController implements JourneyApiDocs {
     private final JourneyCommandService journeyCommandService;
     private final JourneyQueryService journeyQueryService;
-    private final LoopRegenerationService loopRegenerationService;
     private final JourneyContinueService journeyContinueService;
 
-    private final JourneyRecommendationService journeyRecommendationService;
+    private final GoalRecommendationService goalRecommendationService;
+    private final GoalRegenerationService goalRegenerationService;
 
     @Override
     @PostMapping("/goals")
@@ -44,7 +44,20 @@ public class JourneyApiController implements JourneyApiDocs {
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         JourneyResponse.GoalRecommendationResponse response =
-                journeyRecommendationService.recommendActions(request.category(), request.goal());
+                goalRecommendationService.recommendActions(request.category(), request.goal());
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Override
+    @GetMapping("/order")
+    public ResponseEntity<CommonResponse<JourneyResponse.JourneyOrderDto>> getNextJourneyOrder(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        Long userId = principalDetails.getUserId();
+
+        JourneyResponse.JourneyOrderDto response =
+                journeyQueryService.getNextJourneyOrder(userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
@@ -71,8 +84,6 @@ public class JourneyApiController implements JourneyApiDocs {
                 journeyCommandService.postponeRoutine(command);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
-
-
     }
 
     // 여정 전체 조회
@@ -94,7 +105,7 @@ public class JourneyApiController implements JourneyApiDocs {
     public ResponseEntity<CommonResponse<LoopRegenerationResponse>> regenerateLoop(
             @Valid @RequestBody LoopRegenerationRequest request
     ) {
-        LoopRegenerationResponse response = loopRegenerationService.regenerateLoop(request);
+        LoopRegenerationResponse response = goalRegenerationService.regenerateLoop(request);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

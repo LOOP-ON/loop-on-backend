@@ -36,6 +36,14 @@ public interface JourneyApiDocs {
             @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
+    @Operation(summary = "다음 여정 순서 조회 (온보딩 진입 시)", description = "온보딩 페이지 진입 시, 이번에 생성될 여정이 몇 번째인지 조회합니다. (예: '첫 번째 여정의 루틴을...')")
+    @ApiResponse(responseCode = "200", description = "성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<JourneyResponse.JourneyOrderDto>> getNextJourneyOrder(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
     //여정에 해당하는 루틴 전체 미루기 API
     @Operation(summary = "미완료 된 루틴을 미룹니다.", description = "진행 중인 여정의 루틴을 미루는 API")
     @ApiResponse(responseCode = "200", description = "루틴 미루기에 성공하였습니다.", useReturnTypeSchema = true)

@@ -31,12 +31,23 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class JourneyQueryServiceImpl implements JourneyQueryService {
 
     private final UserJpaRepository userRepository;
     private final JourneyJpaRepository journeyRepository;
     private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
+
+    @Override
+    public JourneyResponse.JourneyOrderDto getNextJourneyOrder(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Integer maxOrder = journeyRepository.findMaxJourneyOrderByUser(user);
+
+        return new JourneyResponse.JourneyOrderDto(maxOrder + 1);
+    }
 
     @Override
     public JourneyResponse.CurrentJourneyDto getCurrentJourney(Long userId) {
@@ -137,21 +148,6 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Slice<JourneyResponse.JourneyPreviewDto> getJourneyList(Long userId, Pageable pageable) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        Slice<Journey> journeys = journeyRepository.findDistinctJourneyByUserId(user.getId(), pageable);
-
-        return journeys.map(journey -> new JourneyResponse.JourneyPreviewDto(
-                journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
-        ));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Slice<JourneyResponse.JourneyPreviewDto> searchJourney(
             Long userId,
             String keyword,
@@ -189,5 +185,18 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                 journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
         ));
 
+    }
+
+    @Override
+    public Slice<JourneyResponse.JourneyPreviewDto> getJourneyList(Long userId, Pageable pageable) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Journey> journeys = journeyRepository.findDistinctJourneyByUserId(user.getId(), pageable);
+
+        return journeys.map(journey -> new JourneyResponse.JourneyPreviewDto(
+                journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
+        ));
     }
 }
