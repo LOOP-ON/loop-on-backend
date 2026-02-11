@@ -4,13 +4,11 @@ import com.loopon.journey.domain.ProgressStatus;
 import lombok.Builder;
 
 import java.time.LocalTime;
-import java.util.List;
 
 public class RoutineResponse {
     @Builder
     public record PostRoutinesDto(
-            Long journeyId,
-            List<RoutineSummaryDto> routines
+            Long journeyId
     ) {}
 
     @Builder

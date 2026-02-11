@@ -7,9 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface RoutineCommandService {
 
-    @Transactional
     RoutineResponse.PostRoutinesDto postRoutine(
-            RoutineRequest.AddJRoutineDto routineRequest
+            Long userId,
+            RoutineRequest.CreateJourneyWithRoutineDto request
     );
 
     @Transactional

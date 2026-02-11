@@ -105,7 +105,8 @@ public enum ErrorCode {
     INVALID_REMINDER_TIME(HttpStatus.NO_CONTENT, "S002", "미완료 리만인더의 시간을 설정해주세요."),
 
     // Journey (여정, J-xxx)
-    JOURNEY_NOT_FOUND(HttpStatus.NOT_FOUND, "J001", "해당 여정을 찾을 수 없습니다.");
+    JOURNEY_NOT_FOUND(HttpStatus.NOT_FOUND, "J001", "해당 여정을 찾을 수 없습니다."),
+    JOURNEY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "J002", "진행 중인 여정이 이미 존재합니다.");
 
 
     private final HttpStatus status;

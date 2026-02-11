@@ -9,6 +9,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface JourneyQueryService {
+
+    JourneyResponse.JourneyOrderDto getNextJourneyOrder(Long userId);
+
     JourneyResponse.CurrentJourneyDto getCurrentJourney(Long userId);
 
     Slice<JourneyResponse.JourneyPreviewDto> getJourneyList(Long userId, Pageable pageable);

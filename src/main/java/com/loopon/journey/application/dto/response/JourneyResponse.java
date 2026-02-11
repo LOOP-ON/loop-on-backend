@@ -2,6 +2,7 @@ package com.loopon.journey.application.dto.response;
 
 import com.loopon.journey.domain.JourneyCategory;
 import com.loopon.journey.domain.ProgressStatus;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -11,9 +12,13 @@ import java.util.Optional;
 
 public class JourneyResponse {
 
-    @Builder
-    public record PostJourneyGoalDto(
-            Long journeyId
+    public record GoalRecommendationResponse(
+            List<String> recommendations
+    ) {
+    }
+
+    public record JourneyOrderDto(
+            Integer order
     ) {
     }
 

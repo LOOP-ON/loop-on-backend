@@ -2,18 +2,18 @@ package com.loopon.llm.application.service;
 
 import com.loopon.llm.domain.LLMProvider;
 import com.loopon.llm.domain.dto.LoopGenerationRequest;
-import com.loopon.llm.domain.repository.LLMRepository;
-import com.loopon.llm.domain.service.LLMService;
+import com.loopon.llm.infrastructure.LlmClient;
+import com.loopon.llm.domain.service.LlmService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class LLMApplicationServiceImpl implements LLMService {
+public class LlmApplicationServiceImpl implements LlmService {
 
-    private final LLMRepository llmRepository;
+    private final LlmClient llmRepository;
 
-    public LLMApplicationServiceImpl(LLMRepository llmRepository) {
+    public LlmApplicationServiceImpl(LlmClient llmRepository) {
         this.llmRepository = llmRepository;
     }
 
