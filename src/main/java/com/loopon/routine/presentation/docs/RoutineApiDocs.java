@@ -74,4 +74,12 @@ public interface RoutineApiDocs {
             @Parameter(hidden = true) @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody RoutineRequest.editReasonDto body
     );
+
+    //오늘의 여정 기록
+    @PostMapping("/{journeyId}/routine-record")
+    ResponseEntity<CommonResponse<RoutineResponse.RoutineReportCreateDto>> postRoutineRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestBody RoutineRequest.postRoutineReport body
+    );
 }

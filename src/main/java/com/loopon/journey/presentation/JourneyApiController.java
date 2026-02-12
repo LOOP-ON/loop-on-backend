@@ -87,18 +87,6 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
-    //여정 완료 후 기록 조회
-    @GetMapping("/{journeyId}/record")
-    @Override
-    public ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
-            @PathVariable Long journeyId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ){
-        Long userId = principalDetails.getUserId();
-        JourneyResponse.JourneyRecordDto record = journeyQueryService.getJourneyRecord(journeyId,userId);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(record));
-    }
 
     // ========================================================================
     //  Section 3. 조회 (Query)
@@ -175,5 +163,18 @@ public class JourneyApiController implements JourneyApiDocs {
         );
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    //여정 완료 후 기록 조회
+    @GetMapping("/{journeyId}/record")
+    @Override
+    public ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ){
+        Long userId = principalDetails.getUserId();
+        JourneyResponse.JourneyRecordDto record = journeyQueryService.getJourneyRecord(journeyId,userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(record));
     }
 }

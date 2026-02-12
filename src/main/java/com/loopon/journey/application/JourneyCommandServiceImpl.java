@@ -16,8 +16,6 @@ import com.loopon.journey.domain.JourneyStatus;
 import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.journey.domain.service.JourneyCommandService;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
-import com.loopon.routine.domain.RoutineProgress;
-import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,6 +103,41 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         List<Routine> routines = routineRepository.findByJourney_Id(journeyId);
 
         return JourneyConverter.toCompleteJourneyDto(journey, feedback, routines);
+    }
+
+    @Transactional
+    @Override
+    public void createJourneyFeedback(Long journeyId, Long userId) {
+
+        Journey journey = journeyRepository.findById(journeyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
+
+        if (!journey.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
+        }
+
+        boolean hasInProgress = routineProgressRepository
+                .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
+
+        if (hasInProgress) {
+            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
+        }
+
+        journey.complete();
+
+        //이미 존재하는 feedback 가져오기
+        JourneyFeedback feedback = journeyFeedbackRepository
+                .findByJourneyId(journeyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
+
+        //total Rate 계산 후 넣어주기
+        int totalRate = calculateTotalRate(
+                feedback.getDay1Rate(),
+                feedback.getDay2Rate(),
+                feedback.getDay3Rate()
+        );
+
+        feedback.complete(totalRate);
     }
 
     //전체 rate 계산 메서드
