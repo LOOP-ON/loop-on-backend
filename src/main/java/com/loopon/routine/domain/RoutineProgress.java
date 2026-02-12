@@ -1,5 +1,6 @@
 package com.loopon.routine.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.journey.domain.ProgressStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class RoutineProgress {
+public class RoutineProgress extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
