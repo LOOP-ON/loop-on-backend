@@ -1,5 +1,6 @@
 package com.loopon.notification.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.global.domain.EnvironmentType;
 import com.loopon.notification.application.dto.request.DeviceTokenRequest;
 import com.loopon.user.domain.User;
@@ -13,8 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +31,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class DeviceToken {
+public class DeviceToken extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,12 +48,6 @@ public class DeviceToken {
     private EnvironmentType environmentType; // DEV, PROD
 
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    @PreUpdate
-    private void touch() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     public static DeviceToken create(@NotNull User me, @NotNull DeviceTokenRequest deviceTokenRequest) {
         return DeviceToken.builder()
