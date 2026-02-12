@@ -89,17 +89,17 @@ class ExpeditionQueryServiceTest {
     @Nested
     @DisplayName("내 탐험대 목록 조회 (getExpeditions)")
     class GetExpeditions {
+
         @Test
         @DisplayName("성공: 참여 중인 탐험대 목록과 관리자명, 멤버 수를 반환한다.")
         void success() {
             // given
             Long userId = 1L;
             User admin = createMockUser(2L, "adminUser");
+
             Expedition exp = createMockExpedition(100L, "Exp Title", admin, 10, 5);
 
             given(expeditionRepository.findApprovedExpeditionsByUserId(userId)).willReturn(List.of(exp));
-            given(expeditionRepository.findAllExpeditionUserById(100L))
-                    .willReturn(List.of(mock(ExpeditionUser.class), mock(ExpeditionUser.class)));
 
             // when
             ExpeditionGetResponseList result = expeditionQueryService.getExpeditionList(userId);
@@ -107,7 +107,10 @@ class ExpeditionQueryServiceTest {
             // then
             assertThat(result.expeditionGetResponses()).hasSize(1);
             assertThat(result.expeditionGetResponses().get(0).admin()).isEqualTo("adminUser");
-            assertThat(result.expeditionGetResponses().get(0).currentUsers()).isEqualTo(2);
+
+            assertThat(result.expeditionGetResponses().get(0).currentUsers()).isEqualTo(5);
+
+            assertThat(result.expeditionGetResponses().get(0).isAdmin()).isFalse();
         }
     }
 
@@ -140,7 +143,7 @@ class ExpeditionQueryServiceTest {
             Slice<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
 
             // then
-            assertThat(result.getContent().get(0).isJoined()).isTrue();
+            assertThat(result.getContent().get(0).canJoin()).isTrue();
         }
 
         @Test
@@ -252,7 +255,6 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(exp));
             given(challengeRepository.findAllWithJourneyAndUserByExpeditionId(eq(expId), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(challenge)));
-            given(expeditionRepository.existsExpeditionUserByIdAndUserId(expId, userId)).willReturn(true);
 
 
             // 해시태그 모킹

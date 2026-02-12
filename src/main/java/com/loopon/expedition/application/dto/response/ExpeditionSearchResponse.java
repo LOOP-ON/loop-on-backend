@@ -10,9 +10,11 @@ public record ExpeditionSearchResponse(
         String title,
         ExpeditionCategory category,
         String admin,
-        Integer currentMembers,
+        Integer currentUsers,
         Integer capacity,
         ExpeditionVisibility visibility,
-        Boolean isJoined
+        Boolean isJoined,
+        Boolean isAdmin,
+        Boolean canJoin
 ) {
 }

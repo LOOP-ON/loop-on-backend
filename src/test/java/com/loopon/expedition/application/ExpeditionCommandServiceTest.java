@@ -84,7 +84,7 @@ class ExpeditionCommandServiceTest {
             // given
             Long userId = 1L;
             User user = createMockUser(userId, "tester");
-            ExpeditionPostCommand command = new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.SKILL, "pw", userId);
+            ExpeditionPostCommand command = new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.GROWTH, "pw", userId);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(new ArrayList<>());
@@ -109,7 +109,7 @@ class ExpeditionCommandServiceTest {
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(fullList);
 
             // when & then
-            assertThatThrownBy(() -> expeditionCommandService.postExpedition(new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.SKILL, "pw", userId)))
+            assertThatThrownBy(() -> expeditionCommandService.postExpedition(new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.GROWTH, "pw", userId)))
                     .isInstanceOf(BusinessException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.EXPEDITION_ABOVE_LIMIT);
         }
@@ -166,12 +166,30 @@ class ExpeditionCommandServiceTest {
             Long userId = 1L;
             Long expId = 100L;
             User user = createMockUser(userId, "tester");
-            Expedition expedition = createMockExpedition(expId, "Exp", null); // 기본 비번 "1234"
 
+            Expedition expedition = Expedition.builder()
+                    .id(expId)
+                    .title("Private Exp")
+                    .admin(user)
+                    .userLimit(10)
+                    .currentUsers(1)
+                    .visibility(ExpeditionVisibility.PRIVATE)
+                    .password("real_pw")
+                    .build();
+
+            // Repository Stubbing
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
 
-            ExpeditionJoinCommand command = new ExpeditionJoinCommand(expId, userId, ExpeditionVisibility.PRIVATE, "wrong_pw");
+            given(expeditionRepository.findAllExpeditionUserByUserId(userId))
+                    .willReturn(List.of());
+
+            ExpeditionJoinCommand command = new ExpeditionJoinCommand(
+                    expId,
+                    userId,
+                    ExpeditionVisibility.PRIVATE,
+                    "wrong_pw"
+            );
 
             // when & then
             assertThatThrownBy(() -> expeditionCommandService.joinExpedition(command))
