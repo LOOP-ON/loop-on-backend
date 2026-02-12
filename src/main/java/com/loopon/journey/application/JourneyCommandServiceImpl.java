@@ -1,5 +1,7 @@
 package com.loopon.journey.application;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.application.dto.converter.JourneyConverter;
 import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
@@ -38,7 +40,7 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         Journey journey = journeyRepository.getById(command.journeyId());
 
         if (journey.getStatus() != JourneyStatus.IN_PROGRESS) {
-            throw new IllegalStateException("진행 중인 여정이 아닙니다.");
+            throw new BusinessException(ErrorCode.JOURNEY_NOT_IN_PROGRESS);
         }
 
         //요청한 progress들 중에 IN_PROGRESS인 경우만 조회
@@ -50,7 +52,7 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
                         );
 
         if (progresses.isEmpty()) {
-            throw new IllegalStateException("미룰 수 있는 루틴 진행 정보가 없습니다.");
+            throw new BusinessException(ErrorCode.ROUTINE_NOT_POSTPONABLE);
         }
 
         //각 프로그레스의 postpone 이유 입력
@@ -72,17 +74,17 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
     public JourneyResponse.JourneyRecordDto completeJourney(Long journeyId, Long userId) {
 
         Journey journey = journeyRepository.findById(journeyId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여정입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
         if (!journey.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 유저의 여정이 아닙니다.");
+            throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
         }
 
         boolean hasInProgress = routineProgressRepository
                 .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
 
         if (hasInProgress) {
-            throw new IllegalStateException("아직 진행중인 루틴이 존재합니다.");
+            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
         }
 
         journey.complete();
@@ -90,7 +92,7 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         //이미 존재하는 feedback 가져오기
         JourneyFeedback feedback = journeyFeedbackRepository
                 .findByJourneyId(journeyId)
-                .orElseThrow(() -> new IllegalStateException("피드백 데이터가 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
 
         //total Rate 계산 후 넣어주기
         int totalRate = calculateTotalRate(

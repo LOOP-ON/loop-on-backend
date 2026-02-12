@@ -15,4 +15,12 @@ public interface RoutineCommandService {
     @Transactional
         // 루틴 인증 파일 업로드
     RoutineResponse.RoutineCertifyDto certifyRoutine(Long progressId, Long userId, MultipartFile image);
+
+    //루틴 미룬 사유 수정
+    @Transactional
+    RoutineResponse.RoutinePostponeReasonEditDto editPostponeReason(
+            Long progressId,
+            Long userId,
+            RoutineRequest.editReasonDto newReason
+    );
 }

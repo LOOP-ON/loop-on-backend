@@ -1,5 +1,7 @@
 package com.loopon.user.application.service;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.user.application.dto.response.FriendResponse;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.repository.FriendRepository;
@@ -38,7 +40,7 @@ public class FriendServiceImpl implements FriendService {
                 BLOCKED
         );
         if (updated == 0) {
-            throw new IllegalArgumentException("차단할 수 없는 친구 관계입니다.");
+            throw new BusinessException(ErrorCode.FRIEND_BLOCK_NOT_ALLOWED);
         }
     }
 
@@ -51,7 +53,7 @@ public class FriendServiceImpl implements FriendService {
                 ACCEPTED
         );
         if (updated == 0) {
-            throw new IllegalArgumentException("차단 해제할 수 없는 상태입니다.");
+            throw new BusinessException(ErrorCode.FRIEND_UNBLOCK_NOT_ALLOWED);
         }
     }
 
@@ -59,7 +61,7 @@ public class FriendServiceImpl implements FriendService {
     public void deleteFriend(Long me, Long friendId) {
         int deleted = friendRepository.deleteByIdAndParticipant(friendId, me);
         if (deleted == 0) {
-            throw new IllegalArgumentException("해당 친구 관계가 없거나 삭제 권한이 없습니다.");
+            throw new BusinessException(ErrorCode.FRIEND_DELETE_NOT_ALLOWED);
         }
     }
 }

@@ -39,4 +39,10 @@ public class RoutineRequest {
             @NotNull
             LocalTime time
     ) {}
+
+    public record editReasonDto(
+            @Schema(description = "수정할 사유", example = "수정한 사유")
+            @NotBlank
+            String reason
+    ){}
 }

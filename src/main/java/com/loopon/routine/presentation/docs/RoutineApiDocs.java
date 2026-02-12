@@ -13,10 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "10. 루틴(Routine)", description = "루틴 생성 및 조회 API")
@@ -41,5 +38,28 @@ public interface RoutineApiDocs {
             @PathVariable Long progressId,
             @RequestPart("image") MultipartFile image,
             @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    //여정 미루기 사유 확인 API
+    @Operation(summary = "루틴을 미룬 이유를 확인합니다.", description = "루틴 미루기 사유 확인API")
+    @ApiResponse(responseCode = "200", description = "루틴 미루기 사유 조회에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    @GetMapping("/{progressId}/postpone-reason")
+    ResponseEntity<CommonResponse<RoutineResponse.RoutinePostponeReasonDto>> postponeReason(
+            @PathVariable Long progressId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    );
+
+    //여정 미루기 사유 수정 API
+    @Operation(summary = "루틴 미룬 사유 수정.", description = "루틴 미루기 사유 수정 API")
+    @ApiResponse(responseCode = "200", description = "루틴 미루기 사유 수정에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    @PatchMapping("/{progressId}/postpone-reason")
+    ResponseEntity<CommonResponse<RoutineResponse.RoutinePostponeReasonEditDto>> editPostponeReason(
+            @PathVariable Long progressId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestBody RoutineRequest.editReasonDto body
     );
 }

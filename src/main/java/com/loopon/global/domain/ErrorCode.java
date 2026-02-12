@@ -61,6 +61,9 @@ public enum ErrorCode {
     FRIEND_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "F004", "친구 요청을 찾을 수 없습니다."),
     FRIEND_REQUEST_FORBIDDEN(HttpStatus.FORBIDDEN, "F005", "해당 친구 요청을 처리할 권한이 없습니다."),
     FRIEND_REQUEST_INVALID_STATUS(HttpStatus.BAD_REQUEST, "F006", "처리할 수 없는 친구 요청 상태입니다."),
+    FRIEND_BLOCK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "F007", "차단할 수 없는 친구 관계입니다."),
+    FRIEND_UNBLOCK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "F008", "차단 해제할 수 없는 상태입니다."),
+    FRIEND_DELETE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "F009", "해당 친구 관계가 없거나 삭제 권한이 없습니다."),
 
     // Challenge (챌린지, C-xxx)
     CHALLENGE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "C001", "해당 여정은 이미 챌린지가 존재합니다."),
@@ -96,6 +99,7 @@ public enum ErrorCode {
     EXPEDITION_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "해당 탐험대에 등록되어있지 않습니다."),
     NOT_ADMIN_USER(HttpStatus.BAD_REQUEST, "E007", "탐험대 방장이 아니라 권한이 없습니다."),
     USER_LIMIT_TOO_SMALL(HttpStatus.BAD_REQUEST, "E008", "탐험대 제한인원은 현재인원보다 작을 수 없습니다."),
+    EXPEDITION_ADMIN_WITHDRAW(HttpStatus.BAD_REQUEST, "E009", "탐험대장은 탐험대를 탈퇴할 수 없습니다."),
 
     //디바이스 토큰 관련 에러
     DEVICE_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "해당 디바이스 토큰을 찾을 수 없습니다."),
@@ -106,10 +110,18 @@ public enum ErrorCode {
 
     // Journey (여정, J-xxx)
     JOURNEY_NOT_FOUND(HttpStatus.NOT_FOUND, "J001", "해당 여정을 찾을 수 없습니다."),
-    JOURNEY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "J002", "진행 중인 여정이 이미 존재합니다.");
+    JOURNEY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "J002", "진행 중인 여정이 이미 존재합니다."),
+    JOURNEY_NOT_IN_PROGRESS(HttpStatus.BAD_REQUEST, "J003", "진행 중인 여정이 아닙니다."),
+    JOURNEY_FORBIDDEN(HttpStatus.FORBIDDEN, "J004", "해당 여정에 대한 권한이 없습니다."),
+    JOURNEY_FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "J005", "피드백 데이터가 존재하지 않습니다."),
 
+    // Routine (루틴, R-xxx)
+    ROUTINE_IN_PROGRESS(HttpStatus.BAD_REQUEST, "R001", "진행 중인 루틴이 이미 존재합니다."),
+    ROUTINE_NOT_FOUND(HttpStatus.NOT_FOUND, "R002", "해당 루틴의 진행 정보를 찾을 수 없습니다"),
+    ROUTINE_NOT_POSTPONABLE(HttpStatus.NOT_FOUND, "R003", "미룰 수 있는 루틴 진행 정보가 없습니다."),
+    ROUTINE_FORBIDDEN(HttpStatus.FORBIDDEN, "R004", "해당 루틴에 대한 권한이 없습니다.");
 
     private final HttpStatus status;
     private final String code;
     private final String message;
-}
+    }

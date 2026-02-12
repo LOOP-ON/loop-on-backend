@@ -87,4 +87,9 @@ public class RoutineProgress {
             throw new IllegalArgumentException("이미 완료된 루틴입니다.");
         }
     }
+
+    //루틴 미루기 사유 수정 메서드
+    public void updatePostponeReason(String reason) {
+        this.postponedReason = reason;
+    }
 }

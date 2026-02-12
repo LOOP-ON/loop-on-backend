@@ -7,8 +7,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
 public class SchedulerConfig {
-    @Bean
-    public TaskScheduler taskScheduler() {
+    @Bean(name = "likePushTaskScheduler")
+    public TaskScheduler likePushTaskScheduler() {
         ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
         ts.setPoolSize(4);
         ts.setThreadNamePrefix("like-agg-");

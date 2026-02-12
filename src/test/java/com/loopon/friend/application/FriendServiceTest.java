@@ -1,5 +1,6 @@
 package com.loopon.friend.application;
 
+import com.loopon.global.exception.BusinessException;
 import com.loopon.user.application.dto.response.FriendResponse;
 import com.loopon.user.application.service.FriendServiceImpl;
 import com.loopon.user.domain.FriendStatus;
@@ -67,8 +68,8 @@ class FriendServiceTest {
 
         given(friendRepository.deleteByIdAndParticipant(friendRelationId, me)).willReturn(0);
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
+        BusinessException ex = assertThrows(
+                BusinessException.class,
                 () -> friendService.deleteFriend(me, friendRelationId)
         );
 

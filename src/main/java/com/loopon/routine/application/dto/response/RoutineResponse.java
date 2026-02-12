@@ -24,4 +24,15 @@ public class RoutineResponse {
             ProgressStatus status,
             String imageUrl
     ){}
+
+    public record RoutinePostponeReasonDto(
+            Long progressId,
+            String content,
+            String reason
+    ){}
+
+    public record RoutinePostponeReasonEditDto(
+            Long progressId,
+            String reason
+    ){}
 }
