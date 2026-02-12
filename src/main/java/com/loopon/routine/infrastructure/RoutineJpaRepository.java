@@ -14,4 +14,5 @@ public interface RoutineJpaRepository extends JpaRepository<Routine, Long> {
             List<Long> ids,
             Journey journey
     );
+    List<Routine> findByJourney_Id(Long journeyId);
 }

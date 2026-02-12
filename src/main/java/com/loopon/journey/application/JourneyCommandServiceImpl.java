@@ -1,5 +1,12 @@
 package com.loopon.journey.application;
 
+import com.loopon.journey.application.dto.converter.JourneyConverter;
+import com.loopon.journey.domain.JourneyFeedback;
+import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
+import com.loopon.routine.domain.Routine;
+import com.loopon.routine.domain.RoutineProgress;
+import com.loopon.routine.infrastructure.RoutineJpaRepository;
+import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.Journey;
@@ -20,6 +27,8 @@ import java.util.List;
 public class JourneyCommandServiceImpl implements JourneyCommandService {
     private final JourneyJpaRepository journeyRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
+    private final JourneyFeedbackJpaRepository journeyFeedbackRepository;
+    private final RoutineJpaRepository routineRepository;
 
     @Transactional
     @Override
@@ -56,5 +65,67 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
                         .toList(),
                 command.reason()
         );
+    }
+
+    @Transactional
+    @Override
+    public JourneyResponse.JourneyRecordDto completeJourney(Long journeyId, Long userId) {
+
+        Journey journey = journeyRepository.findById(journeyId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여정입니다."));
+
+        if (!journey.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("해당 유저의 여정이 아닙니다.");
+        }
+
+        boolean hasInProgress = routineProgressRepository
+                .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
+
+        if (hasInProgress) {
+            throw new IllegalStateException("아직 진행중인 루틴이 존재합니다.");
+        }
+
+        journey.complete();
+
+        //이미 존재하는 feedback 가져오기
+        JourneyFeedback feedback = journeyFeedbackRepository
+                .findByJourneyId(journeyId)
+                .orElseThrow(() -> new IllegalStateException("피드백 데이터가 존재하지 않습니다."));
+
+        //total Rate 계산 후 넣어주기
+        int totalRate = calculateTotalRate(
+                feedback.getDay1Rate(),
+                feedback.getDay2Rate(),
+                feedback.getDay3Rate()
+        );
+
+        feedback.complete(totalRate);
+        List<Routine> routines = routineRepository.findByJourney_Id(journeyId);
+
+        return JourneyConverter.toCompleteJourneyDto(journey, feedback, routines);
+    }
+
+    //전체 rate 계산 메서드
+    private int calculateTotalRate(Integer day1, Integer day2, Integer day3) {
+
+        int sum = 0;
+        int count = 0;
+
+        if (day1 != null) {
+            sum += day1;
+            count++;
+        }
+
+        if (day2 != null) {
+            sum += day2;
+            count++;
+        }
+
+        if (day3 != null) {
+            sum += day3;
+            count++;
+        }
+
+        return count == 0 ? 0 : sum / count;
     }
 }

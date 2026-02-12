@@ -32,9 +32,24 @@ public class JourneyFeedback {
     @JoinColumn(name = "journey_id", nullable = false)
     private Journey journey;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    // 성장 추이 그래프를 위한 데이터 값
+    @Column
+    private Integer day1Rate;
+
+    @Column
+    private Integer day2Rate;
+
+    @Column
+    private Integer day3Rate;
+
+    @Column
+    private Integer totalRate;
+    
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public void complete(int totalRate) {
+        this.totalRate = totalRate;
+    }
 }

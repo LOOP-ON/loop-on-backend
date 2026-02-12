@@ -2,7 +2,7 @@ package com.loopon.journey.application.service;
 
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
-import com.loopon.llm.application.service.LLMApplicationServiceImpl;
+import com.loopon.llm.application.service.LlmApplicationServiceImpl;
 import com.loopon.llm.domain.dto.LoopGenerationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LoopRegenerationService {
 
-    private final LLMApplicationServiceImpl llmService;
+    private final LlmApplicationServiceImpl llmService;
 
     public LoopRegenerationResponse regenerateLoop(LoopRegenerationRequest request) {
         String prompt = createRegenerationPrompt(request.getMainGoal(), request.getOriginalGoal());
