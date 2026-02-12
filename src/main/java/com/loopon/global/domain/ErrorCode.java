@@ -96,6 +96,7 @@ public enum ErrorCode {
     EXPEDITION_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "해당 탐험대에 등록되어있지 않습니다."),
     NOT_ADMIN_USER(HttpStatus.BAD_REQUEST, "E007", "탐험대 방장이 아니라 권한이 없습니다."),
     USER_LIMIT_TOO_SMALL(HttpStatus.BAD_REQUEST, "E008", "탐험대 제한인원은 현재인원보다 작을 수 없습니다."),
+    EXPEDITION_ADMIN_WITHDRAW(HttpStatus.BAD_REQUEST, "E009", "탐험대장은 탐험대를 탈퇴할 수 없습니다."),
 
     //디바이스 토큰 관련 에러
     DEVICE_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "해당 디바이스 토큰을 찾을 수 없습니다."),

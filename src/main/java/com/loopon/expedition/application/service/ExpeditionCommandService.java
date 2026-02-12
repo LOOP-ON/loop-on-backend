@@ -93,6 +93,13 @@ public class ExpeditionCommandService {
         ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
                          .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
+        User user = userRepository.findById(commandDto.userId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (expedition.getAdmin().equals(user)){
+            throw new BusinessException(ErrorCode.EXPEDITION_ADMIN_WITHDRAW);
+        }
+
         expeditionRepository.deleteExpeditionUser(expeditionUser);
         expedition.addToCurrentUsers(-1);
 
