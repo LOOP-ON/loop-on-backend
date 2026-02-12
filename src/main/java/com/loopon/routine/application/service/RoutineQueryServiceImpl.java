@@ -1,5 +1,7 @@
 package com.loopon.routine.application.service;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.routine.application.dto.response.RoutineResponse;
 import com.loopon.routine.domain.RoutineProgress;
@@ -23,7 +25,7 @@ public class RoutineQueryServiceImpl implements RoutineQueryService {
 
         // progress ID로 조회
         RoutineProgress progress = routineProgressRepository.findById(progressId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 루틴 진행 정보입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROUTINE_NOT_FOUND));
 
         // 본인 여정인지 검색
         if (!progress.getRoutine()
@@ -31,12 +33,12 @@ public class RoutineQueryServiceImpl implements RoutineQueryService {
                 .getUser()
                 .getId()
                 .equals(userId)) {
-            throw new IllegalArgumentException("해당 유저의 루틴이 아닙니다.");
+            throw new BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
         }
 
         // 미루기 상태 확인
         if (progress.getStatus() != ProgressStatus.POSTPONED) {
-            throw new IllegalStateException("미루기 상태가 아닙니다.");
+            throw new BusinessException(ErrorCode.ROUTINE_NOT_POSTPONABLE);
         }
 
         // 루틴 내용 가져오기
