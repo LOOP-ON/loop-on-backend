@@ -1,5 +1,7 @@
 package com.loopon.journey.application;
 
+import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.application.dto.response.JourneyContinueResponse;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.repository.JourneyRepository;
@@ -15,11 +17,11 @@ public class JourneyContinueService {
     public JourneyContinueResponse continueJourney(Long journeyId, Long userId) {
         // 1. 기존 여정 조회
         Journey originalJourney = journeyRepository.findById(journeyId)
-                .orElseThrow(() -> new RuntimeException("Journey not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
         // 2. 권한 확인
         if (!originalJourney.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized access to journey");
+            throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
         }
 
         // 3. 기존 목표를 그대로 반환 (새로운 여정 생성을 위한 데이터)

@@ -3,7 +3,7 @@ package com.loopon.notification.application.service;
 import com.loopon.notification.domain.service.NotificationService;
 import com.loopon.notification.infrastructure.redis.AggregationDelays;
 import com.loopon.notification.infrastructure.redis.ChallengeLikeAggregationRedisRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -11,13 +11,21 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 
 @Service
-@RequiredArgsConstructor
 public class ChallengeLikeAggregationService {
 
     private final ChallengeLikeAggregationRedisRepository likeRepository;
     private final NotificationService notificationService;
+    @Qualifier("likePushTaskScheduler")
     private final TaskScheduler taskScheduler;
 
+    public ChallengeLikeAggregationService(
+            ChallengeLikeAggregationRedisRepository likeRepository,
+            NotificationService notificationService,
+            @Qualifier("likePushTaskScheduler") TaskScheduler taskScheduler) {
+        this.likeRepository = likeRepository;
+        this.notificationService = notificationService;
+        this.taskScheduler = taskScheduler;
+    }
     @Async
     public void scheduleLikePush(Long challengeId, Long ownerId) {
         Instant runAt = Instant.now().plusMillis(AggregationDelays.CHALLENGE_LIKE_MS);

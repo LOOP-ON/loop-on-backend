@@ -57,12 +57,12 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
 
         //유저 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         //진행중인 여정 조회
         Journey journey = journeyRepository
                 .findByUserAndStatus(user, JourneyStatus.IN_PROGRESS)
-                .orElseThrow(() -> new IllegalStateException("진행 중인 여정이 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
         //여정에 속한 루틴 전체 조회
         List<Routine> routines = routineRepository.findAllByJourney(journey);
@@ -262,7 +262,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         //날짜 여정 찾기
         Journey journey = journeyRepository
                 .findActiveJourneyByUserAndDate(userId, date)
-                .orElseThrow(() -> new IllegalArgumentException("해당 날짜에 진행 중인 여정이 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
         Long journeyId = journey.getId();
 
@@ -288,7 +288,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         // JourneyFeedback 조회
         JourneyFeedback feedback = journeyFeedbackRepository
                 .findByJourneyId(journeyId)
-                .orElseThrow(() -> new IllegalStateException("피드백 데이터가 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
 
         // RoutineReport 조회
         Optional<RoutineReport> routineReport =
