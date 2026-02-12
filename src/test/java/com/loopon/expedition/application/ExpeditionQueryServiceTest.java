@@ -16,6 +16,7 @@ import com.loopon.expedition.domain.ExpeditionUser;
 import com.loopon.expedition.domain.ExpeditionUserStatus;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.Friend;
@@ -140,10 +141,10 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(Collections.nCopies(3, eu));
 
             // when
-            Slice<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
+            SliceResponse<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
 
             // then
-            assertThat(result.getContent().get(0).canJoin()).isTrue();
+            assertThat(result.content().getFirst().canJoin()).isTrue();
         }
 
         @Test
@@ -163,10 +164,10 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findAllExpeditionUserByUserId(any())).willReturn(new ArrayList<>());
 
             // when
-            Slice<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
+            SliceResponse<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
 
             // then
-            assertThat(result.getContent().get(0).isJoined()).isFalse();
+            assertThat(result.content().getFirst().isJoined()).isFalse();
         }
 
         @Test
@@ -267,12 +268,12 @@ class ExpeditionQueryServiceTest {
             given(challengeRepository.existsChallengeLikeByIdAndUserId(challengeId, userId)).willReturn(true);
 
             // when
-            Slice<ExpeditionChallengesResponse> result = expeditionQueryService.challengesExpedition(new ExpeditionChallengesCommand(expId, userId, PageRequest.of(0, 10)));
+            SliceResponse<ExpeditionChallengesResponse> result = expeditionQueryService.challengesExpedition(new ExpeditionChallengesCommand(expId, userId, PageRequest.of(0, 10)));
 
             // then
-            assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().getFirst().isLiked()).isTrue();
-            assertThat(result.getContent().getFirst().hashtags()).contains("hashtag1");
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.content().getFirst().isLiked()).isTrue();
+            assertThat(result.content().getFirst().hashtags()).contains("hashtag1");
         }
 
         @Test
