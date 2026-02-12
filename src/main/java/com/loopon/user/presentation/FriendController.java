@@ -8,6 +8,8 @@ import com.loopon.user.domain.service.FriendService;
 import com.loopon.user.presentation.docs.FriendApiDocs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +29,7 @@ public class FriendController implements FriendApiDocs {
     //내 친구 목록 조회 API
     @Override
     @GetMapping
-    public ResponseEntity<CommonResponse<SliceResponse<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, Pageable pageable) {
+    public ResponseEntity<CommonResponse<SliceResponse<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, @PageableDefault(sort = "nickname", direction = Sort.Direction.ASC) Pageable pageable) {
         Long me = principalDetails.getUserId();
         SliceResponse<FriendResponse> res = friendService.getMyFriends(me, pageable);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
