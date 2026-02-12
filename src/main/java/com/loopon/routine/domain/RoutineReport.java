@@ -1,5 +1,6 @@
-package com.loopon.journey.domain;
+package com.loopon.routine.domain;
 
+import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,11 +19,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "growth_reports")
+@Table(name = "routine_report")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class GrowthReport {
+public class RoutineReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +34,11 @@ public class GrowthReport {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "journey_id", nullable = false)
+    private Journey journey;
+
+    //여정 기록 텍스트
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 

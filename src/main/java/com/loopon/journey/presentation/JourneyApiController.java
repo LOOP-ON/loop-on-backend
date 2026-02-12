@@ -20,13 +20,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/journeys")
@@ -105,9 +102,54 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
+    //여정 완료 후 기록하기
+    @PostMapping("/{journeyId}/record")
+    @Override
+    public ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ){
+        Long userId = principalDetails.getUserId();
+        JourneyResponse.JourneyRecordDto record = journeyCommandService.completeJourney(journeyId, userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(record));
+    }
+
     // ========================================================================
     //  Section 3. 조회 (Query)
     // ========================================================================
+
+    //사용자 달별로 루틴 진행 개수 확인
+    @GetMapping("/monthly")
+    @Override
+    public ResponseEntity<CommonResponse<List<JourneyResponse.MonthlyCompletedDto>>> getMonthlyCompleted(
+            @RequestParam int year,
+            @RequestParam int month,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+
+        Long userId = principalDetails.getUserId();
+
+        List<JourneyResponse.MonthlyCompletedDto> response =
+                journeyQueryService.getMonthlyCompleted(userId, year, month);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @GetMapping("/daily-report")
+    @Override
+    public ResponseEntity<CommonResponse<JourneyResponse.DailyJourneyReportDto>> getDailyReport(
+            @RequestParam LocalDate date,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+
+        Long userId = principalDetails.getUserId();
+
+        JourneyResponse.DailyJourneyReportDto response =
+                journeyQueryService.getDailyJourneyReport(userId, date);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
 
     @Override
     @GetMapping("/current")

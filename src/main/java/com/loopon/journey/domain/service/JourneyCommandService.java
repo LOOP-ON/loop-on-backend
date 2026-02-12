@@ -6,4 +6,6 @@ import com.loopon.journey.application.dto.response.JourneyResponse;
 public interface JourneyCommandService {
 
     JourneyResponse.PostponeRoutineDto postponeRoutine(JourneyCommand.PostponeRoutineCommand command);
+
+    JourneyResponse.JourneyRecordDto completeJourney(Long journeyId, Long userId);
 }
