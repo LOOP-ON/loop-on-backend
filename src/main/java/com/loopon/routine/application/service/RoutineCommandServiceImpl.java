@@ -5,6 +5,7 @@ import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyStatus;
+import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.routine.application.dto.converter.RoutineConverter;
 import com.loopon.routine.application.dto.request.RoutineRequest;
@@ -106,5 +107,41 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         progress.certify(imageUrl);
 
         return RoutineConverter.toRoutineCertifyDto(progress);
+    }
+
+    //루틴 미룬 사유 수정
+    @Transactional
+    @Override
+    public RoutineResponse.RoutinePostponeReasonEditDto editPostponeReason(
+            Long progressId,
+            Long userId,
+            RoutineRequest.editReasonDto newReason
+    ) {
+
+        // progress 조회
+        RoutineProgress progress = routineProgressRepository.findById(progressId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 루틴 진행 정보입니다."));
+
+        //본인 루틴인지 검증
+        if (!progress.getRoutine()
+                .getJourney()
+                .getUser()
+                .getId()
+                .equals(userId)) {
+            throw new IllegalArgumentException("해당 유저의 루틴이 아닙니다.");
+        }
+
+        // 프로그레스 상태 확인
+        if (progress.getStatus() != ProgressStatus.POSTPONED) {
+            throw new IllegalStateException("미루기 상태가 아닙니다.");
+        }
+
+        // 미룬 사유 수정
+        progress.updatePostponeReason(newReason.reason());
+
+        return new RoutineResponse.RoutinePostponeReasonEditDto(
+                progress.getId(),
+                progress.getPostponedReason()
+        );
     }
 }
