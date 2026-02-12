@@ -30,4 +30,10 @@ public interface JourneyQueryService {
             Long userId,
             LocalDate date
     );
+
+    @Transactional
+    JourneyResponse.JourneyRecordDto getJourneyRecord(
+            Long journeyId,
+            Long userId
+    );
 }
