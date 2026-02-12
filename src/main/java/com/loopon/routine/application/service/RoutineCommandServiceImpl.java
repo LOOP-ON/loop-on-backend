@@ -95,10 +95,10 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
     @Override
     public RoutineResponse.RoutineCertifyDto certifyRoutine(Long progressId, Long userId, MultipartFile image) {
         RoutineProgress progress = routineProgressRepository.findById(progressId)
-                .orElseThrow(() -> new IllegalArgumentException("진행 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROUTINE_NOT_FOUND));
 
         if (!progress.getRoutine().getJourney().getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("사용자의 루틴이 아닙니다.");
+            throw new  BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
         }
 
         progress.validateCertifiable();
