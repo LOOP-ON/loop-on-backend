@@ -4,7 +4,9 @@ import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
+import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.journey.domain.JourneyStatus;
+import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
 import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.routine.application.dto.converter.RoutineConverter;
@@ -36,6 +38,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
     private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
     private final S3Service s3Service;
+    private final JourneyFeedbackJpaRepository journeyFeedbackRepository;
 
     @Override
     public RoutineResponse.PostRoutinesDto postRoutine(
@@ -63,6 +66,13 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
                 .build();
 
         journeyRepository.save(journey);
+
+        //journey Feedback 테이블 생성
+        JourneyFeedback journeyFeedback = JourneyFeedback.builder()
+                .journey(journey)
+                .build();
+
+        journeyFeedbackRepository.save(journeyFeedback);
 
         List<Routine> routines = request.routines().stream()
                 .map(dto -> Routine.builder()
