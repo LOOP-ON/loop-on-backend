@@ -1,11 +1,13 @@
 package com.loopon.user.presentation;
 
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.user.application.dto.response.FriendResponse;
 import com.loopon.user.domain.service.FriendService;
 import com.loopon.user.presentation.docs.FriendApiDocs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,9 +27,9 @@ public class FriendController implements FriendApiDocs {
     //내 친구 목록 조회 API
     @Override
     @GetMapping
-    public ResponseEntity<CommonResponse<List<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity<CommonResponse<SliceResponse<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, Pageable pageable) {
         Long me = principalDetails.getUserId();
-        List<FriendResponse> res = friendService.getMyFriends(me);
+        SliceResponse<FriendResponse> res = friendService.getMyFriends(me, pageable);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
     }
 

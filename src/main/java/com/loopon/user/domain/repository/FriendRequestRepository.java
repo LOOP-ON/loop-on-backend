@@ -29,33 +29,33 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
     );
 
     @Query("""
-            select f.requester.id
-            from Friend f
-            where f.status = :status
-              and f.receiver.id = :me
-            order by f.updatedAt desc
+            SELECT f.requester.id
+            FROM Friend f
+            WHERE f.status = :status
+              AND f.receiver.id = :me
+            ORDER BY f.updatedAt DESC
             """)
     List<Long> getAllRequesterIdByStatus(
             @Param("me") Long me,
             @Param("status") FriendStatus status
     );
     @Query("""
-    select new com.loopon.user.application.dto.response.FriendSearchResponse(
+    SELECT NEW com.loopon.user.application.dto.response.FriendSearchResponse(
         u.nickname,
         u.bio,
         coalesce(f.status, com.loopon.user.domain.FriendStatus.NOT_FRIENDS),
         u.profileImageUrl,
         u.id
     )
-    from User u
-    left join Friend f
-        on (
-            (f.requester.id = :me and f.receiver.id = u.id)
-            or
-            (f.receiver.id = :me and f.requester.id = u.id)
+    FROM User u
+    LEFT JOIN Friend f
+        ON (
+            (f.requester.id = :me AND f.receiver.id = u.id)
+            OR
+            (f.receiver.id = :me AND f.requester.id = u.id)
         )
-    where u.id <> :me
-      and lower(u.nickname) like lower(concat('%', :query, '%'))
+    WHERE u.id <> :me
+      AND LOWER(u.nickname) LIKE LOWER(concat('%', :query, '%'))
 """)
     Page<FriendSearchResponse> searchByNickname(
             @Param("me") Long me,
@@ -64,7 +64,7 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
     );
 
     @Query("""
-            SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END
+            SELECT CASE WHEN COUNT(f) > 0 THEN TRUE ELSE FALSE END
             FROM Friend f
             WHERE f.status = :status
               AND ((f.requester.id = :userId1 AND f.receiver.id = :userId2)

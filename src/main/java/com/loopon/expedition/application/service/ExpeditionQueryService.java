@@ -230,8 +230,8 @@ public class ExpeditionQueryService {
 
     // 유저의 친구들 Map{userId, FriendStatus}
     private Map<Long, FriendStatus> getFriendsIds(Long userId){
-        List<Friend> friendList = friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.ACCEPTED);
-        friendList.addAll(friendRepository.findAcceptedFriendsByUserId(userId, FriendStatus.PENDING));
+        List<Friend> friendList = friendRepository.findFriendsByUserIdAndStatus(userId, FriendStatus.ACCEPTED);
+        friendList.addAll(friendRepository.findFriendsByUserIdAndStatus(userId, FriendStatus.PENDING));
 
         Map<Long, FriendStatus> friendIds = new HashMap<>();
         for (Friend friend : friendList) {

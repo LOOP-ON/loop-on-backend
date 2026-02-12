@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "device_token", uniqueConstraints = {@UniqueConstraint(columnNames = {"token", "environment_type"}),})
+@Table(name = "device_tokens", uniqueConstraints = {@UniqueConstraint(columnNames = {"token", "environment_type"}),})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
