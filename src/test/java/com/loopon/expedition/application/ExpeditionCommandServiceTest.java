@@ -129,8 +129,8 @@ class ExpeditionCommandServiceTest {
             ExpeditionJoinCommand command = new ExpeditionJoinCommand(expId, userId, ExpeditionVisibility.PUBLIC, null);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
-            given(expeditionRepository.countExpeditionUserByExpeditionId(expId)).willReturn(5); // 현재 5명
+            given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition)); // 현재 5명
+            given(expedition.getCurrentUsers()).willReturn(5);
 
             // when
             expeditionCommandService.joinExpedition(command);
