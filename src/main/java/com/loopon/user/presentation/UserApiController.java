@@ -63,9 +63,9 @@ public class UserApiController implements UserApiDocs {
 
     @Override
     @PostMapping(value = "/upload-profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CommonResponse<String>> uploadProfileImage(@RequestPart("image") MultipartFile image) {
-        imageValidator.validate(image);
-        String imageUrl = s3Service.uploadFile(image);
+    public ResponseEntity<CommonResponse<String>> uploadProfileImage(@RequestPart("file") MultipartFile file) {
+        imageValidator.validate(file);
+        String imageUrl = s3Service.uploadFile(file);
         return ResponseEntity.ok(CommonResponse.onSuccess(imageUrl));
     }
 
