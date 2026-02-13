@@ -10,7 +10,7 @@ import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
-import com.loopon.user.application.validator.ProfileImageValidator;
+import com.loopon.user.application.validator.ImageValidator;
 import com.loopon.user.presentation.docs.UserApiDocs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class UserApiController implements UserApiDocs {
     private final UserQueryService userQueryService;
     private final S3Service s3Service;
 
-    private final ProfileImageValidator profileImageValidator;
+    private final ImageValidator profileImageValidator;
 
     @Override
     @PostMapping("/check-email")

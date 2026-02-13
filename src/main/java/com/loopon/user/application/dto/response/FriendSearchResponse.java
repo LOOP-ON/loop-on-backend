@@ -8,4 +8,5 @@ public record FriendSearchResponse(
         FriendStatus friendStatus,
         String profile_image_url,
         Long user_id
-){}
+) {
+}
