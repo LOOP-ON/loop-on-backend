@@ -51,7 +51,6 @@ public class RoutineApiController implements RoutineApiDocs {
     public ResponseEntity<CommonResponse<RoutineResponse.RoutineCertifyDto>> certifyRoutine(
             @PathVariable Long progressId,
             @RequestPart("image") MultipartFile image,
-            @RequestPart(value = "data", required = false) @Valid RoutineRequest.CertifyRequestDto requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         Long userId = principalDetails.getUserId();

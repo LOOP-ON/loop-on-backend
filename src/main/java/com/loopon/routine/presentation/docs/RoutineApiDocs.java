@@ -49,9 +49,6 @@ public interface RoutineApiDocs {
             @Parameter(description = "인증 이미지 파일 (.jpg, .png 등)", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE))
             @RequestPart("image") MultipartFile image,
 
-            @Parameter(description = "추가 인증 데이터 (JSON 형식, 예: 한줄평)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "data", required = false) @Valid RoutineRequest.CertifyRequestDto requestDto,
-
             @Parameter(hidden = true) @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
