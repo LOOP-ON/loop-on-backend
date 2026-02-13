@@ -49,9 +49,4 @@ public class RoutineRequest {
             String reason
     ) {
     }
-
-    public record CertifyRequestDto(
-            String content
-    ) {
-    }
 }
