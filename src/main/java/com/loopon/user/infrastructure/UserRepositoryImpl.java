@@ -39,7 +39,6 @@ public class UserRepositoryImpl implements UserRepository {
         return userJpaRepository.findById(id);
     }
 
-
     @Override
     public Optional<User> findBySocialIdAndProvider(String id, UserProvider provider) {
         return userJpaRepository.findBySocialIdAndProvider(id, provider);

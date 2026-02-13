@@ -63,7 +63,6 @@ public interface UserApiDocs {
     );
 
     @Operation(summary = "내 프로필 조회", description = "인증된 사용자의 프로필 정보(닉네임, 이미지, 참여 이력 등)를 조회합니다.")
-    // [핵심] Pageable 객체 대신 쿼리 파라미터 3형제(page, size, sort)를 직접 정의
     @Parameters({
             @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", in = ParameterIn.QUERY, example = "0"),
             @Parameter(name = "size", description = "한 페이지 크기", in = ParameterIn.QUERY, example = "10"),
