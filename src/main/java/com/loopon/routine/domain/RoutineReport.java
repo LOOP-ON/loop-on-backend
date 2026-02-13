@@ -17,8 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "routine_report")
 @Getter
@@ -42,5 +40,4 @@ public class RoutineReport extends BaseTimeEntity {
     //여정 기록 텍스트
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
-
 }
