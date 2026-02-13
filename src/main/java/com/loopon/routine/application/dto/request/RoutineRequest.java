@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.time.LocalTime;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class RoutineRequest {
             @Valid
             @Size(min = 3, max = 3, message = "루틴은 정확히 3개여야 합니다.")
             List<RoutineItemDto> routines
-    ) {}
+    ) {
+    }
 
     public record RoutineItemDto(
             @Schema(description = "할 일 내용", example = "물 한 컵 따르기")
@@ -38,11 +40,18 @@ public class RoutineRequest {
             @Schema(description = "알림 시간", example = "08:00")
             @NotNull
             LocalTime time
-    ) {}
+    ) {
+    }
 
     public record editReasonDto(
             @Schema(description = "수정할 사유", example = "수정한 사유")
             @NotBlank
             String reason
-    ){}
+    ) {
+    }
+
+    public record CertifyRequestDto(
+            String content
+    ) {
+    }
 }
