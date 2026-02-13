@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class ProfileImageValidator {
+public class ImageValidator {
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024;
     private static final List<String> ALLOWED_MIME_TYPES = Arrays.asList("image/jpeg", "image/png", "image/jpg");
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png");
