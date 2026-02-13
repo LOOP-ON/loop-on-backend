@@ -205,8 +205,8 @@ class ExpeditionQueryServiceTest {
             Friend friendRecord = mock(Friend.class);
             lenient().when(friendRecord.getId()).thenReturn(friendId);
             lenient().when(friendRecord.getStatus()).thenReturn(FriendStatus.ACCEPTED);
-            given(friendRepository.findAcceptedFriendsByUserId(myId, FriendStatus.ACCEPTED)).willReturn(new ArrayList<>(List.of(friendRecord)));
-            given(friendRepository.findAcceptedFriendsByUserId(myId, FriendStatus.PENDING)).willReturn(new ArrayList<>());
+            given(friendRepository.findFriendsByUserIdAndStatus(myId, FriendStatus.ACCEPTED)).willReturn(new ArrayList<>(List.of(friendRecord)));
+            given(friendRepository.findFriendsByUserIdAndStatus(myId, FriendStatus.PENDING)).willReturn(new ArrayList<>());
 
             // when
             ExpeditionUsersResponse result = expeditionQueryService.usersExpedition(new ExpeditionUsersCommand(expId, myId));

@@ -240,7 +240,7 @@ class ChallengeQueryServiceTest {
             Friend mockFriend = mock(Friend.class);
             when(mockFriend.getRequester()).thenReturn(user);
             when(mockFriend.getReceiver()).thenReturn(friend);
-            given(friendRepository.findAcceptedFriendsByUserId(1L, FriendStatus.ACCEPTED)).willReturn(List.of(mockFriend));
+            given(friendRepository.findFriendsByUserIdAndStatus(1L, FriendStatus.ACCEPTED)).willReturn(List.of(mockFriend));
 
             given(challengeRepository.findFriendsChallenges(anyList(), anyList(), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(friendCh)));

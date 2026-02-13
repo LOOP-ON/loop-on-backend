@@ -45,7 +45,7 @@ public class FriendRequestController implements FriendRequestApiDocs {
 
     @Override
     @GetMapping
-    public ResponseEntity<CommonResponse<PageResponse<FriendRequestReceivedResponse>>> getFriendRequests(@AuthenticationPrincipal PrincipalDetails principalDetails, Pageable pageable) {
+    public ResponseEntity<CommonResponse<PageResponse<FriendRequestReceivedResponse>>> getFriendRequests(@AuthenticationPrincipal PrincipalDetails principalDetails,@PageableDefault(sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
         Long me = principalDetails.getUserId();
         PageResponse<FriendRequestReceivedResponse> page = friendRequestService.getFriendRequests(me, pageable);
 

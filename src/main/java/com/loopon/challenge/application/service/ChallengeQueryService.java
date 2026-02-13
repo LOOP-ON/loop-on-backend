@@ -213,7 +213,7 @@ public class ChallengeQueryService {
     }
 
     private List<Long> getFriendsIds(User user) {
-        List<Friend> friends = friendRepository.findAcceptedFriendsByUserId(user.getId(), FriendStatus.ACCEPTED);
+        List<Friend> friends = friendRepository.findFriendsByUserIdAndStatus(user.getId(), FriendStatus.ACCEPTED);
 
         List<Long> friendIds = new ArrayList<>();
         for (Friend friend : friends) {
