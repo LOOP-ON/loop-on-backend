@@ -16,7 +16,7 @@ public class RoutineRequest {
             @NotBlank
             String goal,
 
-            @Schema(description = "1단계 카테고리", example = "생활 루틴")
+            @Schema(description = "1단계 카테고리", example = "ROUTINE")
             @NotNull
             JourneyCategory category,
 

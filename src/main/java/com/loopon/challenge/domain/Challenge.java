@@ -1,6 +1,7 @@
 package com.loopon.challenge.domain;
 
 import com.loopon.expedition.domain.Expedition;
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
 import jakarta.persistence.CascadeType;
@@ -37,7 +38,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Challenge {
+public class Challenge extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,15 +79,6 @@ public class Challenge {
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ChallengeHashtag> challengeHashtags = new ArrayList<>();
-
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column
-    @LastModifiedDate
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public void updateContent(String content) {
         this.content = content;

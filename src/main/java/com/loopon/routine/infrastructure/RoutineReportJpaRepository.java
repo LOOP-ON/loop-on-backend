@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public interface RoutineReportJpaRepository extends JpaRepository<RoutineReport, Long> {
     @Query("""
-    select rr
-    from RoutineReport rr
-    where rr.user.id = :userId
-    and rr.journey.id = :journeyId
-    and DATE(rr.createdAt) = :date
+    SELECT rr
+    FROM RoutineReport rr
+    WHERE rr.user.id = :userId
+    AND rr.journey.id = :journeyId
+    AND DATE(rr.createdAt) = :date
 """)
     Optional<RoutineReport> findByUserAndJourneyAndDate(
             @Param("userId") Long userId,

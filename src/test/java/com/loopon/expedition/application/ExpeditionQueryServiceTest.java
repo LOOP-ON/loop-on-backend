@@ -16,6 +16,7 @@ import com.loopon.expedition.domain.ExpeditionUser;
 import com.loopon.expedition.domain.ExpeditionUserStatus;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.Friend;
@@ -89,17 +90,17 @@ class ExpeditionQueryServiceTest {
     @Nested
     @DisplayName("내 탐험대 목록 조회 (getExpeditions)")
     class GetExpeditions {
+
         @Test
         @DisplayName("성공: 참여 중인 탐험대 목록과 관리자명, 멤버 수를 반환한다.")
         void success() {
             // given
             Long userId = 1L;
             User admin = createMockUser(2L, "adminUser");
+
             Expedition exp = createMockExpedition(100L, "Exp Title", admin, 10, 5);
 
             given(expeditionRepository.findApprovedExpeditionsByUserId(userId)).willReturn(List.of(exp));
-            given(expeditionRepository.findAllExpeditionUserById(100L))
-                    .willReturn(List.of(mock(ExpeditionUser.class), mock(ExpeditionUser.class)));
 
             // when
             ExpeditionGetResponseList result = expeditionQueryService.getExpeditionList(userId);
@@ -107,7 +108,10 @@ class ExpeditionQueryServiceTest {
             // then
             assertThat(result.expeditionGetResponses()).hasSize(1);
             assertThat(result.expeditionGetResponses().get(0).admin()).isEqualTo("adminUser");
-            assertThat(result.expeditionGetResponses().get(0).currentUsers()).isEqualTo(2);
+
+            assertThat(result.expeditionGetResponses().get(0).currentUsers()).isEqualTo(5);
+
+            assertThat(result.expeditionGetResponses().get(0).isAdmin()).isFalse();
         }
     }
 
@@ -137,10 +141,10 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(Collections.nCopies(3, eu));
 
             // when
-            Slice<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
+            SliceResponse<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
 
             // then
-            assertThat(result.getContent().get(0).isJoined()).isTrue();
+            assertThat(result.content().getFirst().canJoin()).isTrue();
         }
 
         @Test
@@ -160,10 +164,10 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findAllExpeditionUserByUserId(any())).willReturn(new ArrayList<>());
 
             // when
-            Slice<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
+            SliceResponse<ExpeditionSearchResponse> result = expeditionQueryService.searchExpedition(command);
 
             // then
-            assertThat(result.getContent().get(0).isJoined()).isFalse();
+            assertThat(result.content().getFirst().isJoined()).isFalse();
         }
 
         @Test
@@ -252,7 +256,6 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(exp));
             given(challengeRepository.findAllWithJourneyAndUserByExpeditionId(eq(expId), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(challenge)));
-            given(expeditionRepository.existsExpeditionUserByIdAndUserId(expId, userId)).willReturn(true);
 
 
             // 해시태그 모킹
@@ -265,12 +268,12 @@ class ExpeditionQueryServiceTest {
             given(challengeRepository.existsChallengeLikeByIdAndUserId(challengeId, userId)).willReturn(true);
 
             // when
-            Slice<ExpeditionChallengesResponse> result = expeditionQueryService.challengesExpedition(new ExpeditionChallengesCommand(expId, userId, PageRequest.of(0, 10)));
+            SliceResponse<ExpeditionChallengesResponse> result = expeditionQueryService.challengesExpedition(new ExpeditionChallengesCommand(expId, userId, PageRequest.of(0, 10)));
 
             // then
-            assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().getFirst().isLiked()).isTrue();
-            assertThat(result.getContent().getFirst().hashtags()).contains("hashtag1");
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.content().getFirst().isLiked()).isTrue();
+            assertThat(result.content().getFirst().hashtags()).contains("hashtag1");
         }
 
         @Test

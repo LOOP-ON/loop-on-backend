@@ -1,8 +1,11 @@
 package com.loopon.routine.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.journey.domain.Journey;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +17,7 @@ import java.time.LocalTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Routine {
+public class Routine extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,15 +34,4 @@ public class Routine {
     @Column(name = "notification_time")
     private LocalTime notificationTime;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    private void prePersist() {
-        LocalDate today = LocalDate.now();
-
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-    }
 }

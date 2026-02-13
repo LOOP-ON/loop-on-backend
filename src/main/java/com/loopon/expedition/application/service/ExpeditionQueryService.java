@@ -16,6 +16,7 @@ import com.loopon.expedition.domain.ExpeditionUser;
 import com.loopon.expedition.domain.ExpeditionUserStatus;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
@@ -31,6 +32,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class ExpeditionQueryService {
 
     private final ExpeditionRepository expeditionRepository;
@@ -38,27 +40,22 @@ public class ExpeditionQueryService {
     private final FriendRepository friendRepository;
     private final ChallengeRepository challengeRepository;
 
-    @Transactional(readOnly = true)
     public ExpeditionGetResponseList getExpeditionList(Long userId) {
-
         List<Expedition> expeditions = expeditionRepository.findApprovedExpeditionsByUserId(userId);
 
-        List<ExpeditionGetResponseList.ExpeditionGetResponse> responseList = new ArrayList<>();
-        for (Expedition expedition : expeditions) {
+        List<ExpeditionGetResponseList.ExpeditionGetResponse> responseList = expeditions.stream()
+                .map(expedition -> {
+                    boolean isAdmin = expedition.getAdmin().getId().equals(userId);
 
-            List<ExpeditionUser> memberList = expeditionRepository.findAllExpeditionUserById(expedition.getId());
-            Integer memberCount = memberList.size();
-            String adminName = expedition.getAdmin().getNickname();
+                    return ExpeditionConverter.getExpeditions(expedition, isAdmin);
+                })
+                .toList();
 
-            responseList.add(ExpeditionConverter.getExpeditions(expedition, adminName, memberCount));
-        }
-
-        return ExpeditionConverter.getExpeditionList(responseList);
+        return new ExpeditionGetResponseList(responseList);
     }
 
-
     @Transactional(readOnly = true)
-    public Slice<ExpeditionSearchResponse> searchExpedition(
+    public SliceResponse<ExpeditionSearchResponse> searchExpedition(
             ExpeditionSearchCommand commandDto
     ) {
 
@@ -80,15 +77,15 @@ public class ExpeditionQueryService {
 
         boolean notAboveExpeditionLimit = checkExpeditionLimit(user);
 
-        return expeditions.map(expedition -> {
+        return SliceResponse.from(expeditions.map(expedition -> {
 
-            boolean notJoined = !joinedExpeditionIds.contains(expedition.getId());
+            boolean isJoined = joinedExpeditionIds.contains(expedition.getId());
             boolean notAboveUserLimit = expedition.getCurrentUsers() < expedition.getUserLimit();
-            boolean canJoin = notJoined && notAboveUserLimit && notAboveExpeditionLimit;
+            boolean canJoin = !isJoined && notAboveUserLimit && notAboveExpeditionLimit;
+            boolean isAdmin = expedition.getAdmin().getId().equals(user.getId());
 
-            return ExpeditionConverter.searchExpedition(expedition, canJoin);
-        });
-
+            return ExpeditionConverter.searchExpedition(expedition, isAdmin, isJoined, canJoin);
+        }));
     }
 
     @Transactional(readOnly = true)
@@ -138,7 +135,7 @@ public class ExpeditionQueryService {
 
 
     @Transactional(readOnly = true)
-    public Slice<ExpeditionChallengesResponse> challengesExpedition(
+    public SliceResponse<ExpeditionChallengesResponse> challengesExpedition(
             ExpeditionChallengesCommand commandDto
     ) {
 
@@ -147,20 +144,17 @@ public class ExpeditionQueryService {
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
-        checkJoinedToExpedition(expedition, user);
-
         // Challenge + Journey + User
         Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByExpeditionId(expedition.getId(), commandDto.pageable());
 
-        return challenges.map(challenge -> {
+        return SliceResponse.from(challenges.map(challenge -> {
 
             List<String> imageUrls = getImageUrls(challenge);
             List<String> hashtags = getHashtags(challenge.getId());
             Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), user.getId());
 
             return ExpeditionConverter.challengesExpedition(challenge, imageUrls, hashtags, isLiked);
-        });
-
+        }));
     }
 
 

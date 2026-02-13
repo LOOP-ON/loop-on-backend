@@ -1,5 +1,6 @@
 package com.loopon.expedition.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,7 +29,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class ExpeditionUser {
+public class ExpeditionUser extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,16 +47,6 @@ public class ExpeditionUser {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ExpeditionUserStatus status;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreatedDate
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 
     public void expelUser() {
         this.status = ExpeditionUserStatus.EXPELLED;

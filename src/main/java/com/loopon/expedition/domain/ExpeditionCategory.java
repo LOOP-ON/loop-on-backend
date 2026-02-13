@@ -1,7 +1,7 @@
 package com.loopon.expedition.domain;
 
 public enum ExpeditionCategory {
-    SKILL,
+    GROWTH,
     ROUTINE,
     MENTAL
 }
