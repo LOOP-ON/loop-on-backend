@@ -1,6 +1,6 @@
 package com.loopon.notification.domain.repository;
 
-import  com.loopon.global.domain.EnvironmentType;
+import com.loopon.global.domain.EnvironmentType;
 import com.loopon.notification.domain.DeviceToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
