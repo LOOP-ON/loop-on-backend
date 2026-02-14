@@ -183,10 +183,10 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
 
         // Journey 조회
         Journey journey = journeyRepository.findById(journeyId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여정입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
         if (!journey.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 유저의 여정이 아닙니다.");
+            throw new BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
         }
 
         //오늘 날짜의 routine Progress 조회
@@ -200,7 +200,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
                 .anyMatch(p -> p.getStatus() == ProgressStatus.IN_PROGRESS);
 
         if (hasInProgress) {
-            throw new IllegalStateException("아직 완료되지 않은 루틴이 있습니다.");
+            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
         }
 
         // 리포트 생성
@@ -226,7 +226,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
 
         // 모든 progress가 COMPLETED인지 확인
         boolean allCompleted = routineProgressRepository
-                .existsByRoutine_Journey_IdAndStatusNot(
+                .existsByRoutine_Journey_IdAndStatus(
                         journey.getId(),
                         ProgressStatus.IN_PROGRESS
                 );
