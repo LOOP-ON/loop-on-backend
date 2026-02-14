@@ -76,6 +76,10 @@ public interface RoutineApiDocs {
     );
 
     //오늘의 여정 기록
+    @Operation(summary = "하루 여정 기록", description = "하루치 여정 기록 API")
+    @ApiResponse(responseCode = "200", description = "하루 여정 기록에 성공하였습니다.", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
     @PostMapping("/{journeyId}/routine-record")
     ResponseEntity<CommonResponse<RoutineResponse.RoutineReportCreateDto>> postRoutineRecord(
             @PathVariable Long journeyId,
