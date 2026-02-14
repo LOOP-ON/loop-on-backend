@@ -4,12 +4,13 @@ import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 public interface JourneyCommandService {
 
     JourneyResponse.PostponeRoutineDto postponeRoutine(JourneyCommand.PostponeRoutineCommand command);
 
-    JourneyResponse.JourneyRecordDto completeJourney(Long journeyId, Long userId);
 
     @Transactional
-    void createJourneyFeedback(Long journeyId, Long userId);
+    void UpdateJourneyFeedback(Long journeyId, Long userId, LocalDate targetDate);
 }

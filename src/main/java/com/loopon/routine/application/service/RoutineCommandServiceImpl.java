@@ -122,6 +122,11 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         String imageUrl = s3Service.uploadFile(image);
         progress.certify(imageUrl);
 
+        //여정 피드백 업데이트
+        Long journeyId = progress.getRoutine().getJourney().getId();
+        LocalDate targetDay = progress.getProgressDate();
+        journeyCommandService.UpdateJourneyFeedback(journeyId, userId, targetDay);
+
         return RoutineConverter.toRoutineCertifyDto(progress);
     }
 
@@ -172,6 +177,10 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
 
         LocalDate today = LocalDate.now();
 
+        //유저 찾기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
         // Journey 조회
         Journey journey = journeyRepository.findById(journeyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여정입니다."));
@@ -197,6 +206,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         // 리포트 생성
         RoutineReport report = RoutineReport.builder()
                 .journey(journey)
+                .user(user)
                 .content(request.content())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -218,13 +228,13 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         boolean allCompleted = routineProgressRepository
                 .existsByRoutine_Journey_IdAndStatusNot(
                         journey.getId(),
-                        ProgressStatus.COMPLETED
+                        ProgressStatus.IN_PROGRESS
                 );
 
         // statusNot이 존재하면 아직 미완료 있음 -> 전체 완료 되었고 endDate가 오늘이면 journey complete()후 feedback 생성
         if (!allCompleted && journey.getEndDate().equals(LocalDate.now())) {
             journey.complete();
-            journeyCommandService.createJourneyFeedback(journey.getId(),userId);
+            journeyCommandService.UpdateJourneyFeedback(journey.getId(),userId,LocalDate.now());
         }
     }
 }

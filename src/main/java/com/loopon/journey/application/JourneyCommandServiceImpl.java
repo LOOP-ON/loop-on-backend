@@ -2,10 +2,8 @@ package com.loopon.journey.application;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.journey.application.dto.converter.JourneyConverter;
 import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
-import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
@@ -20,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +58,9 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
                 progress.postpone(command.reason())
         );
 
+        //피드백 업데이트
+        UpdateJourneyFeedback(journey.getId(), command.userId(), progresses.getFirst().getProgressDate());
+
         return new JourneyResponse.PostponeRoutineDto(
                 progresses.stream()
                         .map(RoutineProgress::getId)
@@ -69,7 +72,7 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
 
     @Transactional
     @Override
-    public JourneyResponse.JourneyRecordDto completeJourney(Long journeyId, Long userId) {
+    public void UpdateJourneyFeedback(Long journeyId, Long userId, LocalDate targetDate) {
 
         Journey journey = journeyRepository.findById(journeyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
@@ -78,21 +81,21 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
             throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
         }
 
-        boolean hasInProgress = routineProgressRepository
-                .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
 
-        if (hasInProgress) {
-            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
-        }
-
-        journey.complete();
-
-        //이미 존재하는 feedback 가져오기
         JourneyFeedback feedback = journeyFeedbackRepository
                 .findByJourneyId(journeyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
 
-        //total Rate 계산 후 넣어주기
+        // 오늘 rate 계산
+        int targetRate = calculateTodayRate(journeyId, targetDate);
+
+        // 오늘이 루틴중 몇일차인지 계산
+        int dayIndex = calculateDayIndex(journey, targetDate);
+
+        // feedback 에반영
+        feedback.updateDailyRate(dayIndex, targetRate);
+
+        // totalRate 재계산
         int totalRate = calculateTotalRate(
                 feedback.getDay1Rate(),
                 feedback.getDay2Rate(),
@@ -100,67 +103,56 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         );
 
         feedback.complete(totalRate);
-        List<Routine> routines = routineRepository.findByJourney_Id(journeyId);
 
-        return JourneyConverter.toCompleteJourneyDto(journey, feedback, routines);
+        // journey 완료 처리 -> 오늘이 끝나는 날이면
+        boolean hasInProgress = routineProgressRepository
+                .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
+
+        if (!hasInProgress && Objects.equals(journey.getEndDate(), LocalDate.now())) {
+            journey.complete();
+        }
     }
 
-    @Transactional
-    @Override
-    public void createJourneyFeedback(Long journeyId, Long userId) {
+    private int calculateTodayRate(Long journeyId, LocalDate targetDate) {
 
-        Journey journey = journeyRepository.findById(journeyId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
-        if (!journey.getUser().getId().equals(userId)) {
-            throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
-        }
+        List<RoutineProgress> progresses =
+                routineProgressRepository
+                        .findByRoutine_Journey_IdAndProgressDate(journeyId, targetDate);
 
-        boolean hasInProgress = routineProgressRepository
-                .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
 
-        if (hasInProgress) {
-            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
-        }
+        long completedCount = progresses.stream()
+                .filter(p -> p.getStatus() == ProgressStatus.COMPLETED)
+                .count();
 
-        journey.complete();
+        return (int) ((completedCount / 3.0) * 100);
+    }
 
-        //이미 존재하는 feedback 가져오기
-        JourneyFeedback feedback = journeyFeedbackRepository
-                .findByJourneyId(journeyId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
-
-        //total Rate 계산 후 넣어주기
-        int totalRate = calculateTotalRate(
-                feedback.getDay1Rate(),
-                feedback.getDay2Rate(),
-                feedback.getDay3Rate()
-        );
-
-        feedback.complete(totalRate);
+    private int calculateDayIndex(Journey journey, LocalDate targetDate) {
+        return (int) (
+                targetDate.toEpochDay()
+                        - journey.getStartDate().toEpochDay()
+        ) + 1;
     }
 
     //전체 rate 계산 메서드
     private int calculateTotalRate(Integer day1, Integer day2, Integer day3) {
 
         int sum = 0;
-        int count = 0;
+
 
         if (day1 != null) {
             sum += day1;
-            count++;
         }
 
         if (day2 != null) {
             sum += day2;
-            count++;
         }
 
         if (day3 != null) {
             sum += day3;
-            count++;
         }
 
-        return count == 0 ? 0 : sum / count;
+        return  sum / 3;
     }
 }
