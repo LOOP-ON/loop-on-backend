@@ -2,6 +2,8 @@ package com.loopon.user.domain.repository;
 
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,26 +14,40 @@ import java.util.List;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Query("""
-            select f
-            from Friend f
-            join fetch f.requester
-            join fetch f.receiver
-            where f.status = :status
-              and (f.requester.id = :me or f.receiver.id = :me)
+            SELECT f
+            FROM Friend f
+            JOIN FETCH f.requester
+            JOIN FETCH f.receiver
+            WHERE f.status = :status
+              AND (f.requester.id = :me OR f.receiver.id = :me)
             """)
-    List<Friend> findAcceptedFriendsByUserId(
+    List<Friend> findFriendsByUserIdAndStatus(
             @Param("me") Long me,
             @Param("status") FriendStatus status
     );
+
+    @Query("""
+        SELECT f
+        FROM Friend f
+        WHERE f.status = :status
+          AND (f.requester.id = :me OR f.receiver.id = :me)
+        ORDER BY f.updatedAt DESC
+    """)
+    Slice<Friend> getFriendsByUserIdAndStatus(
+            @Param("me") Long me,
+            @Param("status") FriendStatus status,
+            Pageable pageable
+    );
+
     Long countByReceiver_IdAndStatus(Long me, FriendStatus friendStatus);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-                update Friend f
-                   set f.status = :to
-                 where f.id = :friendId
-                   and (f.requester.id = :me or f.receiver.id = :me)
-                   and f.status = :from
+                UPDATE Friend f
+                   SET f.status = :to
+                 WHERE f.id = :friendId
+                   AND (f.requester.id = :me OR f.receiver.id = :me)
+                   AND f.status = :from
             """)
     int updateStatusByIdAndParticipantAndStatus(
             @Param("friendId") Long friendId,
@@ -42,9 +58,9 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-            delete from Friend f
-            where f.id = :friendId
-              and (:me = f.requester.id or :me = f.receiver.id)
+            DELETE FROM Friend f
+            WHERE f.id = :friendId
+              AND (:me = f.requester.id OR :me = f.receiver.id)
             """)
     int deleteByIdAndParticipant(@Param("friendId") Long friendId, @Param("me") Long me);
 

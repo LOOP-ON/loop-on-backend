@@ -1,11 +1,11 @@
 package com.loopon.challenge.application.dto.response;
 
+import com.loopon.global.domain.dto.SliceResponse;
 import lombok.Builder;
-import org.springframework.data.domain.Slice;
 
 @Builder
 public record ChallengeCombinedViewResponse(
-        Slice<ChallengeViewResponse> trendingChallenges,
-        Slice<ChallengeViewResponse> friendChallenges
+        SliceResponse<ChallengeViewResponse> trendingChallenges,
+        SliceResponse<ChallengeViewResponse> friendChallenges
 ) {
 }

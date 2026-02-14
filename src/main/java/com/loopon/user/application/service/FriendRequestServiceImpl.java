@@ -98,7 +98,6 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         return FriendRequestRespondResponse.from(saved);
     }
 
-
     @Override
     @Transactional
     public void deleteOneFriendRequest(Long me, Long requesterId) {
@@ -122,7 +121,6 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         return new FriendRequestBulkRespondResponse((long) requests.size());
     }
 
-
     @Override
     @Transactional
     public FriendRequestBulkRespondResponse deleteAllFriendRequests(Long me) {
@@ -133,7 +131,6 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         friendRequestRepository.deleteAllInBatch(requests);
         return new FriendRequestBulkRespondResponse((long) requests.size());
     }
-
 
     @Override
     public Long countByReceiverIdAndStatus(Long me, FriendStatus friendStatus) {

@@ -8,11 +8,12 @@ import com.loopon.expedition.application.service.ExpeditionCommandService;
 import com.loopon.expedition.application.service.ExpeditionQueryService;
 import com.loopon.expedition.presentation.docs.ExpeditionApiDocs;
 import com.loopon.global.domain.dto.CommonResponse;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,59 +28,51 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
 
     @Override
     @GetMapping("/api/expeditions")
-    public CommonResponse<ExpeditionGetResponseList> getExpeditionList(
+    public ResponseEntity<CommonResponse<ExpeditionGetResponseList>> getExpeditionList(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        return CommonResponse.onSuccess(
-                expeditionQueryService.getExpeditionList(principalDetails.getUserId())
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionQueryService.getExpeditionList(principalDetails.getUserId())));
     }
 
     @Override
     @PostMapping("/api/expeditions")
-    public CommonResponse<ExpeditionPostResponse> postExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionPostResponse>> postExpedition (
             @RequestBody ExpeditionPostRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ){
         ExpeditionPostCommand commandDto
                 = ExpeditionConverter.postExpedition(requestDto, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.postExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.postExpedition(commandDto)));
     }
 
     @Override
     @PostMapping("/api/expeditions/join")
-    public CommonResponse<ExpeditionJoinResponse> joinExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionJoinResponse>> joinExpedition (
             @RequestBody ExpeditionJoinRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         ExpeditionJoinCommand commandDto
                 = ExpeditionConverter.joinExpedition(requestDto, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.joinExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.joinExpedition(commandDto)));
     }
 
     @Override
     @DeleteMapping("/api/expeditions/{expeditionId}/withdraw")
-    public CommonResponse<ExpeditionWithdrawResponse> withdrawExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionWithdrawResponse>> withdrawExpedition (
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         ExpeditionWithdrawCommand commandDto
                 = ExpeditionConverter.withdrawExpedition(expeditionId, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.withdrawExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.withdrawExpedition(commandDto)));
     }
 
     @Override
     @GetMapping("/api/expeditions/search")
-    public CommonResponse<Slice<ExpeditionSearchResponse>> searchExpeditions (
+    public ResponseEntity<CommonResponse<SliceResponse<ExpeditionSearchResponse>>> searchExpeditions (
             @RequestParam
             String keyword,
 
@@ -93,42 +86,36 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
         ExpeditionSearchCommand commandDto
                 = ExpeditionConverter.searchExpedition(keyword, categories, pageable, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionQueryService.searchExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionQueryService.searchExpedition(commandDto)));
     }
 
     @Override
     @DeleteMapping("/api/expeditions/{expeditionId}")
-    public CommonResponse<ExpeditionDeleteResponse> deleteExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionDeleteResponse>> deleteExpedition (
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         ExpeditionDeleteCommand commandDto
                 = ExpeditionConverter.deleteExpedition(expeditionId, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.deleteExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.deleteExpedition(commandDto)));
     }
 
     @Override
     @GetMapping("/api/expeditions/{expeditionId}/users")
-    public CommonResponse<ExpeditionUsersResponse> usersExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionUsersResponse>> usersExpedition (
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         ExpeditionUsersCommand commandDto
                 = ExpeditionConverter.usersExpedition(expeditionId, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionQueryService.usersExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionQueryService.usersExpedition(commandDto)));
     }
 
     @Override
     @PatchMapping("/api/expeditions/{expeditionId}/expel")
-    public CommonResponse<ExpeditionExpelResponse> expelExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionExpelResponse>> expelExpedition (
             @PathVariable Long expeditionId,
             @RequestBody ExpeditionExpelRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -136,14 +123,12 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
         ExpeditionExpelCommand commandDto
                 = ExpeditionConverter.expelExpedition(expeditionId, requestDto.userId(), principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.expelExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.expelExpedition(commandDto)));
     }
 
     @Override
     @GetMapping("/api/expeditions/{expeditionId}/challenges")
-    public CommonResponse<Slice<ExpeditionChallengesResponse>> challengesExpedition (
+    public ResponseEntity<CommonResponse<SliceResponse<ExpeditionChallengesResponse>>> challengesExpedition (
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PageableDefault Pageable pageable
@@ -151,14 +136,12 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
         ExpeditionChallengesCommand commandDto
                 = ExpeditionConverter.challengesExpedition(expeditionId, principalDetails.getUserId(), pageable);
 
-        return CommonResponse.onSuccess(
-                expeditionQueryService.challengesExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionQueryService.challengesExpedition(commandDto)));
     }
 
     @Override
     @DeleteMapping("/api/expeditions/{expeditionId}/expel")
-    public CommonResponse<ExpeditionCancelExpelResponse> cancelExpelExpedition (
+    public ResponseEntity<CommonResponse<ExpeditionCancelExpelResponse>> cancelExpelExpedition (
             @PathVariable Long expeditionId,
             @RequestBody ExpeditionCancelExpelRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -166,28 +149,24 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
         ExpeditionCancelExpelCommand commandDto
                 = ExpeditionConverter.cancelExpelExpedition(expeditionId, requestDto, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.cancelExpelExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.cancelExpelExpedition(commandDto)));
     }
 
     @Override
     @GetMapping("/api/expeditions/{expeditionId}")
-    public CommonResponse<ExpeditionGetResponse> getExpedition(
+    public ResponseEntity<CommonResponse<ExpeditionGetResponse>> getExpedition(
             @PathVariable Long expeditionId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         ExpeditionGetCommand commandDto
                 = ExpeditionConverter.getExpedition(expeditionId, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionQueryService.getExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionQueryService.getExpedition(commandDto)));
     }
 
     @Override
     @PatchMapping("/api/expeditions/{expeditionId}")
-    public CommonResponse<ExpeditionModifyResponse> modifyExpedition(
+    public ResponseEntity<CommonResponse<ExpeditionModifyResponse>> modifyExpedition(
             @PathVariable Long expeditionId,
             @RequestBody ExpeditionModifyRequest requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -195,8 +174,6 @@ public class ExpeditionApiController implements ExpeditionApiDocs {
         ExpeditionModifyCommand commandDto
                 = ExpeditionConverter.modifyExpedition(expeditionId, requestDto, principalDetails.getUserId());
 
-        return CommonResponse.onSuccess(
-                expeditionCommandService.modifyExpedition(commandDto)
-        );
+        return ResponseEntity.ok(CommonResponse.onSuccess(expeditionCommandService.modifyExpedition(commandDto)));
     }
 }

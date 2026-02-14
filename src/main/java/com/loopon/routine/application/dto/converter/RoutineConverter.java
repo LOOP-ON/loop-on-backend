@@ -4,8 +4,6 @@ import com.loopon.routine.application.dto.response.RoutineResponse;
 import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
 
-import java.util.List;
-
 public class RoutineConverter {
 
     private static RoutineResponse.RoutineSummaryDto toRoutineSummaryDto(

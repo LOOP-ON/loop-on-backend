@@ -1,5 +1,6 @@
 package com.loopon.routine.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.User;
 import jakarta.persistence.Column;
@@ -16,14 +17,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "routine_report")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class RoutineReport {
+public class RoutineReport extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +40,4 @@ public class RoutineReport {
     //여정 기록 텍스트
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 }

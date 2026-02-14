@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RoutineCommandServiceImpl implements RoutineCommandService {
     private final UserRepository userRepository;
@@ -37,7 +38,6 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
     private final S3Service s3Service;
 
     @Override
-    @Transactional
     public RoutineResponse.PostRoutinesDto postRoutine(
             Long userId,
             RoutineRequest.CreateJourneyWithRoutineDto request
@@ -92,7 +92,6 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         return new RoutineResponse.PostRoutinesDto(journey.getId());
     }
 
-    @Transactional
     @Override
     public RoutineResponse.RoutineCertifyDto certifyRoutine(Long progressId, Long userId, MultipartFile image) {
         RoutineProgress progress = routineProgressRepository.findById(progressId)
@@ -109,7 +108,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         return RoutineConverter.toRoutineCertifyDto(progress);
     }
 
-    //루틴 미룬 사유 수정
+    // 루틴 미룬 사유 수정
     @Transactional
     @Override
     public RoutineResponse.RoutinePostponeReasonEditDto editPostponeReason(
@@ -122,7 +121,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         RoutineProgress progress = routineProgressRepository.findById(progressId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROUTINE_NOT_FOUND));
 
-        //본인 루틴인지 검증
+        // 본인 루틴인지 검증
         if (!progress.getRoutine()
                 .getJourney()
                 .getUser()

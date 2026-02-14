@@ -235,7 +235,7 @@ public class ExpeditionCommandService {
     private void checkUserLimit(Expedition expedition) {
         int userLimit = expedition.getUserLimit();
 
-        int currentUsers = expeditionRepository.countExpeditionUserByExpeditionId(expedition.getId());
+        int currentUsers = expedition.getCurrentUsers();
 
         if (currentUsers + 1 > userLimit) {
             throw new BusinessException(ErrorCode.EXPEDITION_USER_ABOVE_LIMIT);

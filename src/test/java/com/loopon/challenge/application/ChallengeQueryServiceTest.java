@@ -6,6 +6,7 @@ import com.loopon.challenge.application.service.ChallengeQueryService;
 import com.loopon.challenge.domain.*;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.journey.domain.Journey;
 import com.loopon.user.domain.*;
@@ -154,10 +155,10 @@ class ChallengeQueryServiceTest {
             given(challengeRepository.findAllCommentWithUserByParentIdIn(anyList())).willReturn(List.of(child));
 
             // when
-            Slice<ChallengeGetCommentResponse> result = challengeQueryService.getCommentChallenge(command);
+            SliceResponse<ChallengeGetCommentResponse> result = challengeQueryService.getCommentChallenge(command);
 
             // then
-            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.content()).hasSize(1);
             verify(challengeRepository).findAllCommentWithUserByParentIdIn(List.of(10L));
         }
     }
@@ -240,7 +241,7 @@ class ChallengeQueryServiceTest {
             Friend mockFriend = mock(Friend.class);
             when(mockFriend.getRequester()).thenReturn(user);
             when(mockFriend.getReceiver()).thenReturn(friend);
-            given(friendRepository.findAcceptedFriendsByUserId(1L, FriendStatus.ACCEPTED)).willReturn(List.of(mockFriend));
+            given(friendRepository.findFriendsByUserIdAndStatus(1L, FriendStatus.ACCEPTED)).willReturn(List.of(mockFriend));
 
             given(challengeRepository.findFriendsChallenges(anyList(), anyList(), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(friendCh)));
@@ -251,10 +252,9 @@ class ChallengeQueryServiceTest {
             ChallengeCombinedViewResponse result = challengeQueryService.viewChallenge(command);
 
             // then
-            assertThat(result.trendingChallenges().getContent()).hasSize(1);
-            assertThat(result.friendChallenges().getContent()).hasSize(1);
-            // 100L 게시물은 좋아요가 true여야 함
-            assertThat(result.trendingChallenges().getContent().getFirst().isLiked()).isTrue();
+            assertThat(result.trendingChallenges().content()).hasSize(1);
+            assertThat(result.friendChallenges().content()).hasSize(1);
+            assertThat(result.trendingChallenges().content().getFirst().isLiked()).isTrue();
         }
 
         @Test
@@ -291,12 +291,12 @@ class ChallengeQueryServiceTest {
             given(challengeRepository.findViewByUserId(userId, pageable)).willReturn(expectedSlice);
 
             // when
-            Slice<ChallengePreviewResponse> result = challengeQueryService.myChallenge(command);
+            SliceResponse<ChallengePreviewResponse> result = challengeQueryService.myChallenge(command);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().getFirst().challengeId()).isEqualTo(100L);
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.content().getFirst().challengeId()).isEqualTo(100L);
 
             // 리포지토리가 정확한 userId로 조회했는지 검증
             verify(challengeRepository).findViewByUserId(eq(userId), eq(pageable));
@@ -355,11 +355,11 @@ class ChallengeQueryServiceTest {
         given(author.getProfileImageUrl()).willReturn("https://image.com/profile");
 
         // when
-        Slice<ChallengeDetailResponse> result = challengeQueryService.detailsChallenge(command);
+        SliceResponse<ChallengeDetailResponse> result = challengeQueryService.detailsChallenge(command);
 
         // then
         assertNotNull(result);
-        ChallengeDetailResponse firstResponse = result.getContent().getFirst();
+        ChallengeDetailResponse firstResponse = result.content().getFirst();
 
         assertEquals(100L, firstResponse.challengeId());
         assertEquals("작성자닉네임", firstResponse.nickname());

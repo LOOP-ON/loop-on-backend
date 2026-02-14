@@ -11,6 +11,7 @@ import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.Comment;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
@@ -301,8 +302,8 @@ public class ChallengeConverter {
             Slice<ChallengeViewResponse> friendsResponse
     ) {
         return ChallengeCombinedViewResponse.builder()
-                .trendingChallenges(trendingResponse)
-                .friendChallenges(friendsResponse)
+                .trendingChallenges(SliceResponse.from(trendingResponse))
+                .friendChallenges(SliceResponse.from(friendsResponse))
                 .build();
     }
 

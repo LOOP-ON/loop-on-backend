@@ -1,5 +1,6 @@
 package com.loopon.challenge.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.user.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -31,7 +32,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Comment {
+public class Comment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,16 +60,6 @@ public class Comment {
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
-
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(nullable = false)
-    @LastModifiedDate
-    @Builder.Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public void updateLikeCount(Integer i) {
         if (likeCount > 0) {

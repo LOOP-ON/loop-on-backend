@@ -9,6 +9,7 @@ import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.Comment;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.global.domain.ErrorCode;
+import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
@@ -71,7 +72,7 @@ public class ChallengeQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<ChallengeGetCommentResponse> getCommentChallenge(
+    public SliceResponse<ChallengeGetCommentResponse> getCommentChallenge(
             ChallengeGetCommentCommand commandDto
     ) {
         Challenge challenge = challengeRepository.findById(commandDto.challengeId())
@@ -93,23 +94,23 @@ public class ChallengeQueryService {
             childrenMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(child);
         }
 
-        return comments.map(comment ->
+        return SliceResponse.from(comments.map(comment ->
                 ChallengeConverter.getCommentChallenge(comment, childrenMap.getOrDefault(comment.getId(), new ArrayList<>()))
-        );
+        ));
     }
 
     @Transactional(readOnly = true)
-    public Slice<ChallengePreviewResponse> myChallenge(
+    public SliceResponse<ChallengePreviewResponse> myChallenge(
             ChallengeMyCommand commandDto
     ) {
         User user = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
-        return challengeRepository.findViewByUserId(user.getId(), commandDto.pageable());
+        return SliceResponse.from(challengeRepository.findViewByUserId(user.getId(), commandDto.pageable()));
     }
 
     @Transactional(readOnly = true)
-    public Slice<ChallengePreviewResponse> othersChallenge(
+    public SliceResponse<ChallengePreviewResponse> othersChallenge(
             ChallengeOthersCommand commandDto
     ) {
         User myself = userRepository.findById(commandDto.userId())
@@ -119,7 +120,7 @@ public class ChallengeQueryService {
 
         checkAllowed(target, myself);
 
-        return challengeRepository.findViewByUserId(target.getId(), commandDto.pageable());
+        return SliceResponse.from(challengeRepository.findViewByUserId(target.getId(), commandDto.pageable()));
     }
 
     @Transactional(readOnly = true)
@@ -169,7 +170,7 @@ public class ChallengeQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<ChallengeDetailResponse> detailsChallenge(
+    public SliceResponse<ChallengeDetailResponse> detailsChallenge(
             ChallengeDetailCommand dto
     ) {
 
@@ -178,14 +179,14 @@ public class ChallengeQueryService {
 
         Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByUserId(user.getId(), dto.pageable());
 
-        return challenges.map(challenge -> {
+        return SliceResponse.from(challenges.map(challenge -> {
 
             List<String> imageUrls = getImageUrls(challenge);
             List<String> hashtags = getHashtags(challenge);
             Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), user.getId());
 
             return ChallengeConverter.detailChallenge(challenge, imageUrls, hashtags, isLiked);
-        });
+        }));
     }
 
 
@@ -213,7 +214,7 @@ public class ChallengeQueryService {
     }
 
     private List<Long> getFriendsIds(User user) {
-        List<Friend> friends = friendRepository.findAcceptedFriendsByUserId(user.getId(), FriendStatus.ACCEPTED);
+        List<Friend> friends = friendRepository.findFriendsByUserIdAndStatus(user.getId(), FriendStatus.ACCEPTED);
 
         List<Long> friendIds = new ArrayList<>();
         for (Friend friend : friends) {

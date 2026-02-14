@@ -10,17 +10,17 @@ import java.util.Optional;
 
 public interface UserJpaRepository extends JpaRepository<User, Long> {
 
-    boolean existsByEmail(String email);
+    boolean existsByEmail(@Param("email") String email);
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNickname(@Param("nickname") String nickname);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(@Param("email") String email);
 
     @Query("""
-            select u from User u
-                    where u.socialId = :id and u.provider = :provider
+            SELECT u FROM User u
+                WHERE u.socialId = :id AND u.provider = :provider
             """)
     Optional<User> findBySocialIdAndProvider(@Param("id") String id, @Param("provider") UserProvider provider);
 
-    Optional<User> findByNickname(String nickname);
+    Optional<User> findByNickname(@Param("nickname") String nickname);
 }

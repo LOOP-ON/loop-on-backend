@@ -1,21 +1,20 @@
 package com.loopon.notificationsetting.domain;
 
+import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "notification_settings", uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class NotificationSetting {
+public class NotificationSetting extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,8 +66,6 @@ public class NotificationSetting {
     @Column(nullable = false)
     private boolean marketingEnabled;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 
     public void update(UpdateRequest request) {
         if (request.allEnabled != null) this.allEnabled = request.allEnabled;
@@ -88,8 +85,6 @@ public class NotificationSetting {
         if (request.commentEnabled != null) this.commentEnabled = request.commentEnabled;
         if (request.noticeEnabled != null) this.noticeEnabled = request.noticeEnabled;
         if (request.marketingEnabled != null) this.marketingEnabled = request.marketingEnabled;
-
-        this.updatedAt = LocalDateTime.now();
     }
     @Builder
     private NotificationSetting(
@@ -105,8 +100,7 @@ public class NotificationSetting {
             boolean likeEnabled,
             boolean commentEnabled,
             boolean noticeEnabled,
-            boolean marketingEnabled,
-            LocalDateTime updatedAt
+            boolean marketingEnabled
     ) {
         this.user = user;
         this.allEnabled = allEnabled;
@@ -121,7 +115,6 @@ public class NotificationSetting {
         this.commentEnabled = commentEnabled;
         this.noticeEnabled = noticeEnabled;
         this.marketingEnabled = marketingEnabled;
-        this.updatedAt = updatedAt;
     }
     public static NotificationSetting createAllEnabled(User user, boolean marketingEnabled) {
         return NotificationSetting.builder()
@@ -138,7 +131,6 @@ public class NotificationSetting {
                 .commentEnabled(true)
                 .noticeEnabled(true)
                 .marketingEnabled(marketingEnabled)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
@@ -177,18 +169,11 @@ public class NotificationSetting {
             case ROUTINE -> this.routineEnabled;
         };
     }
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
     //리마인드 알림 기본 시각 23시
     @PrePersist
     public void prePersist() {
         if (dayEndJourneyReminderTime == null) {
             this.dayEndJourneyReminderTime = LocalTime.of(23, 0);
-        }
-        if (updatedAt == null) {
-            this.updatedAt = LocalDateTime.now();
         }
     }
 }
