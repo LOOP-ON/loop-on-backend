@@ -109,6 +109,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
     }
 
     // 루틴 미룬 사유 수정
+    @Transactional
     @Override
     public RoutineResponse.RoutinePostponeReasonEditDto editPostponeReason(
             Long progressId,

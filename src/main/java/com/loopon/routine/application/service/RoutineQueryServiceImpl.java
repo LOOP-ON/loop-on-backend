@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RoutineQueryServiceImpl implements RoutineQueryService {
     private final RoutineProgressJpaRepository routineProgressRepository;
 
+    @Transactional
     @Override
     public RoutineResponse.RoutinePostponeReasonDto getPostponeReason(
             Long progressId,

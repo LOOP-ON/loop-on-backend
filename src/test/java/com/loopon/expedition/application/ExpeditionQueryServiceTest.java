@@ -204,7 +204,7 @@ class ExpeditionQueryServiceTest {
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(exp));
             given(userRepository.findById(myId)).willReturn(Optional.of(me));
             given(expeditionRepository.findAllExpeditionUserWithUserById(expId)).willReturn(List.of(eu1, eu2));
-            given(expeditionRepository.existsExpeditionUserByIdAndUserId(expId, myId)).willReturn(true);
+
             // 친구 목록 모킹
             Friend friendRecord = mock(Friend.class);
             lenient().when(friendRecord.getId()).thenReturn(friendId);
