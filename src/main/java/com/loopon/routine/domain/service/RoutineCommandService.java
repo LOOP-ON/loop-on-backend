@@ -24,7 +24,6 @@ public interface RoutineCommandService {
     );
 
     //하루 루프 완료 후 리포트 생성
-    @Transactional
     RoutineResponse.RoutineReportCreateDto postRoutineReport(
             Long journeyId,
             Long userId,

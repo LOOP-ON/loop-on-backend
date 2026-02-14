@@ -208,7 +208,6 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
                 .journey(journey)
                 .user(user)
                 .content(request.content())
-                .createdAt(LocalDateTime.now())
                 .build();
 
         routineReportRepository.save(report);
