@@ -92,36 +92,4 @@ public class RoutineApiController implements RoutineApiDocs {
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
-
-    //여정 미루기 사유 확인 API
-    @GetMapping("/{progressId}/postpone-reason")
-    @Override
-    public ResponseEntity<CommonResponse<RoutineResponse.RoutinePostponeReasonDto>> postponeReason(
-            @PathVariable Long progressId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ){
-        Long userId = principalDetails.getUserId();
-
-        RoutineResponse.RoutinePostponeReasonDto response =
-                routineQueryService.getPostponeReason(progressId, userId);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
-    }
-
-    //여정 미루기 사유 수정 API
-    @PatchMapping("/{progressId}/postpone-reason")
-    @Override
-    public ResponseEntity<CommonResponse<RoutineResponse.RoutinePostponeReasonEditDto>> editPostponeReason(
-            @PathVariable Long progressId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @RequestBody RoutineRequest.editReasonDto body
-    ){
-        Long userId = principalDetails.getUserId();
-
-        RoutineResponse.RoutinePostponeReasonEditDto response =
-                routineCommandService.editPostponeReason(progressId,userId,body);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
-    }
-
 }

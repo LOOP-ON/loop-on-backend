@@ -74,27 +74,4 @@ public interface RoutineApiDocs {
             @Parameter(hidden = true) @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody RoutineRequest.editReasonDto body
     );
-
-    //여정 미루기 사유 확인 API
-    @Operation(summary = "루틴을 미룬 이유를 확인합니다.", description = "루틴 미루기 사유 확인API")
-    @ApiResponse(responseCode = "200", description = "루틴 미루기 사유 조회에 성공하였습니다.", useReturnTypeSchema = true)
-    @CommonBadRequestResponseDocs
-    @CommonInternalServerErrorResponseDocs
-    @GetMapping("/{progressId}/postpone-reason")
-    ResponseEntity<CommonResponse<RoutineResponse.RoutinePostponeReasonDto>> postponeReason(
-            @PathVariable Long progressId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    );
-
-    //여정 미루기 사유 수정 API
-    @Operation(summary = "루틴 미룬 사유 수정.", description = "루틴 미루기 사유 수정 API")
-    @ApiResponse(responseCode = "200", description = "루틴 미루기 사유 수정에 성공하였습니다.", useReturnTypeSchema = true)
-    @CommonBadRequestResponseDocs
-    @CommonInternalServerErrorResponseDocs
-    @PatchMapping("/{progressId}/postpone-reason")
-    ResponseEntity<CommonResponse<RoutineResponse.RoutinePostponeReasonEditDto>> editPostponeReason(
-            @PathVariable Long progressId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @RequestBody RoutineRequest.editReasonDto body
-    );
 }
