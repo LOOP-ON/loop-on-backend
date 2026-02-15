@@ -56,7 +56,6 @@ public class JourneyFeedback {
             case 1 -> this.day1Rate = rate;
             case 2 -> this.day2Rate = rate;
             case 3 -> this.day3Rate = rate;
-            default -> throw new IllegalArgumentException("유효하지 않은 날짜입니다.");
         }
     }
 }
