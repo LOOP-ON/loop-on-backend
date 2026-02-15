@@ -6,7 +6,6 @@ import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
-import com.loopon.journey.application.dto.response.JourneyContinueResponse;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,16 +54,6 @@ public interface JourneyApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<LoopRegenerationResponse>> regenerateLoop(
             @Valid @RequestBody LoopRegenerationRequest request
-    );
-
-    @Operation(summary = "여정 계속하기", description = "중단되거나 보류된 여정을 다시 이어서 진행합니다.")
-    @ApiResponse(responseCode = "200", description = "여정 계속하기 성공", useReturnTypeSchema = true)
-    @CommonBadRequestResponseDocs
-    @CommonInternalServerErrorResponseDocs
-    ResponseEntity<CommonResponse<JourneyContinueResponse>> continueJourney(
-            @Parameter(description = "여정 ID", required = true, in = ParameterIn.PATH)
-            @PathVariable Long journeyId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
     );
 
     @Operation(summary = "루틴 미루기", description = "진행 중인 여정의 특정 루틴들을 미룹니다.")

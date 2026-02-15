@@ -49,4 +49,10 @@ public class RoutineRequest {
             String reason
     ) {
     }
+    public record postRoutineReport(
+            @Schema(description = "루틴 리포트", example = "오늘은 굉장히 힘들었다!")
+            @NotBlank
+            String content
+    ){
+    }
 }
