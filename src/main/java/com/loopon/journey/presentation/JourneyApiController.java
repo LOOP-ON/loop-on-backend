@@ -3,11 +3,9 @@ package com.loopon.journey.presentation;
 import com.loopon.global.domain.dto.CommonResponse;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.application.JourneyAiService;
-import com.loopon.journey.application.JourneyContinueService;
 import com.loopon.journey.application.dto.command.JourneyCommand;
 import com.loopon.journey.application.dto.request.JourneyRequest;
 import com.loopon.journey.application.dto.request.LoopRegenerationRequest;
-import com.loopon.journey.application.dto.response.JourneyContinueResponse;
 import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.application.dto.response.LoopRegenerationResponse;
 import com.loopon.journey.domain.service.JourneyCommandService;
@@ -32,7 +30,6 @@ public class JourneyApiController implements JourneyApiDocs {
 
     private final JourneyCommandService journeyCommandService;
     private final JourneyQueryService journeyQueryService;
-    private final JourneyContinueService journeyContinueService;
     private final JourneyAiService journeyAiService;
 
     @Override
@@ -68,18 +65,6 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
-    @Override
-    @PostMapping("/{journeyId}/continue")
-    public ResponseEntity<CommonResponse<JourneyContinueResponse>> continueJourney(
-            @PathVariable Long journeyId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ) {
-        JourneyContinueResponse response =
-                journeyContinueService.continueJourney(journeyId, principalDetails.getUserId());
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
-    }
-
     // [Refactor] URL 끝 슬래시 제거 (/postpone/ -> /postpone)
     @Override
     @PostMapping("/{journeyId}/routines/postpone")
@@ -102,18 +87,6 @@ public class JourneyApiController implements JourneyApiDocs {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
-    //여정 완료 후 기록하기
-    @PostMapping("/{journeyId}/record")
-    @Override
-    public ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
-            @PathVariable Long journeyId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ){
-        Long userId = principalDetails.getUserId();
-        JourneyResponse.JourneyRecordDto record = journeyCommandService.completeJourney(journeyId, userId);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(record));
-    }
 
     // ========================================================================
     //  Section 3. 조회 (Query)
@@ -190,5 +163,18 @@ public class JourneyApiController implements JourneyApiDocs {
         );
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    //여정 완료 후 기록 조회
+    @GetMapping("/{journeyId}/record")
+    @Override
+    public ResponseEntity<CommonResponse<JourneyResponse.JourneyRecordDto>> postJourneyRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ){
+        Long userId = principalDetails.getUserId();
+        JourneyResponse.JourneyRecordDto record = journeyQueryService.getJourneyRecord(journeyId,userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(record));
     }
 }

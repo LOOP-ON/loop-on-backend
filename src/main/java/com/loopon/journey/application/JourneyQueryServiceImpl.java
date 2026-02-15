@@ -2,6 +2,7 @@ package com.loopon.journey.application;
 
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
+import com.loopon.journey.application.dto.converter.JourneyConverter;
 import com.loopon.journey.domain.*;
 import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
 import com.loopon.routine.domain.Routine;
@@ -313,5 +314,37 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
 
                 routineDtos
         );
+    }
+
+    @Transactional
+    @Override
+    public JourneyResponse.JourneyRecordDto getJourneyRecord(
+            Long journeyId,
+            Long userId
+    ){
+        Journey journey = journeyRepository.findById(journeyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
+
+        if (!journey.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
+        }
+
+        boolean hasInProgress = routineProgressRepository
+                .existsInProgress(journeyId, ProgressStatus.IN_PROGRESS);
+
+        if (hasInProgress) {
+            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
+        }
+
+        journey.complete();
+
+        //이미 존재하는 feedback 가져오기
+        JourneyFeedback feedback = journeyFeedbackRepository
+                .findByJourneyId(journeyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
+
+        List<Routine> routines = routineRepository.findByJourney_Id(journeyId);
+
+        return JourneyConverter.toCompleteJourneyDto(journey, feedback, routines);
     }
 }

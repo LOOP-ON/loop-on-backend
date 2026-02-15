@@ -92,4 +92,21 @@ public class RoutineApiController implements RoutineApiDocs {
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
+
+    //오늘의 여정 기록
+    @PostMapping("/{journeyId}/routine-record")
+    @Override
+    public ResponseEntity<CommonResponse<RoutineResponse.RoutineReportCreateDto>> postRoutineRecord(
+            @PathVariable Long journeyId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestBody RoutineRequest.postRoutineReport body
+    ){
+        Long userId = principalDetails.getUserId();
+
+        RoutineResponse.RoutineReportCreateDto response =
+                routineCommandService.postRoutineReport(journeyId,userId,body);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
 }

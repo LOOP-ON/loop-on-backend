@@ -70,4 +70,12 @@ public interface RoutineProgressJpaRepository extends JpaRepository<RoutineProgr
             @Param("journeyId") Long journeyId,
             @Param("date") LocalDate date
     );
+
+    List<RoutineProgress>
+    findByRoutine_Journey_IdAndProgressDate(Long journeyId, LocalDate date);
+
+    boolean existsByRoutine_Journey_IdAndStatus(
+            Long journeyId,
+            ProgressStatus status
+    );
 }

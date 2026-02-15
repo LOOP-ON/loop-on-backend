@@ -3,8 +3,12 @@ package com.loopon.routine.application.service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
+import com.loopon.journey.application.JourneyCommandServiceImpl;
 import com.loopon.journey.domain.Journey;
+import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.journey.domain.JourneyStatus;
+import com.loopon.journey.domain.service.JourneyCommandService;
+import com.loopon.journey.infrastructure.JourneyFeedbackJpaRepository;
 import com.loopon.journey.domain.ProgressStatus;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.routine.application.dto.converter.RoutineConverter;
@@ -12,9 +16,11 @@ import com.loopon.routine.application.dto.request.RoutineRequest;
 import com.loopon.routine.application.dto.response.RoutineResponse;
 import com.loopon.routine.domain.Routine;
 import com.loopon.routine.domain.RoutineProgress;
+import com.loopon.routine.domain.RoutineReport;
 import com.loopon.routine.domain.service.RoutineCommandService;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
+import com.loopon.routine.infrastructure.RoutineReportJpaRepository;
 import com.loopon.user.domain.User;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +43,9 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
     private final RoutineJpaRepository routineRepository;
     private final RoutineProgressJpaRepository routineProgressRepository;
     private final S3Service s3Service;
+    private final JourneyFeedbackJpaRepository journeyFeedbackRepository;
+    private final RoutineReportJpaRepository routineReportRepository;
+    private final JourneyCommandService journeyCommandService;
 
     @Override
     public RoutineResponse.PostRoutinesDto postRoutine(
@@ -63,6 +73,13 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
                 .build();
 
         journeyRepository.save(journey);
+
+        //journey Feedback 테이블 생성
+        JourneyFeedback journeyFeedback = JourneyFeedback.builder()
+                .journey(journey)
+                .build();
+
+        journeyFeedbackRepository.save(journeyFeedback);
 
         List<Routine> routines = request.routines().stream()
                 .map(dto -> Routine.builder()
@@ -105,6 +122,11 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         String imageUrl = s3Service.uploadFile(image);
         progress.certify(imageUrl);
 
+        //여정 피드백 업데이트
+        Long journeyId = progress.getRoutine().getJourney().getId();
+        LocalDate targetDay = progress.getProgressDate();
+        journeyCommandService.UpdateJourneyFeedback(journeyId, userId, targetDay);
+
         return RoutineConverter.toRoutineCertifyDto(progress);
     }
 
@@ -142,5 +164,76 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
                 progress.getId(),
                 progress.getPostponedReason()
         );
+    }
+
+    //하루 루프 완료 후 리포트 생성
+    @Transactional
+    @Override
+    public RoutineResponse.RoutineReportCreateDto postRoutineReport(
+            Long journeyId,
+            Long userId,
+            RoutineRequest.postRoutineReport request
+    ) {
+
+        LocalDate today = LocalDate.now();
+
+        //유저 찾기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // Journey 조회
+        Journey journey = journeyRepository.findById(journeyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
+
+        if (!journey.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
+        }
+
+        //오늘 날짜의 routine Progress 조회
+        List<RoutineProgress> todayProgresses =
+                routineProgressRepository.findByRoutine_Journey_IdAndProgressDate(
+                        journeyId, today);
+
+
+        //IN_PROGRESS 존재 여부 확인
+        boolean hasInProgress = todayProgresses.stream()
+                .anyMatch(p -> p.getStatus() == ProgressStatus.IN_PROGRESS);
+
+        if (hasInProgress) {
+            throw new BusinessException(ErrorCode.ROUTINE_IN_PROGRESS);
+        }
+
+        // 리포트 생성
+        RoutineReport report = RoutineReport.builder()
+                .journey(journey)
+                .user(user)
+                .content(request.content())
+                .build();
+
+        routineReportRepository.save(report);
+
+        // 여정 완료 여부 확인하기 -> 확인 후 feedback 생성
+        completeJourneyIfFinished(journey, userId);
+
+        return new RoutineResponse.RoutineReportCreateDto(
+                report.getId(),
+                report.getContent()
+        );
+    }
+
+    public void completeJourneyIfFinished(Journey journey, Long userId) {
+
+        // 모든 progress가 COMPLETED인지 확인
+        boolean allCompleted = routineProgressRepository
+                .existsByRoutine_Journey_IdAndStatus(
+                        journey.getId(),
+                        ProgressStatus.IN_PROGRESS
+                );
+
+        // statusNot이 존재하면 아직 미완료 있음 -> 전체 완료 되었고 endDate가 오늘이면 journey complete()후 feedback 생성
+        if (!allCompleted && journey.getEndDate().equals(LocalDate.now())) {
+            journey.complete();
+            journeyCommandService.UpdateJourneyFeedback(journey.getId(),userId,LocalDate.now());
+        }
     }
 }

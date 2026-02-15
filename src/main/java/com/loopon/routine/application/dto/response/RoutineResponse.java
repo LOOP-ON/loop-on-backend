@@ -40,4 +40,10 @@ public class RoutineResponse {
             String reason
     ) {
     }
+
+    public record RoutineReportCreateDto(
+            Long routineReportId,
+            String content
+    ){
+    }
 }

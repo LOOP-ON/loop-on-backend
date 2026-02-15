@@ -1,24 +1,15 @@
 package com.loopon.journey.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "journey_feedbacks")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class JourneyFeedback {
@@ -51,5 +42,21 @@ public class JourneyFeedback {
 
     public void complete(int totalRate) {
         this.totalRate = totalRate;
+    }
+
+    @PrePersist
+    private void prePersist() {
+        LocalDateTime today = LocalDateTime.now();
+
+        this.createdAt = today;
+    }
+
+    public void updateDailyRate(int dayIndex, int rate) {
+        switch (dayIndex) {
+            case 1 -> this.day1Rate = rate;
+            case 2 -> this.day2Rate = rate;
+            case 3 -> this.day3Rate = rate;
+            default -> throw new IllegalArgumentException("유효하지 않은 날짜입니다.");
+        }
     }
 }
