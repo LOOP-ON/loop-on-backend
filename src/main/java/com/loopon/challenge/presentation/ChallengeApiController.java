@@ -99,9 +99,10 @@ public class ChallengeApiController implements ChallengeApiDocs {
     @GetMapping("/api/challenges/{challengeId}/comments")
     public ResponseEntity<CommonResponse<SliceResponse<ChallengeGetCommentResponse>>> getCommentChallenge(
             @PathVariable Long challengeId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             Pageable pageable
     ) {
-        ChallengeGetCommentCommand commandDto = ChallengeConverter.getCommentChallenge(challengeId, pageable);
+        ChallengeGetCommentCommand commandDto = ChallengeConverter.getCommentChallenge(challengeId, principalDetails.getUserId(), pageable);
         return ResponseEntity.ok(CommonResponse.onSuccess(challengeQueryService.getCommentChallenge(commandDto)));
     }
 

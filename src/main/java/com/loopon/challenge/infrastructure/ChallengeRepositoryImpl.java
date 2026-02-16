@@ -222,4 +222,9 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     public Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable) {
         return challengeJpaRepository.findAllWithJourneyAndUserByUserId(userId, pageable);
     }
+
+    @Override
+    public List<CommentLike> findAllCommentLikeByUserIdAndCommentIdIn(Long userId, List<Long> commentIds) {
+        return commentLikeJpaRepository.findAllByUserIdAndCommentIdIn(userId, commentIds);
+    }
 }

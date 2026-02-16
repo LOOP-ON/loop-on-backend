@@ -130,7 +130,7 @@ class ChallengeQueryServiceTest {
         @DisplayName("성공: 부모 댓글과 그에 달린 대댓글들이 맵핑되어 반환된다.")
         void success() {
             // given
-            ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, PageRequest.of(0, 10));
+            ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, 1L, PageRequest.of(0, 10));
             Challenge challenge = createTestChallenge(1L);
 
             User parentUser = createTestUser(1L, "parent", UserVisibility.PUBLIC);

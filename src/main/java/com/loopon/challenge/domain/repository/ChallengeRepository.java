@@ -95,4 +95,6 @@ public interface ChallengeRepository {
     Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId);
 
     Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable);
+
+    List<CommentLike> findAllCommentLikeByUserIdAndCommentIdIn(Long userId, List<Long> commentIds);
 }
