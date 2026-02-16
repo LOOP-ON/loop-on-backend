@@ -3,7 +3,6 @@ package com.loopon.challenge.infrastructure;
 import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
-import com.loopon.challenge.domain.ChallengeHashtagId;
 import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.ChallengeLike;
 import com.loopon.challenge.domain.Comment;
