@@ -8,6 +8,4 @@ import java.util.Optional;
 
 public interface HashtagJpaRepository extends JpaRepository<Hashtag, Long> {
     Optional<Hashtag> findByName(String hashtag);
-
-    List<Hashtag> findAllByNameIn(List<String> hashtagList);
 }

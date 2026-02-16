@@ -57,11 +57,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public ChallengeHashtagId saveChallengeHashtag(ChallengeHashtag challengeHashtag) {
-        return challengeHashtagJpaRepository.save(challengeHashtag).getId();
-    }
-
-    @Override
     public Long saveChallengeImage(ChallengeImage challengeImage) {
         return challengeImageJpaRepository.save(challengeImage).getId();
     }
@@ -77,10 +72,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         return hashtagJpaRepository.findByName(name);
     }
 
-    @Override
-    public List<ChallengeHashtag> findAllChallengeHashtagByChallengeId(Long challengeId) {
-        return challengeHashtagJpaRepository.findAllByChallengeId(challengeId);
-    }
 
     @Override
     public List<ChallengeHashtag> findAllChallengeHashtagWithHashtagByChallengeId(Long challengeId) {
@@ -90,11 +81,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public List<ChallengeImage> findAllImageByChallengeId(Long challengeId) {
         return challengeImageJpaRepository.findAllByChallengeId(challengeId);
-    }
-
-    @Override
-    public void deleteChallengeHashtag(ChallengeHashtag challengeHashtag) {
-        challengeHashtagJpaRepository.delete(challengeHashtag);
     }
 
     @Override
@@ -115,16 +101,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable) {
         return challengeImageJpaRepository.findThumbnailsByUserId(userId, pageable);
-    }
-  
-    @Override
-    public List<Hashtag> findAllHashtagByNameIn(List<String> hashtagList) {
-        return hashtagJpaRepository.findAllByNameIn(hashtagList);
-    }
-
-    @Override
-    public void saveAllHashtags(List<Hashtag> hashtagList) {
-        hashtagJpaRepository.saveAll(hashtagList);
     }
 
     @Override
