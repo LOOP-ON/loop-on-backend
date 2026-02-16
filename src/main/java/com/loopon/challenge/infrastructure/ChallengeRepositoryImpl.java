@@ -170,8 +170,8 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Pageable pageable) {
-        return challengeJpaRepository.findTrendingChallenges(threeDaysAgo, pageable);
+    public Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Long userId, Pageable pageable) {
+        return challengeJpaRepository.findTrendingChallenges(threeDaysAgo, userId, pageable);
     }
 
     @Override

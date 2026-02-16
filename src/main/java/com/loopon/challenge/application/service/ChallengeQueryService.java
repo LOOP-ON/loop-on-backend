@@ -145,7 +145,7 @@ public class ChallengeQueryService {
 
         LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
         Slice<Challenge> trendingChallenges = challengeRepository.findTrendingChallenges(
-                threeDaysAgo, commandDto.trendingPage());
+                threeDaysAgo, user.getId(), commandDto.trendingPage());
 
 
         List<Long> trendingIds = new ArrayList<>();

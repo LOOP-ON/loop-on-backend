@@ -72,7 +72,7 @@ public interface ChallengeRepository {
 
     List<Comment> findAllCommentWithUserByParentIdIn(List<Long> parentIds);
 
-    Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Pageable pageable);
+    Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Long userId, Pageable pageable);
 
     Slice<Challenge> findFriendsChallenges(List<Long> friendsIds, List<Long> trendingIds, Pageable pageable);
 
