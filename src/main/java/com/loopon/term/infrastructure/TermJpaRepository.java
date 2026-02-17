@@ -9,8 +9,8 @@ import java.util.List;
 public interface TermJpaRepository extends JpaRepository<Term, Long> {
 
     @Query("""
-            select t From Term t
-                order by t.mandatory desc, t.id asc
+            SELECT t FROM Term t
+                ORDER BY t.mandatory DESC, t.id ASC
             """)
     List<Term> findAllForSignUp();
 }

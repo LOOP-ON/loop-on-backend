@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface UserTermAgreementJpaRepository extends JpaRepository<UserTermAgreement, Long> {
 
-    @Query("select uta from UserTermAgreement uta where uta.user = :user and uta.term = :term")
+    @Query("SELECT uta FROM UserTermAgreement uta WHERE uta.user = :user AND uta.term = :term")
     Optional<UserTermAgreement> findByUserAndTerm(User user, Term term);
 }
