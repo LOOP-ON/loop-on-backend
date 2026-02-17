@@ -15,7 +15,7 @@ public class VerificationRepositoryImpl implements VerificationRepository {
 
     @Override
     public Optional<Verification> findLatest(String target, VerificationPurpose purpose) {
-        return verificationJpaRepository.findLatest(target, purpose);
+        return verificationJpaRepository.findTopByTargetAndPurposeOrderByCreatedAtDesc(target, purpose);
     }
 
     @Override
