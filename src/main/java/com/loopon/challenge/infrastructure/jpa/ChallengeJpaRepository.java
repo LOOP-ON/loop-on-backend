@@ -38,9 +38,11 @@ public interface ChallengeJpaRepository extends JpaRepository<Challenge, Long> {
             "JOIN FETCH c.journey j " +
             "WHERE c.createdAt >= :threeDaysAgo " +
             "AND c.user.visibility = 'PUBLIC' " +
+            "AND c.user.id != :userId " +
             "ORDER BY (c.likeCount * 2 + c.commentCount * 5) DESC, c.createdAt DESC")
     Slice<Challenge> findTrendingChallenges(
             @Param("threeDaysAgo") LocalDateTime threeDaysAgo,
+            @Param("userId") Long userId,
             Pageable pageable
     );
 

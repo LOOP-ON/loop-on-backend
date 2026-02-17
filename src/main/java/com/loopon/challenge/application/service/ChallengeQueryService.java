@@ -3,10 +3,7 @@ package com.loopon.challenge.application.service;
 import com.loopon.challenge.application.converter.ChallengeConverter;
 import com.loopon.challenge.application.dto.command.*;
 import com.loopon.challenge.application.dto.response.*;
-import com.loopon.challenge.domain.Challenge;
-import com.loopon.challenge.domain.ChallengeHashtag;
-import com.loopon.challenge.domain.ChallengeImage;
-import com.loopon.challenge.domain.Comment;
+import com.loopon.challenge.domain.*;
 import com.loopon.challenge.domain.repository.ChallengeRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.domain.dto.SliceResponse;
@@ -23,13 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Service
@@ -73,29 +64,50 @@ public class ChallengeQueryService {
 
     @Transactional(readOnly = true)
     public SliceResponse<ChallengeGetCommentResponse> getCommentChallenge(
-            ChallengeGetCommentCommand commandDto
+            ChallengeGetCommentCommand dto
     ) {
-        Challenge challenge = challengeRepository.findById(commandDto.challengeId())
+        Challenge challenge = challengeRepository.findById(dto.challengeId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
-        Slice<Comment> comments = challengeRepository.findCommentsWithUserByChallengeId(challenge.getId(), commandDto.pageable());
 
-        List<Long> parentIds = new ArrayList<>();
-        for (Comment comment : comments.getContent()) {
-            parentIds.add(comment.getId());
-        }
+        Slice<Comment> comments = challengeRepository.findCommentsWithUserByChallengeId(challenge.getId(), dto.pageable());
+
+        List<Long> parentIds = comments.getContent().stream()
+                .map(Comment::getId)
+                .toList();
 
         List<Comment> children = challengeRepository.findAllCommentWithUserByParentIdIn(parentIds);
 
+
+        List<Long> allCommentIds = new ArrayList<>(parentIds);
+        children.forEach(c -> allCommentIds.add(c.getId()));
+
+        List<CommentLike> commentLikes = challengeRepository.findAllCommentLikeByUserIdAndCommentIdIn(dto.userId(), allCommentIds);
+
+        Set<Long> likedCommentIds = new HashSet<>();
+
+        for (CommentLike like : commentLikes) {
+            Long commentId = like.getComment().getId();
+            likedCommentIds.add(commentId);
+        }
+
+
         Map<Long, List<Comment>> childrenMap = new HashMap<>();
+
         for (Comment child : children) {
             Long parentId = child.getParent().getId();
 
             childrenMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(child);
         }
 
+
         return SliceResponse.from(comments.map(comment ->
-                ChallengeConverter.getCommentChallenge(comment, childrenMap.getOrDefault(comment.getId(), new ArrayList<>()))
+                ChallengeConverter.getCommentChallenge(
+                        comment,
+                        childrenMap.getOrDefault(comment.getId(), Collections.emptyList()),
+                        dto.userId(),
+                        likedCommentIds
+                )
         ));
     }
 
@@ -133,7 +145,7 @@ public class ChallengeQueryService {
 
         LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
         Slice<Challenge> trendingChallenges = challengeRepository.findTrendingChallenges(
-                threeDaysAgo, commandDto.trendingPage());
+                threeDaysAgo, user.getId(), commandDto.trendingPage());
 
 
         List<Long> trendingIds = new ArrayList<>();

@@ -130,7 +130,7 @@ class ChallengeQueryServiceTest {
         @DisplayName("성공: 부모 댓글과 그에 달린 대댓글들이 맵핑되어 반환된다.")
         void success() {
             // given
-            ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, PageRequest.of(0, 10));
+            ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, 1L, PageRequest.of(0, 10));
             Challenge challenge = createTestChallenge(1L);
 
             User parentUser = createTestUser(1L, "parent", UserVisibility.PUBLIC);
@@ -234,7 +234,7 @@ class ChallengeQueryServiceTest {
             when(friend.getId()).thenReturn(200L);
 
             given(userRepository.findById(1L)).willReturn(Optional.of(user));
-            given(challengeRepository.findTrendingChallenges(any(LocalDateTime.class), any(Pageable.class)))
+            given(challengeRepository.findTrendingChallenges(any(LocalDateTime.class), anyLong(), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(trending)));
 
             // 친구 목록 mock

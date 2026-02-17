@@ -1,11 +1,9 @@
 package com.loopon.challenge.domain.repository;
 
-import com.loopon.challenge.domain.*;
 import org.springframework.data.domain.Page;
 import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
-import com.loopon.challenge.domain.ChallengeHashtagId;
 import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.ChallengeLike;
 import com.loopon.challenge.domain.Comment;
@@ -13,7 +11,6 @@ import com.loopon.challenge.domain.CommentLike;
 import com.loopon.challenge.domain.Hashtag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -28,25 +25,17 @@ public interface ChallengeRepository {
 
     Long save(Challenge challenge);
 
-    ChallengeHashtagId saveChallengeHashtag(ChallengeHashtag challengeHashtag);
-
     Long saveChallengeImage(ChallengeImage challengeImage);
 
     Hashtag saveHashtag(Hashtag hashtag);
-
-    List<ChallengeHashtag> findAllChallengeHashtagByChallengeId(Long id);
 
     List<ChallengeHashtag> findAllChallengeHashtagWithHashtagByChallengeId(Long id);
 
     Optional<Hashtag> findHashtagByName(String name);
 
-    List<Hashtag> findAllHashtagByNameIn(List<String> hashtagList);
-
     List<ChallengeImage> findAllImageByChallengeId(Long challengeId);
 
     Optional<Challenge> findById(Long challengeId);
-
-    void deleteChallengeHashtag(ChallengeHashtag challengeHashtag);
 
     void deleteAllByExpeditionId(Long expeditionId);
 
@@ -55,8 +44,6 @@ public interface ChallengeRepository {
     Boolean existsChallengeLikeByIdAndUserId(Long challengeId, Long userId);
 
     Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable);
-  
-    void saveAllHashtags(List<Hashtag> hashtagList);
 
     Optional<ChallengeLike> findChallengeLikeByUserIdAndId(Long userId, Long challengeId);
 
@@ -84,7 +71,7 @@ public interface ChallengeRepository {
 
     List<Comment> findAllCommentWithUserByParentIdIn(List<Long> parentIds);
 
-    Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Pageable pageable);
+    Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Long userId, Pageable pageable);
 
     Slice<Challenge> findFriendsChallenges(List<Long> friendsIds, List<Long> trendingIds, Pageable pageable);
 
@@ -95,4 +82,6 @@ public interface ChallengeRepository {
     Boolean existsCommentLikeByCommentIdAndUserId(Long commentId, Long userId);
 
     Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable);
+
+    List<CommentLike> findAllCommentLikeByUserIdAndCommentIdIn(Long userId, List<Long> commentIds);
 }
