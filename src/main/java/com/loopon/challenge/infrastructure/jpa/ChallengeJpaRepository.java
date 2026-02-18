@@ -1,6 +1,5 @@
 package com.loopon.challenge.infrastructure.jpa;
 
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,21 +25,17 @@ public interface ChallengeJpaRepository extends JpaRepository<Challenge, Long> {
             Pageable pageable
     );
 
-    @Query("SELECT new com.loopon.challenge.application.dto.response.ChallengePreviewResponse(c.id, ci.imageUrl) " +
-            "FROM Challenge c " +
-            "JOIN c.challengeImages ci " +
-            "WHERE c.user.id = :userId " +
-            "AND ci.displayOrder = 0")
-    Slice<ChallengePreviewResponse> findViewByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT c FROM Challenge c " +
             "JOIN FETCH c.user u " +
             "JOIN FETCH c.journey j " +
             "WHERE c.createdAt >= :threeDaysAgo " +
             "AND c.user.visibility = 'PUBLIC' " +
+            "AND c.user.id != :userId " +
             "ORDER BY (c.likeCount * 2 + c.commentCount * 5) DESC, c.createdAt DESC")
     Slice<Challenge> findTrendingChallenges(
             @Param("threeDaysAgo") LocalDateTime threeDaysAgo,
+            @Param("userId") Long userId,
             Pageable pageable
     );
 

@@ -231,12 +231,15 @@ public class ExpeditionConverter {
     ) {
         return ExpeditionChallengesResponse.builder()
                 .challengeId(challenge.getId())
-                .journeyNumber(challenge.getJourney().getJourneyOrder())
+                .journeyNumber(challenge.getJourney().getJourneyOrder()) // 여정 번호 필요!
                 .imageUrls(imageUrls)
                 .content(challenge.getContent())
                 .hashtags(hashtags)
                 .createdAt(challenge.getCreatedAt())
+                .nickname(challenge.getUser().getNickname())
+                .profileImageUrl(challenge.getUser().getProfileImageUrl())
                 .isLiked(isLiked)
+                .likeCount(challenge.getLikeCount())
                 .build();
     }
 

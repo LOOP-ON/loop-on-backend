@@ -13,8 +13,9 @@ public record ExpeditionChallengesResponse(
         String content,
         List<String> hashtags,
         LocalDateTime createdAt,
-        String nickName,
+        String nickname,
         String profileImageUrl,
-        Boolean isLiked
+        Boolean isLiked,
+        Integer likeCount
 ) {
 }

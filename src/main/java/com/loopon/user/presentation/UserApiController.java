@@ -9,6 +9,7 @@ import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
+import com.loopon.user.application.dto.response.UserOthersProfileResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.application.validator.ImageValidator;
 import com.loopon.user.presentation.docs.UserApiDocs;
@@ -20,14 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -77,6 +71,18 @@ public class UserApiController implements UserApiDocs {
             Pageable pageable
     ) {
         UserProfileResponse response = userQueryService.getUserProfile(principalDetails.getUserId(), pageable);
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Override
+    @GetMapping("/{nickname}")
+    public ResponseEntity<CommonResponse<UserOthersProfileResponse>> getOthersProfile(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable String nickname,
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        UserOthersProfileResponse response = userQueryService.getOthersProfile(principalDetails.getUserId(), nickname, pageable);
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
