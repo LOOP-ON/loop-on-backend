@@ -1,6 +1,5 @@
 package com.loopon.challenge.infrastructure;
 
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
@@ -156,11 +155,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public void delete(Challenge challenge) {
         challengeJpaRepository.delete(challenge);
-    }
-
-    @Override
-    public Slice<ChallengePreviewResponse> findViewByUserId(Long userId, Pageable pageable) {
-        return challengeJpaRepository.findViewByUserId(userId, pageable);
     }
 
     @Override

@@ -107,19 +107,6 @@ public interface ChallengeApiDocs {
             PrincipalDetails principalDetails
     );
 
-    @Operation(summary = "내 챌린지 모아보기")
-    ResponseEntity<CommonResponse<SliceResponse<ChallengePreviewResponse>>> myChallenge(
-            PrincipalDetails principalDetails,
-            @PageableDefault Pageable pageable
-    );
-
-    @Operation(summary = "타인의 챌린지 모아보기")
-    ResponseEntity<CommonResponse<SliceResponse<ChallengePreviewResponse>>> othersChallenge(
-            @PathVariable("nickname") String nickname,
-            @PageableDefault Pageable pageable,
-            PrincipalDetails principalDetails
-    );
-
     @Operation(summary = "여정광장 챌린지 조회.", description = "트렌딩 챌린지와 친구 챌린지의 비율은 기본적으로 1:3을 유지합니다.")
     ResponseEntity<CommonResponse<ChallengeCombinedViewResponse>> viewChallenge(
             PrincipalDetails principalDetails,

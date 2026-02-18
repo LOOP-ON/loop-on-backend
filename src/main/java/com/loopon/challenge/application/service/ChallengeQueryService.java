@@ -112,30 +112,6 @@ public class ChallengeQueryService {
     }
 
     @Transactional(readOnly = true)
-    public SliceResponse<ChallengePreviewResponse> myChallenge(
-            ChallengeMyCommand commandDto
-    ) {
-        User user = userRepository.findById(commandDto.userId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
-
-        return SliceResponse.from(challengeRepository.findViewByUserId(user.getId(), commandDto.pageable()));
-    }
-
-    @Transactional(readOnly = true)
-    public SliceResponse<ChallengePreviewResponse> othersChallenge(
-            ChallengeOthersCommand commandDto
-    ) {
-        User myself = userRepository.findById(commandDto.userId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        User target = userRepository.findByNickname(commandDto.nickname())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        checkAllowed(target, myself);
-
-        return SliceResponse.from(challengeRepository.findViewByUserId(target.getId(), commandDto.pageable()));
-    }
-
-    @Transactional(readOnly = true)
     public ChallengeCombinedViewResponse viewChallenge(
             ChallengeViewCommand commandDto
     ) {
