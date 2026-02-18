@@ -3,11 +3,23 @@ spring:
     activate:
       on-profile: dev
 
+  datasource:
+    hikari:
+      maximum-pool-size: 15
+      connection-timeout: 3000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
   # JPA
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
+
+server:
+  tomcat:
+    threads:
+      max: 200
 
 # 로그 레벨
 logging:
