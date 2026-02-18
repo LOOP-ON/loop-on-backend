@@ -8,6 +8,7 @@ import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.request.UpdateProfileRequest;
 import com.loopon.user.application.dto.request.UserSignUpRequest;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
+import com.loopon.user.application.dto.response.UserOthersProfileResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -73,6 +74,21 @@ public interface UserApiDocs {
     @CommonInternalServerErrorResponseDocs
     ResponseEntity<CommonResponse<UserProfileResponse>> getUserProfile(
             @Parameter(hidden = true) PrincipalDetails principalDetails,
+            @Parameter(hidden = true) Pageable pageable
+    );
+
+    @Operation(summary = "타인 프로필 조회", description = "공개/친구 사용자의 프로필 정보(닉네임, 이미지, 한줄 소개 등)를 조회합니다.")
+    @Parameters({
+            @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", in = ParameterIn.QUERY, example = "0"),
+            @Parameter(name = "size", description = "한 페이지 크기", in = ParameterIn.QUERY, example = "10"),
+            @Parameter(name = "sort", description = "정렬 기준 (예: createdAt,desc)", in = ParameterIn.QUERY, example = "createdAt,desc")
+    })
+    @ApiResponse(responseCode = "200", description = "조회 성공", useReturnTypeSchema = true)
+    @CommonBadRequestResponseDocs
+    @CommonInternalServerErrorResponseDocs
+    ResponseEntity<CommonResponse<UserOthersProfileResponse>> getOthersProfile(
+            @Parameter(hidden = true) PrincipalDetails principalDetails,
+            @Parameter String nickname,
             @Parameter(hidden = true) Pageable pageable
     );
 

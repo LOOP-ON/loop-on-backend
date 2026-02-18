@@ -1,7 +1,6 @@
 package com.loopon.challenge.domain.repository;
 
 import org.springframework.data.domain.Page;
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
 import com.loopon.challenge.domain.ChallengeImage;
@@ -66,8 +65,6 @@ public interface ChallengeRepository {
     void deleteComment(Comment comment);
 
     void delete(Challenge challenge);
-
-    Slice<ChallengePreviewResponse> findViewByUserId(Long userId, Pageable pageable);
 
     List<Comment> findAllCommentWithUserByParentIdIn(List<Long> parentIds);
 

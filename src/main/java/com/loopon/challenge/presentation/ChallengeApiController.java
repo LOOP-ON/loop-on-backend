@@ -139,27 +139,6 @@ public class ChallengeApiController implements ChallengeApiDocs {
     }
 
     @Override
-    @GetMapping("/api/challenges/users/me")
-    public ResponseEntity<CommonResponse<SliceResponse<ChallengePreviewResponse>>> myChallenge(
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
-            Pageable pageable
-    ) {
-        ChallengeMyCommand commandDto = ChallengeConverter.myChallenge(principalDetails.getUserId(), pageable);
-        return ResponseEntity.ok(CommonResponse.onSuccess(challengeQueryService.myChallenge(commandDto)));
-    }
-
-    @Override
-    @GetMapping("/api/challenges/users/{nickname}")
-    public ResponseEntity<CommonResponse<SliceResponse<ChallengePreviewResponse>>> othersChallenge(
-            @PathVariable String nickname,
-            Pageable pageable,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ) {
-        ChallengeOthersCommand commandDto = ChallengeConverter.othersChallenge(principalDetails.getUserId(), nickname, pageable);
-        return ResponseEntity.ok(CommonResponse.onSuccess(challengeQueryService.othersChallenge(commandDto)));
-    }
-
-    @Override
     @GetMapping("/api/challenges")
     public ResponseEntity<CommonResponse<ChallengeCombinedViewResponse>> viewChallenge(
             @AuthenticationPrincipal PrincipalDetails principalDetails,

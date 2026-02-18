@@ -273,29 +273,6 @@ public class ChallengeConverter {
                 .build();
     }
 
-
-    public static ChallengeMyCommand myChallenge(
-            Long userId,
-            Pageable pageable
-    ) {
-        return ChallengeMyCommand.builder()
-                .userId(userId)
-                .pageable(pageable)
-                .build();
-    }
-
-    public static ChallengeOthersCommand othersChallenge(
-            Long userId,
-            String nickname,
-            Pageable pageable
-    ) {
-        return ChallengeOthersCommand.builder()
-                .userId(userId)
-                .nickname(nickname)
-                .pageable(pageable)
-                .build();
-    }
-
     public static ChallengeViewCommand viewChallenge(
             Long userId,
             Pageable trendingPage,
