@@ -31,6 +31,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
             "/",
+            "/health",
             "/favicon.ico",
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -50,7 +51,7 @@ public class SecurityConfig {
     private static final String[] API_URLS = {
             "/api/users/me",
             "/api/users/profile",
-            "/api/users/password",
+            "/api/users/password"
     };
 
     @Bean
