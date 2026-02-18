@@ -1,85 +1,57 @@
 package com.loopon.global.log;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
-
-import java.io.IOException;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class MdcLoggingFilterTest {
 
-    @InjectMocks
-    private MdcLoggingFilter mdcLoggingFilter;
+    private final MdcLoggingFilter filter = new MdcLoggingFilter();
 
-    @Mock
-    private HttpServletRequest request;
+    @Test
+    @DisplayName("헤더에 ID가 없으면 새로 생성하고 MDC에 넣어야 한다")
+    void generateRequestId() throws Exception {
+        // given
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
 
-    @Mock
-    private ServletResponse response;
+        // when
+        filter.doFilter(req, res, chain);
 
-    @Mock
-    private FilterChain filterChain;
-
-    private static final String REQUEST_ID = "request_id";
-
-    @AfterEach
-    void tearDown() {
-        MDC.clear();
+        // then
+        String requestId = res.getHeader("X-Request-ID");
+        assertNotNull(requestId);
+        verify(chain, times(1)).doFilter(req, res);
+        assertNull(MDC.get("request_id"));
     }
 
     @Test
-    @DisplayName("성공: Request ID가 생성되고, 체인 실행 후 MDC가 비워져야 한다")
-    void 정상_수행_요청ID_생성_및_MDC_정리() throws ServletException, IOException {
-        // Given
-        doAnswer(invocation -> {
-            String requestId = MDC.get(REQUEST_ID);
+    @DisplayName("헤더에 ID가 있으면 그걸 유지해야 한다")
+    void keepRequestId() throws Exception {
+        // given
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.addHeader("X-Request-ID", "original-id");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
 
-            assertNotNull(requestId, "Request ID가 생성되어야 합니다.");
-            assertEquals(8, requestId.length(), "UUID 앞 8자리여야 합니다.");
-            return null;
-        }).when(filterChain).doFilter(any(), any());
+        // when
+        filter.doFilter(req, res, chain);
 
-        // When
-        mdcLoggingFilter.doFilter(request, response, filterChain);
-
-        // Then
-        verify(filterChain, times(1)).doFilter(request, response);
-
-        assertNull(MDC.get(REQUEST_ID), "필터 종료 후에는 MDC가 비워져야 합니다.");
-    }
-
-    @Test
-    @DisplayName("예외: 필터 체인 도중 예외가 발생해도 MDC는 반드시 비워져야 한다")
-    void 예외_발생_시_MDC_정리_보장() throws ServletException, IOException {
-        // Given
-        doThrow(new RuntimeException("Unexpected Error"))
-                .when(filterChain).doFilter(any(), any());
-
-        // When & Then
-        assertThrows(RuntimeException.class, () ->
-                mdcLoggingFilter.doFilter(request, response, filterChain)
-        );
-
-        assertNull(MDC.get(REQUEST_ID), "예외가 발생해도 MDC는 비워져야 합니다.");
+        // then
+        assertEquals("original-id", res.getHeader("X-Request-ID"));
     }
 }

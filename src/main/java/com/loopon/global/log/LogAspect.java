@@ -5,134 +5,70 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 @Component
 @Aspect
 @Slf4j
 public class LogAspect {
 
-    private static final String[] SENSITIVE_KEYWORDS = {
-            "password", "pw", "secret",
-            "token", "access", "refresh",
-            "auth", "cred",
-            "key", "pin", "card",
-            "ssn", "social"
-    };
-
-    @Pointcut("execution(* com.loopon..*Controller.*(..))")
-    public void controllerMethods() {
+    @Pointcut("execution(* com.loopon.*Controller.*(..))")
+    public void controller() {
     }
 
     @Pointcut("execution(* com.loopon..*Service.*(..))")
-    public void serviceMethods() {
+    public void service() {
     }
 
-    @Around("controllerMethods() || serviceMethods()")
+    @Around("controller() || service()")
     public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
-        StopWatch stopWatch = new StopWatch();
-        MethodInfo methodInfo = null;
+        long startTime = System.currentTimeMillis();
+        Object result = null;
 
         try {
-            methodInfo = extractMethodInfo(joinPoint);
-
-            stopWatch.start();
-            Object result = joinPoint.proceed();
-            stopWatch.stop();
-
-            logSuccess(methodInfo, result, stopWatch);
+            result = joinPoint.proceed();
             return result;
+        } finally {
+            long totalTime = System.currentTimeMillis() - startTime;
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
-        } catch (Throwable e) {
-            if (stopWatch.isRunning()) {
-                stopWatch.stop();
-            }
-
-            logFailure(methodInfo, e, stopWatch);
-            throw e;
+            log.info("[{}] {}.{} | Args: {} | Ret: {} | {}ms",
+                    getLayer(signature),              // 1. 레이어 (API / SVC)
+                    className(signature),             // 2. 클래스명
+                    methodName(signature),            // 3. 메서드명
+                    formatArgs(joinPoint.getArgs()),  // 4. 파라미터 (단순화)
+                    formatResult(result),             // 5. 결과값 (길이 제한)
+                    totalTime                         // 6. 소요시간
+            );
         }
     }
 
-    private void logSuccess(MethodInfo methodInfo, Object result, StopWatch stopWatch) {
-        log.info("{} | {}({}) -> {} [{}ms]",
-                methodInfo.className(),
-                methodInfo.methodName(),
-                methodInfo.params(),
-                formatResult(result),
-                stopWatch.getTotalTimeMillis());
-    }
-
-    private void logFailure(MethodInfo info, Throwable e, StopWatch stopWatch) {
-        String className = (info != null) ? info.className() : "UnknownClass";
-        String methodName = (info != null) ? info.methodName() : "UnknownMethod";
-        Map<String, Object> params = (info != null) ? info.params() : Map.of();
-
-        log.error("{} | {}({}) -> [EXCEPTION] {}: {} [{}ms]",
-                className,
-                methodName,
-                params,
-                e.getClass().getSimpleName(),
-                e.getMessage(),
-                stopWatch.getTotalTimeMillis()
-        );
-    }
-
-    private MethodInfo extractMethodInfo(ProceedingJoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    private String getLayer(MethodSignature signature) {
         String className = signature.getDeclaringType().getSimpleName();
-        String methodName = signature.getName();
-        Map<String, Object> params = extractParams(joinPoint);
-
-        return new MethodInfo(className, methodName, params);
+        if (className.endsWith("Controller")) return "API";
+        if (className.endsWith("Service")) return "SVC";
+        return "ETC";
     }
 
-    private Map<String, Object> extractParams(ProceedingJoinPoint joinPoint) {
-        CodeSignature signature = (CodeSignature) joinPoint.getSignature();
-        String[] paramNames = signature.getParameterNames();
-        Object[] args = joinPoint.getArgs();
-        Map<String, Object> params = new HashMap<>();
-
-        if (paramNames == null) return params;
-
-        for (int i = 0; i < paramNames.length; i++) {
-            String key = paramNames[i];
-            Object value = args[i];
-            if (isSensitive(key)) {
-                params.put(key, "****");
-            } else {
-                params.put(key, value);
-            }
-        }
-        return params;
+    private String className(MethodSignature signature) {
+        return signature.getDeclaringType().getSimpleName();
     }
 
-    private boolean isSensitive(String key) {
-        if (key == null) return false;
+    private String methodName(MethodSignature signature) {
+        return signature.getName();
+    }
 
-        String lowerKey = key.toLowerCase();
-
-        for (String keyword : SENSITIVE_KEYWORDS) {
-            if (lowerKey.contains(keyword)) {
-                return true;
-            }
-        }
-        return false;
+    private String formatArgs(Object[] args) {
+        if (args == null || args.length == 0) return "[]";
+        return Arrays.toString(args);
     }
 
     private String formatResult(Object result) {
         if (result == null) return "void";
-        String resultStr = result.toString();
-        if (resultStr.length() > 100) {
-            return resultStr.substring(0, 100) + "...";
-        }
-        return resultStr;
+        String s = result.toString();
+        return s.length() > 100 ? s.substring(0, 100) + "..." : s;
     }
-
-    private record MethodInfo(String className, String methodName, Map<String, Object> params) {}
 }
