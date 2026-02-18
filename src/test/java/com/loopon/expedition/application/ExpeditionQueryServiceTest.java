@@ -246,6 +246,7 @@ class ExpeditionQueryServiceTest {
             Challenge challenge = mock(Challenge.class);
             lenient().when(challenge.getId()).thenReturn(challengeId);
             lenient().when(challenge.getJourney()).thenReturn(mock(Journey.class));
+            lenient().when(challenge.getUser()).thenReturn(user);
 
             // 이미지 모킹
             ChallengeImage img = mock(ChallengeImage.class);

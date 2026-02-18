@@ -130,7 +130,7 @@ class ChallengeQueryServiceTest {
         @DisplayName("성공: 부모 댓글과 그에 달린 대댓글들이 맵핑되어 반환된다.")
         void success() {
             // given
-            ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, PageRequest.of(0, 10));
+            ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, 1L, PageRequest.of(0, 10));
             Challenge challenge = createTestChallenge(1L);
 
             User parentUser = createTestUser(1L, "parent", UserVisibility.PUBLIC);
@@ -164,58 +164,6 @@ class ChallengeQueryServiceTest {
     }
 
     @Nested
-    @DisplayName("타인 챌린지 조회 (othersChallenge)")
-    class OthersChallengeTest {
-
-        @Test
-        @DisplayName("성공: 비공개 계정이라도 친구 상태가 ACCEPTED라면 조회가 가능하다.")
-        void success_private_friend() {
-            // 1. Given
-            Long myId = 1L;
-            Long targetUserId = 2L;
-
-            // 유저 생성 시 ID 확실히 주입 (createTestUser 메서드가 mockUser.getId() -> id 를 리턴하게 되어있어야 함)
-            User myself = createTestUser(myId, "me", UserVisibility.PUBLIC);
-            User target = createTestUser(targetUserId, "target", UserVisibility.PRIVATE);
-
-            ChallengeOthersCommand command = new ChallengeOthersCommand(myId, "target", PageRequest.of(0, 10));
-
-            given(userRepository.findById(myId)).willReturn(Optional.of(myself));
-            given(userRepository.findByNickname("target")).willReturn(Optional.of(target));
-
-            given(friendRepository.existsFriendship(eq(targetUserId), eq(myId), eq(FriendStatus.ACCEPTED)))
-                    .willReturn(true);
-
-            given(challengeRepository.findViewByUserId(anyLong(), any(Pageable.class)))
-                    .willReturn(new SliceImpl<>(List.of()));
-
-            // 2. When
-            challengeQueryService.othersChallenge(command);
-
-            // 3. Then
-            verify(challengeRepository).findViewByUserId(eq(targetUserId), any(Pageable.class));
-        }
-
-        @Test
-        @DisplayName("실패: 비공개 계정인데 친구가 아니면 CHALLENGE_FORBIDDEN 예외 발생")
-        void fail_private_not_friend() {
-            // given
-            User myself = createTestUser(1L, "me", UserVisibility.PUBLIC);
-            User target = createTestUser(2L, "target", UserVisibility.PRIVATE);
-            ChallengeOthersCommand command = new ChallengeOthersCommand(1L, "target", PageRequest.of(0, 10));
-
-            given(userRepository.findById(1L)).willReturn(Optional.of(myself));
-            given(userRepository.findByNickname("target")).willReturn(Optional.of(target));
-            given(friendRepository.existsFriendship(2L, 1L, FriendStatus.ACCEPTED)).willReturn(false);
-
-            // when & then
-            assertThatThrownBy(() -> challengeQueryService.othersChallenge(command))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CHALLENGE_FORBIDDEN);
-        }
-    }
-
-    @Nested
     @DisplayName("메인 피드 조회 (viewChallenge)")
     class ViewChallengeTest {
 
@@ -234,7 +182,7 @@ class ChallengeQueryServiceTest {
             when(friend.getId()).thenReturn(200L);
 
             given(userRepository.findById(1L)).willReturn(Optional.of(user));
-            given(challengeRepository.findTrendingChallenges(any(LocalDateTime.class), any(Pageable.class)))
+            given(challengeRepository.findTrendingChallenges(any(LocalDateTime.class), anyLong(), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(trending)));
 
             // 친구 목록 mock
@@ -269,54 +217,6 @@ class ChallengeQueryServiceTest {
         }
     }
 
-    @Nested
-    @DisplayName("내 챌린지 조회 (myChallenge)")
-    class MyChallengeTest {
-
-        @Test
-        @DisplayName("성공: 유저가 존재하면 해당 유저의 챌린지 목록을 Slice로 반환한다.")
-        void success() {
-            // given
-            Long userId = 1L;
-            Pageable pageable = PageRequest.of(0, 10);
-            ChallengeMyCommand command = new ChallengeMyCommand(userId, pageable);
-
-            User user = createTestUser(userId, "me", UserVisibility.PUBLIC);
-
-            // 가짜 결과물(Slice) 생성
-            ChallengePreviewResponse preview = new ChallengePreviewResponse(100L, "thumb.jpg"); // 필드 구성은 DTO에 맞게 조정
-            Slice<ChallengePreviewResponse> expectedSlice = new SliceImpl<>(List.of(preview), pageable, false);
-
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            given(challengeRepository.findViewByUserId(userId, pageable)).willReturn(expectedSlice);
-
-            // when
-            SliceResponse<ChallengePreviewResponse> result = challengeQueryService.myChallenge(command);
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.content()).hasSize(1);
-            assertThat(result.content().getFirst().challengeId()).isEqualTo(100L);
-
-            // 리포지토리가 정확한 userId로 조회했는지 검증
-            verify(challengeRepository).findViewByUserId(eq(userId), eq(pageable));
-        }
-
-        @Test
-        @DisplayName("실패: 존재하지 않는 유저 ID로 요청 시 NOT_FOUND 예외가 발생한다.")
-        void fail_user_not_found() {
-            // given
-            Long userId = 999L;
-            ChallengeMyCommand command = new ChallengeMyCommand(userId, PageRequest.of(0, 10));
-
-            given(userRepository.findById(userId)).willReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> challengeQueryService.myChallenge(command))
-                    .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND);
-        }
-    }
 
     @Test
     @DisplayName("챌린지 상세 목록 조회 성공 - 연관 엔티티 포함")

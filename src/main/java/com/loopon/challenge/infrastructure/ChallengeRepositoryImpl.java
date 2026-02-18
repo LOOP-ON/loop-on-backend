@@ -1,9 +1,7 @@
 package com.loopon.challenge.infrastructure;
 
-import com.loopon.challenge.application.dto.response.ChallengePreviewResponse;
 import com.loopon.challenge.domain.Challenge;
 import com.loopon.challenge.domain.ChallengeHashtag;
-import com.loopon.challenge.domain.ChallengeHashtagId;
 import com.loopon.challenge.domain.ChallengeImage;
 import com.loopon.challenge.domain.ChallengeLike;
 import com.loopon.challenge.domain.Comment;
@@ -57,11 +55,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public ChallengeHashtagId saveChallengeHashtag(ChallengeHashtag challengeHashtag) {
-        return challengeHashtagJpaRepository.save(challengeHashtag).getId();
-    }
-
-    @Override
     public Long saveChallengeImage(ChallengeImage challengeImage) {
         return challengeImageJpaRepository.save(challengeImage).getId();
     }
@@ -77,10 +70,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
         return hashtagJpaRepository.findByName(name);
     }
 
-    @Override
-    public List<ChallengeHashtag> findAllChallengeHashtagByChallengeId(Long challengeId) {
-        return challengeHashtagJpaRepository.findAllByChallengeId(challengeId);
-    }
 
     @Override
     public List<ChallengeHashtag> findAllChallengeHashtagWithHashtagByChallengeId(Long challengeId) {
@@ -90,11 +79,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public List<ChallengeImage> findAllImageByChallengeId(Long challengeId) {
         return challengeImageJpaRepository.findAllByChallengeId(challengeId);
-    }
-
-    @Override
-    public void deleteChallengeHashtag(ChallengeHashtag challengeHashtag) {
-        challengeHashtagJpaRepository.delete(challengeHashtag);
     }
 
     @Override
@@ -115,16 +99,6 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public Page<ChallengeImage> findThumbnailsByUserId(Long userId, Pageable pageable) {
         return challengeImageJpaRepository.findThumbnailsByUserId(userId, pageable);
-    }
-  
-    @Override
-    public List<Hashtag> findAllHashtagByNameIn(List<String> hashtagList) {
-        return hashtagJpaRepository.findAllByNameIn(hashtagList);
-    }
-
-    @Override
-    public void saveAllHashtags(List<Hashtag> hashtagList) {
-        hashtagJpaRepository.saveAll(hashtagList);
     }
 
     @Override
@@ -184,18 +158,13 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     }
 
     @Override
-    public Slice<ChallengePreviewResponse> findViewByUserId(Long userId, Pageable pageable) {
-        return challengeJpaRepository.findViewByUserId(userId, pageable);
-    }
-
-    @Override
     public List<Comment> findAllCommentWithUserByParentIdIn(List<Long> parentIds) {
         return commentJpaRepository.findAllWithUserByParentIdIn(parentIds);
     }
 
     @Override
-    public Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Pageable pageable) {
-        return challengeJpaRepository.findTrendingChallenges(threeDaysAgo, pageable);
+    public Slice<Challenge> findTrendingChallenges(LocalDateTime threeDaysAgo, Long userId, Pageable pageable) {
+        return challengeJpaRepository.findTrendingChallenges(threeDaysAgo, userId, pageable);
     }
 
     @Override
@@ -221,5 +190,10 @@ public class ChallengeRepositoryImpl implements ChallengeRepository {
     @Override
     public Slice<Challenge> findAllWithJourneyAndUserByUserId(Long userId, Pageable pageable) {
         return challengeJpaRepository.findAllWithJourneyAndUserByUserId(userId, pageable);
+    }
+
+    @Override
+    public List<CommentLike> findAllCommentLikeByUserIdAndCommentIdIn(Long userId, List<Long> commentIds) {
+        return commentLikeJpaRepository.findAllByUserIdAndCommentIdIn(userId, commentIds);
     }
 }

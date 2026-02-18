@@ -99,9 +99,10 @@ public class ChallengeApiController implements ChallengeApiDocs {
     @GetMapping("/api/challenges/{challengeId}/comments")
     public ResponseEntity<CommonResponse<SliceResponse<ChallengeGetCommentResponse>>> getCommentChallenge(
             @PathVariable Long challengeId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             Pageable pageable
     ) {
-        ChallengeGetCommentCommand commandDto = ChallengeConverter.getCommentChallenge(challengeId, pageable);
+        ChallengeGetCommentCommand commandDto = ChallengeConverter.getCommentChallenge(challengeId, principalDetails.getUserId(), pageable);
         return ResponseEntity.ok(CommonResponse.onSuccess(challengeQueryService.getCommentChallenge(commandDto)));
     }
 
@@ -135,27 +136,6 @@ public class ChallengeApiController implements ChallengeApiDocs {
     ) {
         ChallengeDeleteCommand commandDto = ChallengeConverter.deleteChallenge(challengeId, principalDetails.getUserId());
         return ResponseEntity.ok(CommonResponse.onSuccess(challengeCommandService.deleteChallenge(commandDto)));
-    }
-
-    @Override
-    @GetMapping("/api/challenges/users/me")
-    public ResponseEntity<CommonResponse<SliceResponse<ChallengePreviewResponse>>> myChallenge(
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
-            Pageable pageable
-    ) {
-        ChallengeMyCommand commandDto = ChallengeConverter.myChallenge(principalDetails.getUserId(), pageable);
-        return ResponseEntity.ok(CommonResponse.onSuccess(challengeQueryService.myChallenge(commandDto)));
-    }
-
-    @Override
-    @GetMapping("/api/challenges/users/{nickname}")
-    public ResponseEntity<CommonResponse<SliceResponse<ChallengePreviewResponse>>> othersChallenge(
-            @PathVariable String nickname,
-            Pageable pageable,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
-    ) {
-        ChallengeOthersCommand commandDto = ChallengeConverter.othersChallenge(principalDetails.getUserId(), nickname, pageable);
-        return ResponseEntity.ok(CommonResponse.onSuccess(challengeQueryService.othersChallenge(commandDto)));
     }
 
     @Override

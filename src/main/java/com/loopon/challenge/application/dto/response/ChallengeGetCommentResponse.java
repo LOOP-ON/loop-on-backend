@@ -11,6 +11,8 @@ public record ChallengeGetCommentResponse(
         String profileImageUrl,
         String content,
         Integer likeCount,
+        Boolean isMine,
+        Boolean isLiked,
         List<ChallengeGetCommentResponse> children
 ) {
 }

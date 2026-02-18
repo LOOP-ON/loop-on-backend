@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class ChallengeConverter {
 
@@ -163,21 +164,36 @@ public class ChallengeConverter {
 
     public static ChallengeGetCommentCommand getCommentChallenge(
             Long challengeId,
+            Long userId,
             Pageable pageable
     ) {
         return ChallengeGetCommentCommand.builder()
                 .challengeId(challengeId)
+                .userId(userId)
                 .pageable(pageable)
                 .build();
     }
 
     public static ChallengeGetCommentResponse getCommentChallenge(
             Comment comment,
-            List<Comment> children
+            List<Comment> children,
+            Long userId,
+            Set<Long> likedCommentIds
     ) {
         List<ChallengeGetCommentResponse> childResponses = new ArrayList<>();
 
         for (Comment child : children) {
+            boolean isMine = false;
+            boolean isLiked = false;
+
+            if (child.getUser().getId().equals(userId)) {
+                isMine = true;
+            }
+
+            if (likedCommentIds.contains(child.getId())) {
+                isLiked = true;
+            }
+
             childResponses.add(ChallengeGetCommentResponse.builder()
                     .commentId(child.getId())
                     .content(child.getContent())
@@ -185,7 +201,20 @@ public class ChallengeConverter {
                     .profileImageUrl(child.getUser().getProfileImageUrl())
                     .likeCount(child.getLikeCount())
                     .children(null)
+                    .isMine(isMine)
+                    .isLiked(isLiked)
                     .build());
+        }
+
+        boolean isMine = false;
+        boolean isLiked = false;
+
+        if (comment.getUser().getId().equals(userId)) {
+            isMine = true;
+        }
+
+        if (likedCommentIds.contains(comment.getId())) {
+            isLiked = true;
         }
 
         return ChallengeGetCommentResponse.builder()
@@ -195,6 +224,8 @@ public class ChallengeConverter {
                 .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .likeCount(comment.getLikeCount())
                 .children(childResponses)
+                .isMine(isMine)
+                .isLiked(isLiked)
                 .build();
     }
 
@@ -239,29 +270,6 @@ public class ChallengeConverter {
         return ChallengeDeleteCommand.builder()
                 .challengeId(challengeId)
                 .userId(userId)
-                .build();
-    }
-
-
-    public static ChallengeMyCommand myChallenge(
-            Long userId,
-            Pageable pageable
-    ) {
-        return ChallengeMyCommand.builder()
-                .userId(userId)
-                .pageable(pageable)
-                .build();
-    }
-
-    public static ChallengeOthersCommand othersChallenge(
-            Long userId,
-            String nickname,
-            Pageable pageable
-    ) {
-        return ChallengeOthersCommand.builder()
-                .userId(userId)
-                .nickname(nickname)
-                .pageable(pageable)
                 .build();
     }
 
