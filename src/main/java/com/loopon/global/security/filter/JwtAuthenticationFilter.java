@@ -28,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final List<String> excludeUrlPatterns = List.of(
             "/",
+            "/health",
             "/favicon.ico",
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -40,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/users/upload-profile-image",
             "/api/auth/login/**",
             "/api/auth/reissue",
+            "/api/auth/logout",
             "/api/auth/verification/**"
     );
 

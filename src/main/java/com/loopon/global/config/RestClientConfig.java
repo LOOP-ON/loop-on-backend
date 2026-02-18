@@ -14,6 +14,13 @@ public class RestClientConfig {
                 .build();
     }
 
+    @Bean("appleRestClient")
+    public RestClient appleRestClient() {
+        return RestClient.builder()
+                .baseUrl("https://appleid.apple.com")
+                .build();
+    }
+
     @Bean("geminiRestClient")
     public RestClient geminiRestClient() {
         return RestClient.builder()
