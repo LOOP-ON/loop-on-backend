@@ -1,8 +1,81 @@
 spring:
   application:
     name: loop-on
+
+  # 가상 스레드
+  threads:
+    virtual:
+      enabled: true
+
+  # DB 스키마 관리
+  liquibase:
+    enabled: true
+    change-log: classpath:db/db.changelog-master.yaml
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  # JPA
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 1000
+
+
+  # Mail
+  mail:
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_BUCKET}
+
+jwt:
+  secret: ${SECRET_KEY}
+  access-token-validity-in-seconds: ${ACCESS_TOKEN_TIME}
+  refresh-token-validity-in-seconds: ${REFRESH_TOKEN_TIME}
+
 gemini:
   api-key: ${GEMINI_API_KEY:}
   base-url: https://generativelanguage.googleapis.com
   model: gemini-2.5-flash
   timeout-ms: 10000
+
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: asc
+    tags-sorter: alpha
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+# Apple
+apple:
+  team-id: ${APPLE_TEAM_ID}
+  key-id: ${APPLE_KEY_ID}
+  client-id: ${APPLE_CLIENT_ID}
+  key-path: classpath:apple/AuthKey_${APPLE_KEY_ID}.p8
+  url: https://appleid.apple.com
