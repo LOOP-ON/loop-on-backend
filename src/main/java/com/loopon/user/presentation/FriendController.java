@@ -29,7 +29,7 @@ public class FriendController implements FriendApiDocs {
     //내 친구 목록 조회 API
     @Override
     @GetMapping
-    public ResponseEntity<CommonResponse<SliceResponse<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, @PageableDefault(sort = "nickname", direction = Sort.Direction.ASC) Pageable pageable) {
+    public ResponseEntity<CommonResponse<SliceResponse<FriendResponse>>> getMyFriend(@AuthenticationPrincipal PrincipalDetails principalDetails, @PageableDefault(sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Long me = principalDetails.getUserId();
         SliceResponse<FriendResponse> res = friendService.getMyFriends(me, pageable);
         return ResponseEntity.ok(CommonResponse.onSuccess(res));
