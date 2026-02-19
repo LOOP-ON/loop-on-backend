@@ -59,7 +59,7 @@ public class UserQueryService {
 
         Boolean isFriend = friendRepository.existsFriendship(me.getId(), target.getId(), FriendStatus.ACCEPTED);
 
-        Page<ChallengeImage> imagePage = challengeRepository.findThumbnailsByUserId(userId, pageable);
+        Page<ChallengeImage> imagePage = challengeRepository.findThumbnailsByUserId(target.getId(), pageable);
 
         Page<ChallengeThumbnailResponse> dtoPage = imagePage.map(ChallengeThumbnailResponse::from);
 
