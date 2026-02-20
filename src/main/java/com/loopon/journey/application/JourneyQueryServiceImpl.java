@@ -17,6 +17,7 @@ import com.loopon.routine.infrastructure.RoutineReportJpaRepository;
 import com.loopon.user.domain.User;
 import com.loopon.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -292,12 +293,16 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_FEEDBACK_NOT_FOUND));
 
         // RoutineReport 조회
-        Optional<RoutineReport> routineReport =
-                routineReportRepository.findByUserAndJourneyAndDate(
+        List<RoutineReport> routineReports =
+                routineReportRepository.findFirstByUserAndJourneyAndDate(
                         userId,
                         journeyId,
-                        date
+                        date,
+                        PageRequest.of(0,1)
                 );
+
+        Optional<RoutineReport> first = routineReports.stream().findFirst();
+        String recordContent = first.map(RoutineReport::getContent).orElse(null);
 
         return new JourneyResponse.DailyJourneyReportDto(
                 journeyId,
@@ -310,7 +315,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
 
                 completedCount,
 
-                routineReport.map(RoutineReport::getContent),
+                Optional.ofNullable(recordContent),
 
                 routineDtos
         );
