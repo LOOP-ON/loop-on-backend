@@ -175,8 +175,3 @@ com.loopon
 
 - **Swagger UI**: `https://api.loopon.cloud/swagger-ui/index.html`
 
----
-
-## CI/CD 파이프라인 (CI/CD Pipeline)
-
-- *추후 업데이트 예정*
