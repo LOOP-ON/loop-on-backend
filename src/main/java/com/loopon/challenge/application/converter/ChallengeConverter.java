@@ -15,7 +15,7 @@ import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;

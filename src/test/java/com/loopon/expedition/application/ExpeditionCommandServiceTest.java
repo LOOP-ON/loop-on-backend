@@ -8,7 +8,7 @@ import com.loopon.expedition.domain.*;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

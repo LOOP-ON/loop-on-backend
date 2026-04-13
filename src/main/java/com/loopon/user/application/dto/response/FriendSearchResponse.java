@@ -1,6 +1,6 @@
 package com.loopon.user.application.dto.response;
 
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.user.domain.enums.FriendStatus;
 
 public record FriendSearchResponse(
         String nickname,

@@ -1,6 +1,6 @@
 package com.loopon.auth.application.dto.request;
 
-import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.enums.UserProvider;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

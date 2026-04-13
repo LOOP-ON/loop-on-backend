@@ -5,7 +5,7 @@ import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.routine.domain.Routine;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 
 import java.util.List;
 

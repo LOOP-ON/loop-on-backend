@@ -5,7 +5,7 @@ import com.loopon.auth.infrastructure.apple.AppleAuthClientAdapter;
 import com.loopon.auth.infrastructure.apple.dto.AppleTokenResponse;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.enums.UserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

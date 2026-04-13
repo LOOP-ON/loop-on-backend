@@ -13,7 +13,7 @@ import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.notification.application.event.ChallengeLikeEvent;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

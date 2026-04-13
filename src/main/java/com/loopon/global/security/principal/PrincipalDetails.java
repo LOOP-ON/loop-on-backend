@@ -1,7 +1,7 @@
 package com.loopon.global.security.principal;
 
 import com.loopon.global.security.dto.AuthUser;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

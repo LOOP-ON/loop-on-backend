@@ -20,7 +20,7 @@ import com.loopon.routine.domain.service.RoutineCommandService;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.routine.infrastructure.RoutineReportJpaRepository;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

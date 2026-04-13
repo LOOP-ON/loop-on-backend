@@ -1,7 +1,7 @@
 package com.loopon.challenge.infrastructure.jpa;
 
 import com.loopon.challenge.domain.ChallengeLike;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

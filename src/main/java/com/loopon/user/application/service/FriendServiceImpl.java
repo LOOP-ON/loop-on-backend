@@ -1,24 +1,20 @@
 package com.loopon.user.application.service;
 
 import com.loopon.global.domain.ErrorCode;
-import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.application.dto.response.FriendResponse;
-import com.loopon.user.domain.Friend;
+import com.loopon.user.infrastructure.persistence.jpa.Friend;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.service.FriendService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
-
-import static com.loopon.user.domain.FriendStatus.ACCEPTED;
-import static com.loopon.user.domain.FriendStatus.BLOCKED;
+import static com.loopon.user.domain.enums.FriendStatus.ACCEPTED;
+import static com.loopon.user.domain.enums.FriendStatus.BLOCKED;
 
 @Service
 @RequiredArgsConstructor

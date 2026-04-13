@@ -6,7 +6,7 @@ import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
 import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

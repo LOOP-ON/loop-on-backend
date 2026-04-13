@@ -1,8 +1,8 @@
 package com.loopon.user.application.dto.response;
 
-import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.Friend;
+import com.loopon.user.domain.enums.FriendStatus;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;

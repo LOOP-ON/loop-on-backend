@@ -1,7 +1,7 @@
 package com.loopon.auth.application.strategy;
 
 import com.loopon.auth.application.dto.response.SocialInfoResponse;
-import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.enums.UserProvider;
 
 public interface SocialLoadStrategy {
 

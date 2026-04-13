@@ -1,7 +1,6 @@
-package com.loopon.userJpaEntity.infrastructure;
+package com.loopon.user.infrastructure.persistence.jpa;
 
-import com.loopon.userJpaEntity.domain.UserJpaEntity;
-import com.loopon.userJpaEntity.domain.UserProvider;
+import com.loopon.user.domain.enums.UserProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

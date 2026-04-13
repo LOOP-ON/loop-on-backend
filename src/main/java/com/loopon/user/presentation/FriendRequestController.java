@@ -9,7 +9,7 @@ import com.loopon.user.application.dto.response.FriendRequestCreateResponse;
 import com.loopon.user.application.dto.response.FriendRequestReceivedResponse;
 import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
 import com.loopon.user.application.dto.response.FriendSearchResponse;
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.user.domain.enums.FriendStatus;
 import com.loopon.user.domain.service.FriendRequestService;
 import com.loopon.user.presentation.docs.FriendRequestApiDocs;
 import lombok.RequiredArgsConstructor;

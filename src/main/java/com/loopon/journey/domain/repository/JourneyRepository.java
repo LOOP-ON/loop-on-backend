@@ -2,7 +2,7 @@ package com.loopon.journey.domain.repository;
 
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyStatus;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

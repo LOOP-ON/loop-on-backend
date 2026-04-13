@@ -1,6 +1,6 @@
 package com.loopon.user.application.dto.command;
 
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.policy.UserValidationPolicy;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

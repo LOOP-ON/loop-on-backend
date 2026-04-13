@@ -1,6 +1,7 @@
-package com.loopon.user.domain;
+package com.loopon.user.infrastructure.persistence.jpa;
 
 import com.loopon.global.domain.BaseTimeEntity;
+import com.loopon.user.domain.enums.FriendStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -1,6 +1,6 @@
 package com.loopon.user.application.dto.command;
 
-import com.loopon.user.domain.UserVisibility;
+import com.loopon.user.domain.enums.UserVisibility;
 
 public record UpdateProfileCommand(
         String nickname,

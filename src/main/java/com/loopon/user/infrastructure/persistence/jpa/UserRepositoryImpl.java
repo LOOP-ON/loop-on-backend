@@ -1,7 +1,6 @@
-package com.loopon.user.infrastructure;
+package com.loopon.user.infrastructure.persistence.jpa;
 
-import com.loopon.user.domain.UserJpaEntity;
-import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.enums.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

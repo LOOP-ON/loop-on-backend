@@ -23,7 +23,7 @@ import com.loopon.expedition.domain.ExpeditionVisibility;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

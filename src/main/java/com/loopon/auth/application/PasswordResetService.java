@@ -7,7 +7,7 @@ import com.loopon.auth.domain.repository.VerificationRepository;
 import com.loopon.auth.infrastructure.RedisAuthAdapter;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

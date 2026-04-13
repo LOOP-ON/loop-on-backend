@@ -2,7 +2,7 @@ package com.loopon.term.domain.repository;
 
 import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 
 import java.util.List;
 import java.util.Optional;

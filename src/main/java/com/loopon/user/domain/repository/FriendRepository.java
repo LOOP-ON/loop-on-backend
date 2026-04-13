@@ -1,7 +1,7 @@
 package com.loopon.user.domain.repository;
 
-import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.user.infrastructure.persistence.jpa.Friend;
+import com.loopon.user.domain.enums.FriendStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;

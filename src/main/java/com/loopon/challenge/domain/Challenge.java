@@ -3,7 +3,7 @@ package com.loopon.challenge.domain;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.journey.domain.Journey;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

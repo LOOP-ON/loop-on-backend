@@ -1,4 +1,4 @@
-package com.loopon.user.domain;
+package com.loopon.user.domain.enums;
 
 public enum UserStatus {
     ACTIVE,

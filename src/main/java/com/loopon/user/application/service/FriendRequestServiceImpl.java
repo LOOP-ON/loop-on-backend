@@ -9,9 +9,9 @@ import com.loopon.user.application.dto.response.FriendRequestCreateResponse;
 import com.loopon.user.application.dto.response.FriendRequestReceivedResponse;
 import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
 import com.loopon.user.application.dto.response.FriendSearchResponse;
-import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.Friend;
+import com.loopon.user.domain.enums.FriendStatus;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
 import com.loopon.user.domain.repository.UserRepository;
@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.loopon.user.domain.FriendStatus.ACCEPTED;
-import static com.loopon.user.domain.FriendStatus.PENDING;
+import static com.loopon.user.domain.enums.FriendStatus.ACCEPTED;
+import static com.loopon.user.domain.enums.FriendStatus.PENDING;
 
 @Service
 @RequiredArgsConstructor

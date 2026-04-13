@@ -1,7 +1,7 @@
 package com.loopon.user.application.dto.request;
 
 import com.loopon.user.application.dto.command.UpdateProfileCommand;
-import com.loopon.user.domain.UserVisibility;
+import com.loopon.user.domain.enums.UserVisibility;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

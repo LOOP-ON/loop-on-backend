@@ -1,7 +1,7 @@
 package com.loopon.expedition.application.dto.response;
 
 import com.loopon.expedition.domain.ExpeditionUserStatus;
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.user.domain.enums.FriendStatus;
 import lombok.Builder;
 
 import java.util.List;

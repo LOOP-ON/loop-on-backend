@@ -1,6 +1,6 @@
 package com.loopon.user.application.dto.response;
 
-import com.loopon.user.domain.Friend;
+import com.loopon.user.infrastructure.persistence.jpa.Friend;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;

@@ -3,7 +3,7 @@ package com.loopon.auth.application.strategy;
 import com.loopon.auth.application.dto.response.SocialInfoResponse;
 import com.loopon.auth.infrastructure.kakao.KakaoRestClientAdapter;
 import com.loopon.auth.infrastructure.kakao.dto.KakaoUserResponse;
-import com.loopon.user.domain.UserProvider;
+import com.loopon.user.domain.enums.UserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

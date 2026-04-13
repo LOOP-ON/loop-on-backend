@@ -9,7 +9,7 @@ import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionUser;
-import com.loopon.user.domain.UserJpaEntity;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

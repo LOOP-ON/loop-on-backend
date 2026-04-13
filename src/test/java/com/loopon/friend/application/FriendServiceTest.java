@@ -1,12 +1,11 @@
 package com.loopon.friend.application;
 
-import com.loopon.global.domain.dto.PageResponse;
 import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.application.dto.response.FriendResponse;
 import com.loopon.user.application.service.FriendServiceImpl;
-import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.user.infrastructure.persistence.jpa.Friend;
+import com.loopon.user.domain.enums.FriendStatus;
 import com.loopon.user.domain.repository.FriendRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

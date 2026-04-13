@@ -1,7 +1,7 @@
 package com.loopon.user.domain.repository;
 
-import com.loopon.user.domain.UserJpaEntity;
-import com.loopon.user.domain.UserProvider;
+import com.loopon.user.infrastructure.persistence.jpa.UserJpaEntity;
+import com.loopon.user.domain.enums.UserProvider;
 
 import java.util.Optional;
 
