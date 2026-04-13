@@ -1,8 +1,8 @@
-package com.loopon.user.domain.repository;
+package com.loopon.userJpaEntity.domain.repository;
 
-import com.loopon.user.application.dto.response.FriendSearchResponse;
-import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.FriendStatus;
+import com.loopon.userJpaEntity.application.dto.response.FriendSearchResponse;
+import com.loopon.userJpaEntity.domain.Friend;
+import com.loopon.userJpaEntity.domain.FriendStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -40,10 +40,10 @@ public interface FriendRequestRepository extends JpaRepository<Friend, Long> {
             @Param("status") FriendStatus status
     );
     @Query("""
-    SELECT NEW com.loopon.user.application.dto.response.FriendSearchResponse(
+    SELECT NEW com.loopon.userJpaEntity.application.dto.response.FriendSearchResponse(
         u.nickname,
         u.bio,
-        coalesce(f.status, com.loopon.user.domain.FriendStatus.NOT_FRIENDS),
+        coalesce(f.status, com.loopon.userJpaEntity.domain.FriendStatus.NOT_FRIENDS),
         u.profileImageUrl,
         u.id
     )

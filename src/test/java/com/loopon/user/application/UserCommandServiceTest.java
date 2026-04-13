@@ -10,7 +10,7 @@ import com.loopon.user.application.dto.command.UpdateProfileCommand;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
 import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.response.UserProfileResponse;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserVisibility;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -92,13 +92,13 @@ class UserCommandServiceTest {
             given(passwordEncoder.encode(command.password())).willReturn("encodedPassword");
 
             // ★ 서비스가 Long을 리턴 받으므로 stub 필요
-            given(userRepository.save(any(User.class))).willReturn(1L);
+            given(userRepository.save(any(UserJpaEntity.class))).willReturn(1L);
 
             // when
             userCommandService.signUp(command);
 
             // then
-            verify(userRepository).save(any(User.class));
+            verify(userRepository).save(any(UserJpaEntity.class));
             verify(userTermAgreementRepository).saveAll(anyList());
 
             // NotificationSetting 저장 검증
@@ -124,7 +124,7 @@ class UserCommandServiceTest {
             given(userRepository.existsByNickname(command.nickname())).willReturn(false);
             given(passwordEncoder.encode(command.password())).willReturn("encodedPassword");
 
-            given(userRepository.save(any(User.class))).willReturn(2L);
+            given(userRepository.save(any(UserJpaEntity.class))).willReturn(2L);
 
             // when
             userCommandService.signUp(command);
@@ -228,16 +228,16 @@ class UserCommandServiceTest {
         void 프로필_수정_성공() {
             // given
             Long userId = 1L;
-            User user = User.createLocalUser(
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(
                     "test@loopon.com", "oldNick", "encodedPw", "oldImg.jpg"
             );
-            ReflectionTestUtils.setField(user, "id", userId);
+            ReflectionTestUtils.setField(userJpaEntity, "id", userId);
 
             UpdateProfileCommand command = createUpdateCommand(
                     "newNick", "newBio", "Studying...", "newImg.jpg", UserVisibility.PUBLIC
             );
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
 
             // when
             UserProfileResponse response = userCommandService.updateProfile(userId, command);
@@ -248,9 +248,9 @@ class UserCommandServiceTest {
             assertThat(response.statusMessage()).isEqualTo(command.statusMessage());
             assertThat(response.profileImageUrl()).isEqualTo(command.profileImageUrl());
 
-            assertThat(user.getNickname()).isEqualTo("newNick");
-            assertThat(user.getBio()).isEqualTo("newBio");
-            assertThat(user.getVisibility()).isEqualTo(UserVisibility.PUBLIC);
+            assertThat(userJpaEntity.getNickname()).isEqualTo("newNick");
+            assertThat(userJpaEntity.getBio()).isEqualTo("newBio");
+            assertThat(userJpaEntity.getVisibility()).isEqualTo(UserVisibility.PUBLIC);
         }
 
         @Test
@@ -285,12 +285,12 @@ class UserCommandServiceTest {
             // given
             Long userId = 1L;
             String encodedOldPw = "encodedOldPw";
-            User user = User.createLocalUser("test@email.com", "nick", encodedOldPw, null);
-            ReflectionTestUtils.setField(user, "id", userId);
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser("test@email.com", "nick", encodedOldPw, null);
+            ReflectionTestUtils.setField(userJpaEntity, "id", userId);
 
             ChangePasswordRequest command = createPasswordCommand("oldPw123!", "newPw123!", "newPw123!");
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(passwordEncoder.matches(command.currentPassword(), encodedOldPw)).willReturn(true);
             given(passwordEncoder.encode(command.newPassword())).willReturn("encodedNewPw");
 
@@ -298,7 +298,7 @@ class UserCommandServiceTest {
             userCommandService.changePassword(userId, command);
 
             // then
-            assertThat(user.getPassword()).isEqualTo("encodedNewPw");
+            assertThat(userJpaEntity.getPassword()).isEqualTo("encodedNewPw");
         }
 
         @Test
@@ -307,12 +307,12 @@ class UserCommandServiceTest {
             // given
             Long userId = 1L;
             String encodedOldPw = "encodedOldPw";
-            User user = User.createLocalUser("test@email.com", "nick", encodedOldPw, null);
-            ReflectionTestUtils.setField(user, "id", userId);
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser("test@email.com", "nick", encodedOldPw, null);
+            ReflectionTestUtils.setField(userJpaEntity, "id", userId);
 
             ChangePasswordRequest command = createPasswordCommand("wrongPw!", "newPw123!", "newPw123!");
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(passwordEncoder.matches(command.currentPassword(), encodedOldPw)).willReturn(false);
 
             // when & then
@@ -328,8 +328,8 @@ class UserCommandServiceTest {
             Long userId = 1L;
             ChangePasswordRequest command = createPasswordCommand("oldPw123!", "newPw123!", "differentPw!");
 
-            User user = User.createLocalUser("test@email.com", "nick", "encoded", null);
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser("test@email.com", "nick", "encoded", null);
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
 
             // when & then
             assertThatThrownBy(() -> userCommandService.changePassword(userId, command))

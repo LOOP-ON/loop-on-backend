@@ -11,7 +11,7 @@ import com.loopon.global.exception.AuthorizationException;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.jwt.JwtTokenProvider;
 import com.loopon.global.security.jwt.JwtTokenValidator;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +41,14 @@ public class AuthService {
 
     @Transactional
     public AuthResult login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
+        UserJpaEntity userJpaEntity = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.password(), userJpaEntity.getPassword())) {
             throw new BusinessException(ErrorCode.PASSWORD_NOT_MATCH);
         }
 
-        return processLoginSuccess(user);
+        return processLoginSuccess(userJpaEntity);
     }
 
     @Transactional
@@ -60,10 +60,10 @@ public class AuthService {
 
         SocialInfoResponse socialInfo = strategy.loadSocialInfo(accessToken);
 
-        User user = userRepository.findBySocialIdAndProvider(socialInfo.id(), provider)
+        UserJpaEntity userJpaEntity = userRepository.findBySocialIdAndProvider(socialInfo.id(), provider)
                 .orElseGet(() -> registerSocialUser(socialInfo, provider));
 
-        return processLoginSuccess(user);
+        return processLoginSuccess(userJpaEntity);
     }
 
     @Transactional
@@ -104,7 +104,7 @@ public class AuthService {
         }
     }
 
-    private User registerSocialUser(SocialInfoResponse info, UserProvider provider) {
+    private UserJpaEntity registerSocialUser(SocialInfoResponse info, UserProvider provider) {
         String nickname = info.nickname();
         if (nickname == null || nickname.isBlank()) {
             nickname = "LOOP:ON_user";
@@ -125,7 +125,7 @@ public class AuthService {
 
         } while (userRepository.existsByNickname(tempNickname));
 
-        User newUser = User.createSocialUser(
+        UserJpaEntity newUserJpaEntity = UserJpaEntity.createSocialUser(
                 info.id(),
                 provider,
                 info.email(),
@@ -133,19 +133,19 @@ public class AuthService {
                 info.profileImage()
         );
 
-        userRepository.save(newUser);
+        userRepository.save(newUserJpaEntity);
 
-        return newUser;
+        return newUserJpaEntity;
     }
 
-    private AuthResult processLoginSuccess(User user) {
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getEmail(), Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole())));
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+    private AuthResult processLoginSuccess(UserJpaEntity userJpaEntity) {
+        String accessToken = jwtTokenProvider.createAccessToken(userJpaEntity.getId(), userJpaEntity.getEmail(), Collections.singletonList(new SimpleGrantedAuthority(userJpaEntity.getUserRole())));
+        String refreshToken = jwtTokenProvider.createRefreshToken(userJpaEntity.getEmail());
 
         RefreshToken newRefreshToken = RefreshToken.builder()
-                .email(user.getEmail())
-                .userId(user.getId())
-                .role(user.getUserRole())
+                .email(userJpaEntity.getEmail())
+                .userId(userJpaEntity.getId())
+                .role(userJpaEntity.getUserRole())
                 .token(refreshToken)
                 .build();
 

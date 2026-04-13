@@ -6,7 +6,7 @@ import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -124,14 +124,14 @@ class UserQueryServiceTest {
             Long userId = 1L;
             Pageable pageable = PageRequest.of(0, 10);
 
-            User user = User.createLocalUser(
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(
                     "test@loopon.com", "loopon", "encodedPw", "profile.jpg"
             );
-            ReflectionTestUtils.setField(user, "id", userId);
+            ReflectionTestUtils.setField(userJpaEntity, "id", userId);
 
             Page<ChallengeImage> emptyImagePage = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(challengeRepository.findThumbnailsByUserId(userId, pageable)).willReturn(emptyImagePage);
 
             // when

@@ -23,7 +23,7 @@ import com.loopon.expedition.domain.ExpeditionVisibility;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,16 +43,16 @@ public class ExpeditionCommandService {
     public ExpeditionPostResponse postExpedition(
             ExpeditionPostCommand commandDto
     ) {
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkExpeditionLimit(user);
+        checkExpeditionLimit(userJpaEntity);
 
-        Expedition expedition = ExpeditionConverter.postExpedition(commandDto, user);
+        Expedition expedition = ExpeditionConverter.postExpedition(commandDto, userJpaEntity);
         expeditionRepository.save(expedition);
 
         ExpeditionUser expeditionUser = ExpeditionUser.builder()
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .expedition(expedition)
                 .status(ExpeditionUserStatus.APPROVED)
                 .build();
@@ -66,15 +66,15 @@ public class ExpeditionCommandService {
     public ExpeditionJoinResponse joinExpedition(
             ExpeditionJoinCommand commandDto
     ) {
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkExpeditionLimit(user);
+        checkExpeditionLimit(userJpaEntity);
 
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
-        checkExpelled(expedition, user);
+        checkExpelled(expedition, userJpaEntity);
 
         checkUserLimit(expedition);
 
@@ -83,7 +83,7 @@ public class ExpeditionCommandService {
         }
 
         ExpeditionUser expeditionUser = ExpeditionUser.builder()
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .expedition(expedition)
                 .status(ExpeditionUserStatus.APPROVED)
                 .build();
@@ -105,10 +105,10 @@ public class ExpeditionCommandService {
         ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(commandDto.userId(), commandDto.expeditionId())
                          .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        if (expedition.getAdmin().equals(user)){
+        if (expedition.getAdmin().equals(userJpaEntity)){
             throw new BusinessException(ErrorCode.EXPEDITION_ADMIN_WITHDRAW);
         }
 
@@ -121,12 +121,12 @@ public class ExpeditionCommandService {
     @Transactional
     public ExpeditionDeleteResponse deleteExpedition(ExpeditionDeleteCommand commandDto) {
 
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
-        checkAdmin(user, expedition);
+        checkAdmin(userJpaEntity, expedition);
 
         String deletedTitle = expedition.getTitle();
 
@@ -143,17 +143,17 @@ public class ExpeditionCommandService {
     public ExpeditionExpelResponse expelExpedition(
             ExpeditionExpelCommand commandDto
     ) {
-        User user = userRepository.findById(commandDto.myUserId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.myUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
-        User expelledUser = userRepository.findById(commandDto.userId())
+        UserJpaEntity expelledUserJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkAdmin(user, expedition);
+        checkAdmin(userJpaEntity, expedition);
 
         ExpeditionUser expeditionUser =
-                expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
+                expeditionRepository.findExpeditionUserByUserIdAndId(expelledUserJpaEntity.getId(), expedition.getId())
                         .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionUser.expelUser();
@@ -166,16 +166,16 @@ public class ExpeditionCommandService {
     public ExpeditionCancelExpelResponse cancelExpelExpedition(
             ExpeditionCancelExpelCommand commandDto
     ) {
-        User myself = userRepository.findById(commandDto.myUserId())
+        UserJpaEntity myself = userRepository.findById(commandDto.myUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
 
         checkAdmin(myself, expedition);
 
-        User expelledUser = userRepository.findById(commandDto.userId())
+        UserJpaEntity expelledUserJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(expelledUser.getId(), expedition.getId())
+        ExpeditionUser expeditionUser = expeditionRepository.findExpeditionUserByUserIdAndId(expelledUserJpaEntity.getId(), expedition.getId())
                 .orElseThrow(()  -> new BusinessException(ErrorCode.EXPEDITION_USER_NOT_FOUND));
 
         expeditionRepository.deleteExpeditionUser(expeditionUser);
@@ -189,10 +189,10 @@ public class ExpeditionCommandService {
     ) {
         Expedition expedition = expeditionRepository.findById(dto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
-        User user = userRepository.findById(dto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkAdmin(user, expedition);
+        checkAdmin(userJpaEntity, expedition);
 
         checkUserLimitChange(expedition, dto.userLimit());
 
@@ -205,8 +205,8 @@ public class ExpeditionCommandService {
 
 
     // 사용자의 탐험대 개수 제한
-    private void checkExpeditionLimit(User user){
-        List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserByUserId(user.getId());
+    private void checkExpeditionLimit(UserJpaEntity userJpaEntity){
+        List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserByUserId(userJpaEntity.getId());
 
         int currentCount = 0;
 
@@ -221,11 +221,11 @@ public class ExpeditionCommandService {
         }
     }
 
-    private void checkExpelled(Expedition expedition, User user) {
+    private void checkExpelled(Expedition expedition, UserJpaEntity userJpaEntity) {
         List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserById(expedition.getId());
 
         for (ExpeditionUser expeditionUser : expeditionUserList){
-            if (expeditionUser.getUser() == user && expeditionUser.getStatus().equals(ExpeditionUserStatus.EXPELLED)) {
+            if (expeditionUser.getUserJpaEntity() == userJpaEntity && expeditionUser.getStatus().equals(ExpeditionUserStatus.EXPELLED)) {
                 throw new BusinessException(ErrorCode.EXPEDITION_EXPELLED);
             }
         }
@@ -251,8 +251,8 @@ public class ExpeditionCommandService {
         }
     }
 
-    private void checkAdmin(User user, Expedition expedition) {
-        if (expedition.getAdmin() != user){
+    private void checkAdmin(UserJpaEntity userJpaEntity, Expedition expedition) {
+        if (expedition.getAdmin() != userJpaEntity){
             throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
         }
     }

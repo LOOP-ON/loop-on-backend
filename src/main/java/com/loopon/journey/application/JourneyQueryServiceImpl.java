@@ -14,7 +14,7 @@ import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.service.JourneyQueryService;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.routine.infrastructure.RoutineReportJpaRepository;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -45,10 +45,10 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
 
     @Override
     public JourneyResponse.JourneyOrderDto getNextJourneyOrder(Long userId) {
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Integer maxOrder = journeyRepository.findMaxJourneyOrderByUser(user);
+        Integer maxOrder = journeyRepository.findMaxJourneyOrderByUser(userJpaEntity);
 
         return new JourneyResponse.JourneyOrderDto(maxOrder + 1);
     }
@@ -57,12 +57,12 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
     public JourneyResponse.CurrentJourneyDto getCurrentJourney(Long userId) {
 
         //유저 조회
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         //진행중인 여정 조회
         Journey journey = journeyRepository
-                .findByUserAndStatus(user, JourneyStatus.IN_PROGRESS)
+                .findByUserAndStatus(userJpaEntity, JourneyStatus.IN_PROGRESS)
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
         //여정에 속한 루틴 전체 조회
@@ -159,7 +159,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
             Pageable pageable
     ) {
 
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // 카테고리 분류
@@ -181,7 +181,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         Slice<Journey> journeys = journeyRepository.findDistinctJourneyBySearch(
                 keyword,
                 journeyCategories,
-                user.getId(),
+                userJpaEntity.getId(),
                 pageable
         );
 
@@ -194,10 +194,10 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
     @Override
     public Slice<JourneyResponse.JourneyPreviewDto> getJourneyList(Long userId, Pageable pageable) {
 
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Slice<Journey> journeys = journeyRepository.findDistinctJourneyByUserId(user.getId(), pageable);
+        Slice<Journey> journeys = journeyRepository.findDistinctJourneyByUserId(userJpaEntity.getId(), pageable);
 
         return journeys.map(journey -> new JourneyResponse.JourneyPreviewDto(
                 journey.getId(), journey.getGoal(), journey.getCategory(), journey.getJourneyOrder()
@@ -325,7 +325,7 @@ public class JourneyQueryServiceImpl implements JourneyQueryService {
         Journey journey = journeyRepository.findById(journeyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
-        if (!journey.getUser().getId().equals(userId)) {
+        if (!journey.getUserJpaEntity().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
         }
 

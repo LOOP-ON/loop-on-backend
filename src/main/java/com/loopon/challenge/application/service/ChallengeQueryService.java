@@ -10,7 +10,7 @@ import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserVisibility;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.UserRepository;
@@ -116,12 +116,12 @@ public class ChallengeQueryService {
             ChallengeViewCommand commandDto
     ) {
 
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
         LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
         Slice<Challenge> trendingChallenges = challengeRepository.findTrendingChallenges(
-                threeDaysAgo, user.getId(), commandDto.trendingPage());
+                threeDaysAgo, userJpaEntity.getId(), commandDto.trendingPage());
 
 
         List<Long> trendingIds = new ArrayList<>();
@@ -129,7 +129,7 @@ public class ChallengeQueryService {
             trendingIds.add(challenge.getId());
         }
 
-        List<Long> friendsIds = getFriendsIds(user);
+        List<Long> friendsIds = getFriendsIds(userJpaEntity);
 
         Slice<Challenge> friendsChallenges = challengeRepository.findFriendsChallenges(
                 friendsIds, trendingIds, commandDto.friendsPage());
@@ -144,7 +144,7 @@ public class ChallengeQueryService {
         if (challengesIds.isEmpty()) {
             likedChallengeIds = Collections.emptySet();
         } else {
-            likedChallengeIds = challengeRepository.findLikedChallengeIds(user.getId(), challengesIds);
+            likedChallengeIds = challengeRepository.findLikedChallengeIds(userJpaEntity.getId(), challengesIds);
         }
 
         Slice<ChallengeViewResponse> trendingResponse = trendingChallenges.map(challenge ->
@@ -162,16 +162,16 @@ public class ChallengeQueryService {
             ChallengeDetailCommand dto
     ) {
 
-        User user = userRepository.findByNickname(dto.nickname())
+        UserJpaEntity userJpaEntity = userRepository.findByNickname(dto.nickname())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByUserId(user.getId(), dto.pageable());
+        Slice<Challenge> challenges = challengeRepository.findAllWithJourneyAndUserByUserId(userJpaEntity.getId(), dto.pageable());
 
         return SliceResponse.from(challenges.map(challenge -> {
 
             List<String> imageUrls = getImageUrls(challenge);
             List<String> hashtags = getHashtags(challenge);
-            Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), user.getId());
+            Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), userJpaEntity.getId());
 
             return ChallengeConverter.detailChallenge(challenge, imageUrls, hashtags, isLiked);
         }));
@@ -181,17 +181,17 @@ public class ChallengeQueryService {
 
     // --------------------------- Helper Method --------------------------------
 
-    private void checkAllowed(User targetUser, User myself) {
-        if (targetUser.getId().equals(myself.getId())) {
+    private void checkAllowed(UserJpaEntity targetUserJpaEntity, UserJpaEntity myself) {
+        if (targetUserJpaEntity.getId().equals(myself.getId())) {
             return;
         }
 
-        if (targetUser.getVisibility().equals(UserVisibility.PUBLIC)) {
+        if (targetUserJpaEntity.getVisibility().equals(UserVisibility.PUBLIC)) {
             return;
         }
 
         boolean isFriend = friendRepository.existsFriendship(
-                targetUser.getId(),
+                targetUserJpaEntity.getId(),
                 myself.getId(),
                 FriendStatus.ACCEPTED
         );
@@ -201,15 +201,15 @@ public class ChallengeQueryService {
         }
     }
 
-    private List<Long> getFriendsIds(User user) {
-        List<Friend> friends = friendRepository.findFriendsByUserIdAndStatus(user.getId(), FriendStatus.ACCEPTED);
+    private List<Long> getFriendsIds(UserJpaEntity userJpaEntity) {
+        List<Friend> friends = friendRepository.findFriendsByUserIdAndStatus(userJpaEntity.getId(), FriendStatus.ACCEPTED);
 
         List<Long> friendIds = new ArrayList<>();
         for (Friend friend : friends) {
             Long requesterId = friend.getRequester().getId();
             Long receiverId = friend.getReceiver().getId();
 
-            if (requesterId.equals(user.getId())) {
+            if (requesterId.equals(userJpaEntity.getId())) {
                 friendIds.add(receiverId);
             } else {
                 friendIds.add(requesterId);

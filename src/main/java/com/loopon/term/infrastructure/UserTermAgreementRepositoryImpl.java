@@ -3,7 +3,7 @@ package com.loopon.term.infrastructure;
 import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +26,7 @@ public class UserTermAgreementRepositoryImpl implements UserTermAgreementReposit
     }
 
     @Override
-    public Optional<UserTermAgreement> findByUserAndTerm(User user, Term term) {
-        return userTermAgreementJpaRepository.findByUserAndTerm(user, term);
+    public Optional<UserTermAgreement> findByUserAndTerm(UserJpaEntity userJpaEntity, Term term) {
+        return userTermAgreementJpaRepository.findByUserAndTerm(userJpaEntity, term);
     }
 }

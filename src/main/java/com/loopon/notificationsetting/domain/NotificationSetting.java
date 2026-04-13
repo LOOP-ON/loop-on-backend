@@ -1,7 +1,7 @@
 package com.loopon.notificationsetting.domain;
 
 import com.loopon.global.domain.BaseTimeEntity;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,7 +23,7 @@ public class NotificationSetting extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    private UserJpaEntity userJpaEntity;
 
     // 전체 알림
     @Column(nullable = false)
@@ -88,7 +88,7 @@ public class NotificationSetting extends BaseTimeEntity {
     }
     @Builder
     private NotificationSetting(
-            User user,
+            UserJpaEntity userJpaEntity,
             boolean allEnabled,
             boolean routineEnabled,
             AlertMode routineAlertMode,
@@ -102,7 +102,7 @@ public class NotificationSetting extends BaseTimeEntity {
             boolean noticeEnabled,
             boolean marketingEnabled
     ) {
-        this.user = user;
+        this.userJpaEntity = userJpaEntity;
         this.allEnabled = allEnabled;
         this.routineEnabled = routineEnabled;
         this.routineAlertMode = routineAlertMode;
@@ -116,9 +116,9 @@ public class NotificationSetting extends BaseTimeEntity {
         this.noticeEnabled = noticeEnabled;
         this.marketingEnabled = marketingEnabled;
     }
-    public static NotificationSetting createAllEnabled(User user, boolean marketingEnabled) {
+    public static NotificationSetting createAllEnabled(UserJpaEntity userJpaEntity, boolean marketingEnabled) {
         return NotificationSetting.builder()
-                .user(user)
+                .user(userJpaEntity)
                 .allEnabled(true)
                 .routineEnabled(true)
                 .routineAlertMode(AlertMode.SOUND)

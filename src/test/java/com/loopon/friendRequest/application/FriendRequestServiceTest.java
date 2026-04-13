@@ -7,7 +7,7 @@ import com.loopon.notification.application.event.FriendRequestCreatedEvent;
 import com.loopon.user.application.dto.response.*;
 import com.loopon.user.application.service.FriendRequestServiceImpl;
 import com.loopon.user.domain.Friend;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
 import com.loopon.user.domain.repository.UserRepository;
@@ -52,20 +52,20 @@ class FriendRequestServiceTest {
     @InjectMocks
     private FriendRequestServiceImpl friendRequestService;
 
-    private User user1;
-    private User user2;
+    private UserJpaEntity userJpaEntity1;
+    private UserJpaEntity userJpaEntity2;
     private Friend friendRequest;
     private Pageable pageable;
 
     @BeforeEach
     void setUp() {
-        user1 = User.createLocalUser("test1@loopon.com", "loopon1", "password123!", null);
-        ReflectionTestUtils.setField(user1, "id", 1L);
+        userJpaEntity1 = UserJpaEntity.createLocalUser("test1@loopon.com", "loopon1", "password123!", null);
+        ReflectionTestUtils.setField(userJpaEntity1, "id", 1L);
 
-        user2 = User.createLocalUser("test2@loopon.com", "loopon2", "password123!", null);
-        ReflectionTestUtils.setField(user2, "id", 2L);
+        userJpaEntity2 = UserJpaEntity.createLocalUser("test2@loopon.com", "loopon2", "password123!", null);
+        ReflectionTestUtils.setField(userJpaEntity2, "id", 2L);
 
-        friendRequest = Friend.builder().id(1L).requester(user1).receiver(user2).status(PENDING).build();
+        friendRequest = Friend.builder().id(1L).requester(userJpaEntity1).receiver(userJpaEntity2).status(PENDING).build();
 
         pageable = PageRequest.of(0, 10, Sort.by("updatedAt").descending());
     }
@@ -117,11 +117,11 @@ class FriendRequestServiceTest {
             String trimmed = query.trim();
 
             FriendSearchResponse response = new FriendSearchResponse(
-                    user2.getNickname(),
-                    user2.getBio(),
+                    userJpaEntity2.getNickname(),
+                    userJpaEntity2.getBio(),
                     NOT_FRIENDS,           // 또는 null (서비스/프론트 정책에 맞게)
-                    user2.getProfileImageUrl(),
-                    user2.getId()
+                    userJpaEntity2.getProfileImageUrl(),
+                    userJpaEntity2.getId()
             );
             Page<FriendSearchResponse> page =
                     new PageImpl<>(List.of(response), pageable, 1);
@@ -213,8 +213,8 @@ class FriendRequestServiceTest {
             given(friendRequestRepository.existsFriendship(1L, 2L, ACCEPTED)).willReturn(false);
             given(friendRequestRepository.existsFriendship(1L, 2L, PENDING)).willReturn(false);
 
-            given(userRepository.findById(1L)).willReturn(Optional.ofNullable(user1));
-            given(userRepository.findById(2L)).willReturn(Optional.ofNullable(user2));
+            given(userRepository.findById(1L)).willReturn(Optional.ofNullable(userJpaEntity1));
+            given(userRepository.findById(2L)).willReturn(Optional.ofNullable(userJpaEntity2));
 
             given(friendRequestRepository.save(any(Friend.class))).willAnswer(inv -> inv.getArgument(0));
 
@@ -234,7 +234,7 @@ class FriendRequestServiceTest {
         @Test
         @DisplayName("acceptOneFriendRequest: PENDING 요청 수락")
         void acceptOne_success() {
-            Friend pending = Friend.request(user2, user1); // requester=2, receiver=1
+            Friend pending = Friend.request(userJpaEntity2, userJpaEntity1); // requester=2, receiver=1
             ReflectionTestUtils.setField(pending, "id", 10L);
 
             given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING)).willReturn(Optional.of(pending));
@@ -258,7 +258,7 @@ class FriendRequestServiceTest {
         @Test
         @DisplayName("deleteOneFriendRequest: PENDING 요청 삭제")
         void deleteOne_success() {
-            Friend pending = Friend.request(user2, user1);
+            Friend pending = Friend.request(userJpaEntity2, userJpaEntity1);
             ReflectionTestUtils.setField(pending, "id", 10L);
             given(friendRequestRepository.findByRequesterIdAndReceiverIdAndStatus(2L, 1L, PENDING)).willReturn(Optional.of(pending));
 
@@ -290,8 +290,8 @@ class FriendRequestServiceTest {
         @Test
         @DisplayName("acceptAllFriendRequests: 모두 ACCEPTED로 변경 후 saveAll")
         void acceptAll_success() {
-            Friend fr1 = Friend.request(user2, user1);
-            Friend fr2 = Friend.request(user2, user1);
+            Friend fr1 = Friend.request(userJpaEntity2, userJpaEntity1);
+            Friend fr2 = Friend.request(userJpaEntity2, userJpaEntity1);
 
             given(friendRequestRepository.findAllByReceiverIdAndStatus(1L, PENDING)).willReturn(List.of(fr1, fr2));
 
@@ -318,8 +318,8 @@ class FriendRequestServiceTest {
         @Test
         @DisplayName("deleteAllFriendRequests: 요청들 batch 삭제")
         void deleteAll_success() {
-            Friend fr1 = Friend.request(user2, user1);
-            Friend fr2 = Friend.request(user2, user1);
+            Friend fr1 = Friend.request(userJpaEntity2, userJpaEntity1);
+            Friend fr2 = Friend.request(userJpaEntity2, userJpaEntity1);
 
             given(friendRequestRepository.findAllByReceiverIdAndStatus(1L, PENDING)).willReturn(List.of(fr1, fr2));
 

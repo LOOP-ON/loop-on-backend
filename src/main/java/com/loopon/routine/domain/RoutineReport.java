@@ -2,7 +2,7 @@ package com.loopon.routine.domain;
 
 import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.journey.domain.Journey;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,7 +29,7 @@ public class RoutineReport extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserJpaEntity userJpaEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journey_id", nullable = false)

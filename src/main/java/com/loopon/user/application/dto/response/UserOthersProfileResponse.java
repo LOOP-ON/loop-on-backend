@@ -3,7 +3,7 @@ package com.loopon.user.application.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.loopon.challenge.application.dto.response.ChallengeThumbnailResponse;
 import com.loopon.global.domain.dto.PageResponse;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 
 public record UserOthersProfileResponse(
         Long userId,
@@ -17,17 +17,17 @@ public record UserOthersProfileResponse(
         PageResponse<ChallengeThumbnailResponse> thumbnailResponse
 ) {
     public static UserOthersProfileResponse of(
-            User user,
+            UserJpaEntity userJpaEntity,
             Boolean isFriend,
             PageResponse<ChallengeThumbnailResponse> challenges
     ) {
 
         return new UserOthersProfileResponse(
-                user.getId(),
-                user.getNickname(),
-                user.getBio(),
-                user.getStatusMessage(),
-                user.getProfileImageUrl(),
+                userJpaEntity.getId(),
+                userJpaEntity.getNickname(),
+                userJpaEntity.getBio(),
+                userJpaEntity.getStatusMessage(),
+                userJpaEntity.getProfileImageUrl(),
                 isFriend,
                 challenges
         );

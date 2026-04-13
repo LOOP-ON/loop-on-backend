@@ -11,7 +11,7 @@ import com.loopon.global.exception.AuthorizationException;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.jwt.JwtTokenProvider;
 import com.loopon.global.security.jwt.JwtTokenValidator;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.UserRole;
 import com.loopon.user.domain.repository.UserRepository;
@@ -82,16 +82,16 @@ class AuthServiceTest {
             return new LoginRequest("test@loopon.com", "password1234");
         }
 
-        private User createMockUser(String email, String encodedPassword) {
-            User user = User.createLocalUser(
+        private UserJpaEntity createMockUser(String email, String encodedPassword) {
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(
                     email,
                     "nickname",
                     encodedPassword,
                     "profile_img_url"
                     );
 
-            ReflectionTestUtils.setField(user, "id", 1L);
-            return user;
+            ReflectionTestUtils.setField(userJpaEntity, "id", 1L);
+            return userJpaEntity;
         }
 
         @Test
@@ -101,12 +101,12 @@ class AuthServiceTest {
             LoginRequest request = createLoginRequest();
             String encodedPassword = "encoded_password_1234";
 
-            User user = createMockUser(request.email(), encodedPassword);
+            UserJpaEntity userJpaEntity = createMockUser(request.email(), encodedPassword);
 
             given(userRepository.findByEmail(request.email()))
-                    .willReturn(Optional.of(user));
+                    .willReturn(Optional.of(userJpaEntity));
 
-            given(passwordEncoder.matches(request.password(), user.getPassword()))
+            given(passwordEncoder.matches(request.password(), userJpaEntity.getPassword()))
                     .willReturn(true);
 
             given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any()))
@@ -144,12 +144,12 @@ class AuthServiceTest {
         void 실패_비밀번호_불일치() {
             // given
             LoginRequest request = createLoginRequest();
-            User user = createMockUser(request.email(), "encoded_password");
+            UserJpaEntity userJpaEntity = createMockUser(request.email(), "encoded_password");
 
             given(userRepository.findByEmail(request.email()))
-                    .willReturn(Optional.of(user));
+                    .willReturn(Optional.of(userJpaEntity));
 
-            given(passwordEncoder.matches(request.password(), user.getPassword()))
+            given(passwordEncoder.matches(request.password(), userJpaEntity.getPassword()))
                     .willReturn(false);
 
             // when & then
@@ -192,12 +192,12 @@ class AuthServiceTest {
                     new SocialInfoResponse(socialId, "nick", email, "img")
             );
 
-            User existingUser = User.createSocialUser(socialId, provider, email, "nick", "img");
-            org.springframework.test.util.ReflectionTestUtils.setField(existingUser, "id", 1L);
-            org.springframework.test.util.ReflectionTestUtils.setField(existingUser, "role", UserRole.ROLE_USER);
+            UserJpaEntity existingUserJpaEntity = UserJpaEntity.createSocialUser(socialId, provider, email, "nick", "img");
+            org.springframework.test.util.ReflectionTestUtils.setField(existingUserJpaEntity, "id", 1L);
+            org.springframework.test.util.ReflectionTestUtils.setField(existingUserJpaEntity, "role", UserRole.ROLE_USER);
 
             given(userRepository.findBySocialIdAndProvider(socialId, provider))
-                    .willReturn(Optional.of(existingUser));
+                    .willReturn(Optional.of(existingUserJpaEntity));
 
             given(jwtTokenProvider.createAccessToken(anyLong(), anyString(), any())).willReturn("access");
             given(jwtTokenProvider.createRefreshToken(anyString())).willReturn("refresh");
@@ -207,7 +207,7 @@ class AuthServiceTest {
 
             // then
             assertThat(result.accessToken()).isEqualTo("access");
-            verify(userRepository, times(0)).save(any(User.class));
+            verify(userRepository, times(0)).save(any(UserJpaEntity.class));
         }
 
         @Test
@@ -224,11 +224,11 @@ class AuthServiceTest {
             given(userRepository.findBySocialIdAndProvider(anyString(), any())).willReturn(Optional.empty());
             given(userRepository.existsByNickname(anyString())).willReturn(false);
 
-            given(userRepository.save(any(User.class))).willAnswer(invocation -> {
-                User savingUser = invocation.getArgument(0);
+            given(userRepository.save(any(UserJpaEntity.class))).willAnswer(invocation -> {
+                UserJpaEntity savingUserJpaEntity = invocation.getArgument(0);
 
-                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "id", 2L);
-                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "role", UserRole.ROLE_USER);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUserJpaEntity, "id", 2L);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUserJpaEntity, "role", UserRole.ROLE_USER);
 
                 return 2L;
             });
@@ -241,7 +241,7 @@ class AuthServiceTest {
 
             // then
             assertThat(result.accessToken()).isEqualTo("access");
-            verify(userRepository).save(any(User.class));
+            verify(userRepository).save(any(UserJpaEntity.class));
         }
 
         @Test
@@ -258,10 +258,10 @@ class AuthServiceTest {
                     .willReturn(true)
                     .willReturn(false);
 
-            given(userRepository.save(any(User.class))).willAnswer(invocation -> {
-                User savingUser = invocation.getArgument(0);
-                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "id", 3L);
-                org.springframework.test.util.ReflectionTestUtils.setField(savingUser, "role", UserRole.ROLE_USER);
+            given(userRepository.save(any(UserJpaEntity.class))).willAnswer(invocation -> {
+                UserJpaEntity savingUserJpaEntity = invocation.getArgument(0);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUserJpaEntity, "id", 3L);
+                org.springframework.test.util.ReflectionTestUtils.setField(savingUserJpaEntity, "role", UserRole.ROLE_USER);
                 return 3L; // Long 반환
             });
 
@@ -273,7 +273,7 @@ class AuthServiceTest {
 
             // then
             verify(userRepository, times(2)).existsByNickname(anyString());
-            verify(userRepository).save(any(User.class));
+            verify(userRepository).save(any(UserJpaEntity.class));
         }
 
         @Test

@@ -121,7 +121,7 @@ PR 제목
 
 ```
 com.loopon
-├── user                           ← [Domain] 도메인 기준 최상위 디렉토리
+├── userJpaEntity                           ← [Domain] 도메인 기준 최상위 디렉토리
 │   ├── domain                     ← [Core] 순수 비즈니스 모델 & 인터페이스
 │   │   ├── User.java              (Entity: 핵심 로직 포함, Setter 금지)
 │   │   ├── UserStatus.java        (Enum/VO)

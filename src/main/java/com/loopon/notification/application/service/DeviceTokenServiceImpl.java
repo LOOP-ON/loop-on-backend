@@ -8,7 +8,7 @@ import com.loopon.notification.application.dto.response.DeviceTokenResponse;
 import com.loopon.notification.domain.DeviceToken;
 import com.loopon.notification.domain.repository.DeviceTokenRepository;
 import com.loopon.notification.domain.service.DeviceTokenService;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.infrastructure.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class DeviceTokenServiceImpl implements DeviceTokenService {
     @Override
     public DeviceTokenResponse saveDeviceToken(Long me, DeviceTokenRequest req) {
 
-        User userRef = userJpaRepository.getReferenceById(me);
+        UserJpaEntity userJpaEntityRef = userJpaRepository.getReferenceById(me);
         String token = req.deviceToken();
         EnvironmentType env = req.environmentType();
 
@@ -33,11 +33,11 @@ public class DeviceTokenServiceImpl implements DeviceTokenService {
                 .findByTokenAndEnvironmentType(token, env)
                 .orElseGet(() ->
                         deviceTokenRepository.findByUserIdAndEnvironmentType(me, env)
-                                .orElseGet(() -> DeviceToken.create(userRef, req)));
+                                .orElseGet(() -> DeviceToken.create(userJpaEntityRef, req)));
 
         boolean isNew = deviceToken.getId() == null;
 
-        deviceToken.refresh(userRef, req.deviceToken());
+        deviceToken.refresh(userJpaEntityRef, req.deviceToken());
 
         DeviceToken saved = deviceTokenRepository.save(deviceToken);
 

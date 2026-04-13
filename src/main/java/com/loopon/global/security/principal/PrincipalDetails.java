@@ -1,7 +1,7 @@
 package com.loopon.global.security.principal;
 
 import com.loopon.global.security.dto.AuthUser;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,14 +17,14 @@ public class PrincipalDetails implements UserDetails {
     private final AuthUser authUser;
     private final String password;
 
-    public static PrincipalDetails from(User user) {
+    public static PrincipalDetails from(UserJpaEntity userJpaEntity) {
         AuthUser authUser = AuthUser.of(
-                user.getId(),
-                user.getEmail(),
-                user.getUserRole()
+                userJpaEntity.getId(),
+                userJpaEntity.getEmail(),
+                userJpaEntity.getUserRole()
         );
 
-        return new PrincipalDetails(authUser, user.getPassword());
+        return new PrincipalDetails(authUser, userJpaEntity.getPassword());
     }
 
     public static PrincipalDetails from(AuthUser authUser) {

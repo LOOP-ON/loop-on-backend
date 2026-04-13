@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class User extends BaseTimeEntity {
+public class UserJpaEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -91,8 +91,8 @@ public class User extends BaseTimeEntity {
         this.visibility = visibility;
     }
 
-    public static User createLocalUser(String email, String nickname, String encodedPassword, String profileImageUrl) {
-        return User.builder()
+    public static UserJpaEntity createLocalUser(String email, String nickname, String encodedPassword, String profileImageUrl) {
+        return UserJpaEntity.builder()
                 .provider(UserProvider.LOCAL)
                 .socialId(email)
                 .email(email)
@@ -106,8 +106,8 @@ public class User extends BaseTimeEntity {
                 .build();
     }
 
-    public static User createSocialUser(String socialId, UserProvider provider, String email, String nickname, String profileImageUrl) {
-        return User.builder()
+    public static UserJpaEntity createSocialUser(String socialId, UserProvider provider, String email, String nickname, String profileImageUrl) {
+        return UserJpaEntity.builder()
                 .provider(provider)
                 .socialId(socialId)
                 .email(email)

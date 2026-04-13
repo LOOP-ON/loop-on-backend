@@ -13,7 +13,7 @@ import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.notification.application.event.ChallengeLikeEvent;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,20 +51,20 @@ class ChallengeCommandServiceTest {
     @Mock ApplicationEventPublisher applicationEventPublisher;
 
     // --- 테스트용 더미 데이터 생성 헬퍼 ---
-    private User createUser(Long id) {
-        User mockUser = mock(User.class);
+    private UserJpaEntity createUser(Long id) {
+        UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
 
 
-        lenient().when(mockUser.getId()).thenReturn(id);
-        lenient().when(mockUser.getNickname()).thenReturn("Tester");
+        lenient().when(mockUserJpaEntity.getId()).thenReturn(id);
+        lenient().when(mockUserJpaEntity.getNickname()).thenReturn("Tester");
 
-        return mockUser;
+        return mockUserJpaEntity;
     }
 
-    private Challenge createChallenge(Long id, User user) {
+    private Challenge createChallenge(Long id, UserJpaEntity userJpaEntity) {
         return Challenge.builder()
                 .id(id)
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .content("Test Content")
                 .challengeImages(new ArrayList<>())
                 .challengeHashtags(new ArrayList<>())
@@ -93,12 +93,12 @@ class ChallengeCommandServiceTest {
                     userId
             );
 
-            User user = createUser(userId);
+            UserJpaEntity userJpaEntity = createUser(userId);
             Journey journey = Journey.builder().id(journeyId).build();
 
             given(challengeRepository.existsByJourneyId(journeyId)).willReturn(false);
             given(journeyJpaRepository.findById(journeyId)).willReturn(Optional.of(journey));
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(s3Service.uploadFile(any())).willReturn("http://s3.url/test.jpg");
             given(challengeRepository.saveHashtag(any())).willReturn(Hashtag.builder().name("tag1").build());
 
@@ -131,14 +131,14 @@ class ChallengeCommandServiceTest {
             List<String> manyTags = List.of("1", "2", "3", "4", "5", "6");
             ChallengePostCommand command = new ChallengePostCommand(List.of(), manyTags, "Content", 1L,  null,1L);
 
-            User mockUser = mock(User.class);
-            lenient().when(mockUser.getId()).thenReturn(1L);
+            UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
+            lenient().when(mockUserJpaEntity.getId()).thenReturn(1L);
 
             Journey mockJourney = mock(Journey.class);
             lenient().when(mockJourney.getId()).thenReturn(1L);
 
             given(challengeRepository.existsByJourneyId(1L)).willReturn(false);
-            given(userRepository.findById(1L)).willReturn(Optional.of(mockUser));
+            given(userRepository.findById(1L)).willReturn(Optional.of(mockUserJpaEntity));
             given(journeyJpaRepository.findById(1L)).willReturn(Optional.of(mockJourney));
 
             // when & then
@@ -222,15 +222,15 @@ class ChallengeCommandServiceTest {
         @DisplayName("성공: 좋아요를 누른 상태(isLiked=true)라면 좋아요가 취소된다.")
         void success_unlike() {
             // given
-            User user = createUser(1L);
+            UserJpaEntity userJpaEntity = createUser(1L);
             Challenge challenge = createChallenge(10L, createUser(2L));
-            ChallengeLike existingLike = ChallengeLike.builder().id(50L).user(user).challenge(challenge).build();
+            ChallengeLike existingLike = ChallengeLike.builder().id(50L).userJpaEntity(userJpaEntity).challenge(challenge).build();
 
             // isLiked=true: 클라이언트가 "나 이거 좋아요 누른 상태야"라고 보냄 -> 토글 -> 취소
             ChallengeLikeCommand command = new ChallengeLikeCommand(10L, true, 1L);
 
             given(challengeRepository.findById(10L)).willReturn(Optional.of(challenge));
-            given(userRepository.findById(1L)).willReturn(Optional.of(user));
+            given(userRepository.findById(1L)).willReturn(Optional.of(userJpaEntity));
             given(challengeRepository.findChallengeLikeByUserIdAndId(1L, 10L)).willReturn(Optional.of(existingLike));
 
             // when
@@ -245,12 +245,12 @@ class ChallengeCommandServiceTest {
         @DisplayName("성공: 좋아요를 안 누른 상태(isLiked=false)라면 좋아요가 추가된다.")
         void success_like() {
             // given
-            User user = createUser(1L);
+            UserJpaEntity userJpaEntity = createUser(1L);
             Challenge challenge = createChallenge(10L, createUser(2L));
             ChallengeLikeCommand command = new ChallengeLikeCommand(10L, false,1L);
 
             given(challengeRepository.findById(10L)).willReturn(Optional.of(challenge));
-            given(userRepository.findById(1L)).willReturn(Optional.of(user));
+            given(userRepository.findById(1L)).willReturn(Optional.of(userJpaEntity));
 
             // when
             challengeCommandService.likeChallenge(command);
@@ -282,11 +282,11 @@ class ChallengeCommandServiceTest {
             ChallengeCommentCommand command = new ChallengeCommentCommand(100L, 1L, "Reply", 50L);
 
             Challenge challenge = createChallenge(100L, createUser(2L));
-            User user = createUser(1L);
+            UserJpaEntity userJpaEntity = createUser(1L);
             Comment parent = Comment.builder().id(50L).build();
 
             given(challengeRepository.findById(100L)).willReturn(Optional.of(challenge));
-            given(userRepository.findById(1L)).willReturn(Optional.of(user));
+            given(userRepository.findById(1L)).willReturn(Optional.of(userJpaEntity));
             given(challengeRepository.findCommentByCommentId(50L)).willReturn(Optional.of(parent));
 
             // when
@@ -303,11 +303,11 @@ class ChallengeCommandServiceTest {
         void fail_parent_not_found() {
             // given
             ChallengeCommentCommand command = new ChallengeCommentCommand(100L, 1L, "Reply", 999L);
-            User mockUser = mock(User.class);
-            lenient().when(mockUser.getId()).thenReturn(1L);
+            UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
+            lenient().when(mockUserJpaEntity.getId()).thenReturn(1L);
 
             given(challengeRepository.findById(100L)).willReturn(Optional.of(createChallenge(100L, null)));
-            given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUser));
+            given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUserJpaEntity));
             given(challengeRepository.findCommentByCommentId(999L)).willReturn(Optional.empty());
 
             // when & then
@@ -334,14 +334,14 @@ class ChallengeCommandServiceTest {
             // Command 생성 시 통일된 ID 사용
             ChallengeDeleteCommentCommand command = new ChallengeDeleteCommentCommand(1L, targetCommentId, userId);
 
-            User maliciousUser = createUser(maliciousUserId);
-            User originalWriter = createUser(originalWriterId);
-            Comment comment = Comment.builder().id(commentId).user(originalWriter).build();
+            UserJpaEntity maliciousUserJpaEntity = createUser(maliciousUserId);
+            UserJpaEntity originalWriter = createUser(originalWriterId);
+            Comment comment = Comment.builder().id(commentId).userJpaEntity(originalWriter).build();
             Challenge challenge = createChallenge(100L, originalWriter);
 
             given(challengeRepository.findCommentByCommentId(anyLong())).willReturn(Optional.of(comment));
             given(challengeRepository.findById(anyLong())).willReturn(Optional.of(challenge));
-            given(userRepository.findById(anyLong())).willReturn(Optional.of(maliciousUser));
+            given(userRepository.findById(anyLong())).willReturn(Optional.of(maliciousUserJpaEntity));
 
             // 2. When & 3. Then
             assertThatThrownBy(() -> challengeCommandService.deleteCommentChallenge(command))
@@ -359,13 +359,13 @@ class ChallengeCommandServiceTest {
             // Command 생성 시 commentId(100L) 확인
             ChallengeDeleteCommentCommand command = new ChallengeDeleteCommentCommand(1L, commentId, userId);
 
-            User mockUser = mock(User.class);
-            lenient().when(mockUser.getId()).thenReturn(userId);
+            UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
+            lenient().when(mockUserJpaEntity.getId()).thenReturn(userId);
 
             Comment mockComment = mock(Comment.class);
             lenient().when(mockComment.getId()).thenReturn(commentId);
-            lenient().when(mockComment.getUser()).thenReturn(mockUser);
-            org.springframework.test.util.ReflectionTestUtils.setField(mockComment, "user", mockUser);
+            lenient().when(mockComment.getUserJpaEntity()).thenReturn(mockUserJpaEntity);
+            org.springframework.test.util.ReflectionTestUtils.setField(mockComment, "user", mockUserJpaEntity);
 
             Challenge mockChallenge = mock(Challenge.class);
             org.springframework.test.util.ReflectionTestUtils.setField(mockChallenge, "id", 1L);
@@ -373,7 +373,7 @@ class ChallengeCommandServiceTest {
             // [수정 포인트] anyLong()을 사용하여 값 불일치 방지
             given(challengeRepository.findCommentByCommentId(anyLong())).willReturn(Optional.of(mockComment));
             given(challengeRepository.findById(anyLong())).willReturn(Optional.of(mockChallenge));
-            given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUser));
+            given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUserJpaEntity));
 
             // 2. When
             challengeCommandService.deleteCommentChallenge(command);
@@ -396,8 +396,8 @@ class ChallengeCommandServiceTest {
 
             ChallengeDeleteCommand command = new ChallengeDeleteCommand(challengeId, otherUserId);
 
-            User owner = createUser(1L); // 주인
-            User other = createUser(otherUserId); // 타인
+            UserJpaEntity owner = createUser(1L); // 주인
+            UserJpaEntity other = createUser(otherUserId); // 타인
             Challenge challenge = createChallenge(challengeId, owner);
 
             given(challengeRepository.findById(challengeId)).willReturn(Optional.of(challenge));

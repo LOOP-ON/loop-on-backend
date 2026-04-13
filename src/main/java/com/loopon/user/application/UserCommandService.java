@@ -12,7 +12,7 @@ import com.loopon.user.application.dto.command.UpdateProfileCommand;
 import com.loopon.user.application.dto.command.UserSignUpCommand;
 import com.loopon.user.application.dto.request.ChangePasswordRequest;
 import com.loopon.user.application.dto.response.UserProfileResponse;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -41,33 +41,33 @@ public class UserCommandService {
         checkPasswordConfirmation(command.password(), command.confirmPassword());
         checkDuplicate(command.email(), command.nickname());
 
-        User user = command.toEntity(passwordEncoder);
-        Long userId = userRepository.save(user);
+        UserJpaEntity userJpaEntity = command.toEntity(passwordEncoder);
+        Long userId = userRepository.save(userJpaEntity);
 
-        saveUserTermAgreements(user, allTerms, command.agreedTermIds());
+        saveUserTermAgreements(userJpaEntity, allTerms, command.agreedTermIds());
         //마케팅 동의 여부 확인
         boolean marketingEnabled = command.agreedTermIds().contains(6L);
 
         notificationSettingRepository.save(
-                NotificationSetting.createAllEnabled(user, marketingEnabled)
+                NotificationSetting.createAllEnabled(userJpaEntity, marketingEnabled)
         );
         return userId;
     }
 
     public UserProfileResponse updateProfile(Long userId, UpdateProfileCommand command) {
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        user.updateProfile(command.nickname(), command.bio(), command.statusMessage(), command.profileImageUrl(), command.visibility());
+        userJpaEntity.updateProfile(command.nickname(), command.bio(), command.statusMessage(), command.profileImageUrl(), command.visibility());
 
-        return UserProfileResponse.of(user, null);
+        return UserProfileResponse.of(userJpaEntity, null);
     }
 
     public void changePassword(Long userId, ChangePasswordRequest request) {
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.getProvider().equals(UserProvider.LOCAL)) {
+        if (!userJpaEntity.getProvider().equals(UserProvider.LOCAL)) {
             throw new BusinessException(ErrorCode.SOCIAL_USER_CANNOT_CHANGE_PASSWORD);
         }
 
@@ -75,11 +75,11 @@ public class UserCommandService {
             throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
         }
 
-        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.currentPassword(), userJpaEntity.getPassword())) {
             throw new BusinessException(ErrorCode.CURRENT_PASSWORD_MISMATCH);
         }
 
-        user.updatePassword(passwordEncoder.encode(request.newPassword()));
+        userJpaEntity.updatePassword(passwordEncoder.encode(request.newPassword()));
     }
 
     private void checkPasswordConfirmation(String password, String confirmPassword) {
@@ -110,11 +110,11 @@ public class UserCommandService {
         }
     }
 
-    private void saveUserTermAgreements(User user, List<Term> allTerms, List<Long> agreedTermIds) {
+    private void saveUserTermAgreements(UserJpaEntity userJpaEntity, List<Term> allTerms, List<Long> agreedTermIds) {
         List<UserTermAgreement> agreements = allTerms.stream()
                 .filter(term -> agreedTermIds.contains(term.getId()))
                 .map(term -> UserTermAgreement.builder()
-                        .user(user)
+                        .userJpaEntity(userJpaEntity)
                         .term(term)
                         .build())
                 .toList();

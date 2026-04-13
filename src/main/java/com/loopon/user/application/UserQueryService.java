@@ -10,7 +10,7 @@ import com.loopon.user.application.dto.response.UserDuplicateCheckResponse;
 import com.loopon.user.application.dto.response.UserOthersProfileResponse;
 import com.loopon.user.application.dto.response.UserProfileResponse;
 import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class UserQueryService {
     }
 
     public UserProfileResponse getUserProfile(Long userId, Pageable pageable) {
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Page<ChallengeImage> imagePage = challengeRepository.findThumbnailsByUserId(userId, pageable);
@@ -47,14 +47,14 @@ public class UserQueryService {
 
         PageResponse<ChallengeThumbnailResponse> pageResponse = PageResponse.from(dtoPage);
 
-        return UserProfileResponse.of(user, pageResponse);
+        return UserProfileResponse.of(userJpaEntity, pageResponse);
     }
 
     public UserOthersProfileResponse getOthersProfile(Long userId, String nickname, Pageable pageable) {
-        User me = userRepository.findById(userId)
+        UserJpaEntity me = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        User target = userRepository.findByNickname(nickname)
+        UserJpaEntity target = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Boolean isFriend = friendRepository.existsFriendship(me.getId(), target.getId(), FriendStatus.ACCEPTED);

@@ -8,7 +8,7 @@ import com.loopon.notification.application.dto.response.DeviceTokenResponse;
 import com.loopon.notification.application.service.DeviceTokenServiceImpl;
 import com.loopon.notification.domain.DeviceToken;
 import com.loopon.notification.domain.repository.DeviceTokenRepository;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.infrastructure.UserJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,8 +42,8 @@ class DeviceTokenServiceImplTest {
         Long me = 1L;
         DeviceTokenRequest req = new DeviceTokenRequest("token-abc", EnvironmentType.DEV);
 
-        User userRef = mock(User.class);
-        given(userJpaRepository.getReferenceById(me)).willReturn(userRef);
+        UserJpaEntity userJpaEntityRef = mock(UserJpaEntity.class);
+        given(userJpaRepository.getReferenceById(me)).willReturn(userJpaEntityRef);
 
         DeviceToken existing = mock(DeviceToken.class);
         given(existing.getId()).willReturn(5L);
@@ -65,7 +65,7 @@ class DeviceTokenServiceImplTest {
         then(deviceTokenRepository).should(never())
                 .findByUserIdAndEnvironmentType(anyLong(), any());
         then(existing).should(times(1))
-                .refresh(eq(userRef), eq("token-abc"));
+                .refresh(eq(userJpaEntityRef), eq("token-abc"));
         then(deviceTokenRepository).should(times(1))
                 .save(existing);
     }
@@ -77,8 +77,8 @@ class DeviceTokenServiceImplTest {
         Long me = 1L;
         DeviceTokenRequest req = new DeviceTokenRequest("token-abc", EnvironmentType.PROD);
 
-        User userRef = mock(User.class);
-        given(userJpaRepository.getReferenceById(me)).willReturn(userRef);
+        UserJpaEntity userJpaEntityRef = mock(UserJpaEntity.class);
+        given(userJpaRepository.getReferenceById(me)).willReturn(userJpaEntityRef);
 
         given(deviceTokenRepository.findByTokenAndEnvironmentType("token-abc", EnvironmentType.PROD))
                 .willReturn(Optional.empty());
@@ -105,7 +105,7 @@ class DeviceTokenServiceImplTest {
         then(deviceTokenRepository).should(times(1))
                 .findByUserIdAndEnvironmentType(me, EnvironmentType.PROD);
         then(byUserEnv).should(times(1))
-                .refresh(eq(userRef), eq("token-abc"));
+                .refresh(eq(userJpaEntityRef), eq("token-abc"));
         then(deviceTokenRepository).should(times(1))
                 .save(byUserEnv);
     }
@@ -117,8 +117,8 @@ class DeviceTokenServiceImplTest {
         Long me = 1L;
         DeviceTokenRequest req = new DeviceTokenRequest("token-new", EnvironmentType.DEV);
 
-        User userRef = mock(User.class);
-        given(userJpaRepository.getReferenceById(me)).willReturn(userRef);
+        UserJpaEntity userJpaEntityRef = mock(UserJpaEntity.class);
+        given(userJpaRepository.getReferenceById(me)).willReturn(userJpaEntityRef);
 
         given(deviceTokenRepository.findByTokenAndEnvironmentType("token-new", EnvironmentType.DEV))
                 .willReturn(Optional.empty());
@@ -133,7 +133,7 @@ class DeviceTokenServiceImplTest {
         given(deviceTokenRepository.save(created)).willReturn(saved);
 
         try (MockedStatic<DeviceToken> mocked = mockStatic(DeviceToken.class)) {
-            mocked.when(() -> DeviceToken.create(eq(userRef), eq(req)))
+            mocked.when(() -> DeviceToken.create(eq(userJpaEntityRef), eq(req)))
                     .thenReturn(created);
 
             DeviceTokenResponse res = sut().saveDeviceToken(me, req);
@@ -141,11 +141,11 @@ class DeviceTokenServiceImplTest {
             assertEquals(10L, res.deviceTokenId());
             assertTrue(res.isNew());
 
-            mocked.verify(() -> DeviceToken.create(eq(userRef), eq(req)), times(1));
+            mocked.verify(() -> DeviceToken.create(eq(userJpaEntityRef), eq(req)), times(1));
         }
 
         then(created).should(times(1))
-                .refresh(eq(userRef), eq("token-new"));
+                .refresh(eq(userJpaEntityRef), eq("token-new"));
         then(deviceTokenRepository).should(times(1))
                 .save(created);
     }

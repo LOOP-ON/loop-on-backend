@@ -7,7 +7,7 @@ import com.loopon.auth.domain.repository.VerificationRepository;
 import com.loopon.auth.infrastructure.RedisAuthAdapter;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -58,13 +58,13 @@ class PasswordResetServiceTest {
             String newPassword = "newPassword123!";
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, newPassword);
 
-            User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
             Verification mockVerification = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET, null);
 
             ReflectionTestUtils.setField(mockVerification, "status", com.loopon.auth.domain.VerificationStatus.VERIFIED);
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(userJpaEntity));
             given(passwordEncoder.encode(newPassword)).willReturn("newEncoded");
 
             given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
@@ -74,7 +74,7 @@ class PasswordResetServiceTest {
             passwordResetService.resetPassword(request);
 
             // then
-            assertThat(user.getPassword()).isEqualTo("newEncoded");
+            assertThat(userJpaEntity.getPassword()).isEqualTo("newEncoded");
             assertThat(mockVerification.getStatus()).isEqualTo(com.loopon.auth.domain.VerificationStatus.USED);
         }
 
@@ -117,10 +117,10 @@ class PasswordResetServiceTest {
             // given
             String token = "valid-token";
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "newPw");
-            User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(userJpaEntity));
             given(passwordEncoder.encode("newPw")).willReturn("newEncoded");
 
             given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
@@ -139,13 +139,13 @@ class PasswordResetServiceTest {
             // given
             String token = "valid-token";
             PasswordResetRequest request = new PasswordResetRequest(EMAIL, token, "newPw");
-            User user = User.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(EMAIL, "loopon", "oldEncoded", null);
 
             Verification notVerified = Verification.of(EMAIL, "1234", VerificationPurpose.PASSWORD_RESET, null);
             ReflectionTestUtils.setField(notVerified, "status", com.loopon.auth.domain.VerificationStatus.PENDING);
 
             given(redisAuthAdapter.getResetToken(EMAIL)).willReturn(token);
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(userJpaEntity));
             given(passwordEncoder.encode("newPw")).willReturn("newEncoded");
             given(verificationRepository.findLatest(eq(EMAIL), eq(VerificationPurpose.PASSWORD_RESET)))
                     .willReturn(Optional.of(notVerified));

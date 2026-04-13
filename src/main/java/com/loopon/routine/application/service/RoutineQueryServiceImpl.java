@@ -31,7 +31,7 @@ public class RoutineQueryServiceImpl implements RoutineQueryService {
         // 본인 여정인지 검색
         if (!progress.getRoutine()
                 .getJourney()
-                .getUser()
+                .getUserJpaEntity()
                 .getId()
                 .equals(userId)) {
             throw new BusinessException(ErrorCode.ROUTINE_FORBIDDEN);

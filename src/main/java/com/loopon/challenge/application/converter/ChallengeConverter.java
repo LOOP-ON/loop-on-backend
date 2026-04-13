@@ -15,7 +15,7 @@ import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.security.principal.PrincipalDetails;
 import com.loopon.journey.domain.Journey;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,12 +44,12 @@ public class ChallengeConverter {
 
     public static Challenge postChallenge(
             ChallengePostCommand dto,
-            User user,
+            UserJpaEntity userJpaEntity,
             Journey journey,
             Expedition expedition
     ) {
         return Challenge.builder()
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .journey(journey)
                 .expedition(expedition)
                 .content(dto.content())
@@ -186,7 +186,7 @@ public class ChallengeConverter {
             boolean isMine = false;
             boolean isLiked = false;
 
-            if (child.getUser().getId().equals(userId)) {
+            if (child.getUserJpaEntity().getId().equals(userId)) {
                 isMine = true;
             }
 
@@ -197,8 +197,8 @@ public class ChallengeConverter {
             childResponses.add(ChallengeGetCommentResponse.builder()
                     .commentId(child.getId())
                     .content(child.getContent())
-                    .nickName(child.getUser().getNickname())
-                    .profileImageUrl(child.getUser().getProfileImageUrl())
+                    .nickName(child.getUserJpaEntity().getNickname())
+                    .profileImageUrl(child.getUserJpaEntity().getProfileImageUrl())
                     .likeCount(child.getLikeCount())
                     .children(null)
                     .isMine(isMine)
@@ -209,7 +209,7 @@ public class ChallengeConverter {
         boolean isMine = false;
         boolean isLiked = false;
 
-        if (comment.getUser().getId().equals(userId)) {
+        if (comment.getUserJpaEntity().getId().equals(userId)) {
             isMine = true;
         }
 
@@ -220,8 +220,8 @@ public class ChallengeConverter {
         return ChallengeGetCommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
-                .nickName(comment.getUser().getNickname())
-                .profileImageUrl(comment.getUser().getProfileImageUrl())
+                .nickName(comment.getUserJpaEntity().getNickname())
+                .profileImageUrl(comment.getUserJpaEntity().getProfileImageUrl())
                 .likeCount(comment.getLikeCount())
                 .children(childResponses)
                 .isMine(isMine)
@@ -298,8 +298,8 @@ public class ChallengeConverter {
                 .content(challenge.getContent())
                 .hashtags(hashtags)
                 .createdAt(challenge.getCreatedAt())
-                .nickname(challenge.getUser().getNickname())
-                .profileImageUrl(challenge.getUser().getProfileImageUrl())
+                .nickname(challenge.getUserJpaEntity().getNickname())
+                .profileImageUrl(challenge.getUserJpaEntity().getProfileImageUrl())
                 .isLiked(isLiked)
                 .likeCount(challenge.getLikeCount())
                 .build();
@@ -338,8 +338,8 @@ public class ChallengeConverter {
                 .content(challenge.getContent())
                 .hashtags(hashtagList)
                 .createdAt(challenge.getCreatedAt())
-                .nickname(challenge.getUser().getNickname())
-                .profileImageUrl(challenge.getUser().getProfileImageUrl())
+                .nickname(challenge.getUserJpaEntity().getNickname())
+                .profileImageUrl(challenge.getUserJpaEntity().getProfileImageUrl())
                 .isLiked(isLiked)
                 .likeCount(challenge.getLikeCount())
                 .build();

@@ -2,7 +2,7 @@ package com.loopon.user.application.dto.response;
 
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -17,7 +17,7 @@ public record FriendResponse(
         @NotNull LocalDateTime updated_at
 ) {
     public static FriendResponse from(Friend friend, Long me) {
-        User opponent;
+        UserJpaEntity opponent;
 
         if (friend.getRequester().getId().equals(me)) {
             opponent = friend.getReceiver();

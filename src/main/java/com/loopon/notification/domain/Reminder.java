@@ -1,7 +1,7 @@
 package com.loopon.notification.domain;
 
 import com.loopon.global.domain.BaseTimeEntity;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,7 +34,7 @@ public class Reminder extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserJpaEntity userJpaEntity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type", nullable = false, length = 50)

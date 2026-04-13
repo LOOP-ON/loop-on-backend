@@ -1,7 +1,7 @@
 package com.loopon.challenge.infrastructure.jpa;
 
 import com.loopon.challenge.domain.ChallengeLike;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +15,7 @@ public interface ChallengeLikeJpaRepository extends JpaRepository<ChallengeLike,
 
     Optional<ChallengeLike> findByUserIdAndChallengeId(Long userId, Long challengeId);
 
-    List<ChallengeLike> user(User user);
+    List<ChallengeLike> user(UserJpaEntity userJpaEntity);
 
     @Query("SELECT l.challenge.id FROM ChallengeLike l " +
             "WHERE l.user.id = :userId AND l.challenge.id IN :challengeIds")

@@ -5,14 +5,14 @@ import com.loopon.journey.application.dto.response.JourneyResponse;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.routine.domain.Routine;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 
 import java.util.List;
 
 public class JourneyConverter {
-    public static Journey commandToJourney(JourneyCommand.AddJourneyGoalCommand command, User user, int journeyOrder) {
+    public static Journey commandToJourney(JourneyCommand.AddJourneyGoalCommand command, UserJpaEntity userJpaEntity, int journeyOrder) {
         return Journey.builder()
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .goal(command.goal())
                 .category(command.category())
                 .journeyOrder(journeyOrder)

@@ -48,7 +48,7 @@ public interface RoutineProgressJpaRepository extends JpaRepository<RoutineProgr
                 SELECT rp.progressDate, COUNT(rp)
                 FROM RoutineProgress rp
                 WHERE rp.status = com.loopon.journey.domain.ProgressStatus.COMPLETED
-                  AND rp.routine.journey.user.id = :userId
+                  AND rp.routine.journey.userJpaEntity.id = :userId
                   AND rp.progressDate BETWEEN :startDate AND :endDate
                 GROUP BY rp.progressDate
                 ORDER BY rp.progressDate

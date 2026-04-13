@@ -33,11 +33,11 @@ public class Friend extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id", nullable = false)
-    private User requester;
+    private UserJpaEntity requester;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver;
+    private UserJpaEntity receiver;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -50,7 +50,7 @@ public class Friend extends BaseTimeEntity {
     private Long userHighId;
 
 
-    public static Friend request(User requester, User receiver) {
+    public static Friend request(UserJpaEntity requester, UserJpaEntity receiver) {
         return Friend.builder()
                 .requester(requester)
                 .receiver(receiver)

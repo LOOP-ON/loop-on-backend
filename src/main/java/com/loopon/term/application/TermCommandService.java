@@ -6,7 +6,7 @@ import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
 import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,32 +21,32 @@ public class TermCommandService {
     private final UserTermAgreementRepository agreementRepository;
 
     public void updateTermAgreement(String email, Long termId, boolean isAgree) {
-        User user = getUser(email);
+        UserJpaEntity userJpaEntity = getUser(email);
         Term term = getTerm(termId);
 
         if (isAgree) {
-            processAgreement(user, term);
+            processAgreement(userJpaEntity, term);
         } else {
-            processRevocation(user, term);
+            processRevocation(userJpaEntity, term);
         }
     }
 
-    private void processAgreement(User user, Term term) {
-        agreementRepository.findByUserAndTerm(user, term)
+    private void processAgreement(UserJpaEntity userJpaEntity, Term term) {
+        agreementRepository.findByUserAndTerm(userJpaEntity, term)
                 .ifPresentOrElse(
                         UserTermAgreement::restore,
                         () -> agreementRepository.save(
                                 UserTermAgreement.builder()
-                                        .user(user)
+                                        .userJpaEntity(userJpaEntity)
                                         .term(term)
                                         .build())
                 );
     }
 
-    private void processRevocation(User user, Term term) {
+    private void processRevocation(UserJpaEntity userJpaEntity, Term term) {
         validateRevocation(term);
 
-        agreementRepository.findByUserAndTerm(user, term)
+        agreementRepository.findByUserAndTerm(userJpaEntity, term)
                 .ifPresent(UserTermAgreement::revoke);
     }
 
@@ -56,7 +56,7 @@ public class TermCommandService {
         }
     }
 
-    private User getUser(String email) {
+    private UserJpaEntity getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }

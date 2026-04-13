@@ -20,7 +20,7 @@ import com.loopon.global.domain.dto.SliceResponse;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -59,7 +59,7 @@ public class ExpeditionQueryService {
             ExpeditionSearchCommand commandDto
     ) {
 
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         List<ExpeditionCategory> expeditionCategories = getExpeditionCategories(commandDto);
@@ -72,17 +72,17 @@ public class ExpeditionQueryService {
                 );
 
 
-        List<Long> joinedExpeditionIds = getJoinedExpeditionIds(expeditions, user);
+        List<Long> joinedExpeditionIds = getJoinedExpeditionIds(expeditions, userJpaEntity);
 
 
-        boolean notAboveExpeditionLimit = checkExpeditionLimit(user);
+        boolean notAboveExpeditionLimit = checkExpeditionLimit(userJpaEntity);
 
         return SliceResponse.from(expeditions.map(expedition -> {
 
             boolean isJoined = joinedExpeditionIds.contains(expedition.getId());
             boolean notAboveUserLimit = expedition.getCurrentUsers() < expedition.getUserLimit();
             boolean canJoin = !isJoined && notAboveUserLimit && notAboveExpeditionLimit;
-            boolean isAdmin = expedition.getAdmin().getId().equals(user.getId());
+            boolean isAdmin = expedition.getAdmin().getId().equals(userJpaEntity.getId());
 
             return ExpeditionConverter.searchExpedition(expedition, isAdmin, isJoined, canJoin);
         }));
@@ -94,28 +94,28 @@ public class ExpeditionQueryService {
     ) {
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // 해당 탐험대 명단(탈퇴 인원들 포함)
         List<ExpeditionUser> userList = expeditionRepository.findAllExpeditionUserWithUserById(expedition.getId());
 
         // 유저의 친구 목록
-        Map<Long, FriendStatus> friendIds = getFriendsIds(user.getId());
+        Map<Long, FriendStatus> friendIds = getFriendsIds(userJpaEntity.getId());
 
 
         List<ExpeditionUsersResponse.UserInfo> userInfoList = new ArrayList<>();
         for (ExpeditionUser expeditionUser : userList) {
-            User eUser = expeditionUser.getUser();
+            UserJpaEntity UserJpaEntity = expeditionUser.getUserJpaEntity();
 
-            Boolean isMe = eUser.getId().equals(user.getId());
-            Boolean isHost = expedition.getAdmin().getId().equals(eUser.getId());
-            FriendStatus status = getFriendStatus(friendIds, eUser.getId());
+            Boolean isMe = UserJpaEntity.getId().equals(userJpaEntity.getId());
+            Boolean isHost = expedition.getAdmin().getId().equals(UserJpaEntity.getId());
+            FriendStatus status = getFriendStatus(friendIds, UserJpaEntity.getId());
 
             userInfoList.add(ExpeditionUsersResponse.UserInfo.builder()
-                    .userId(eUser.getId())
-                    .nickname(eUser.getNickname())
-                    .profileImageUrl(eUser.getProfileImageUrl())
+                    .userId(UserJpaEntity.getId())
+                    .nickname(UserJpaEntity.getNickname())
+                    .profileImageUrl(UserJpaEntity.getProfileImageUrl())
                     .isMe(isMe)
                     .isHost(isHost)
                     .friendStatus(status)
@@ -123,7 +123,7 @@ public class ExpeditionQueryService {
                     .build());
         }
 
-        Boolean isHost = expedition.getAdmin().getId().equals(user.getId());
+        Boolean isHost = expedition.getAdmin().getId().equals(userJpaEntity.getId());
         Integer currentUsers = expedition.getCurrentUsers();
         Integer maxUsers = expedition.getUserLimit();
 
@@ -137,7 +137,7 @@ public class ExpeditionQueryService {
             ExpeditionChallengesCommand commandDto
     ) {
 
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
@@ -150,7 +150,7 @@ public class ExpeditionQueryService {
 
             List<String> imageUrls = getImageUrls(challenge);
             List<String> hashtags = getHashtags(challenge.getId());
-            Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), user.getId());
+            Boolean isLiked = getIsChallengeLikedByMe(challenge.getId(), userJpaEntity.getId());
 
             return ExpeditionConverter.challengesExpedition(challenge, imageUrls, hashtags, isLiked);
         }));
@@ -164,10 +164,10 @@ public class ExpeditionQueryService {
 
         Expedition expedition = expeditionRepository.findById(commandDto.expeditionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkAdmin(user, expedition);
+        checkAdmin(userJpaEntity, expedition);
 
         return ExpeditionConverter.getExpedition(expedition);
     }
@@ -197,18 +197,18 @@ public class ExpeditionQueryService {
     }
 
     // 가입한 탐험대의 id 가져오기
-    private List<Long> getJoinedExpeditionIds(Slice<Expedition> expeditions, User user) {
+    private List<Long> getJoinedExpeditionIds(Slice<Expedition> expeditions, UserJpaEntity userJpaEntity) {
         List<Long> expeditionIds = new ArrayList<>();
         for (Expedition expedition : expeditions) {
             expeditionIds.add(expedition.getId());
         }
 
-        return expeditionRepository.findJoinedExpeditionIds(user.getId(), expeditionIds);
+        return expeditionRepository.findJoinedExpeditionIds(userJpaEntity.getId(), expeditionIds);
     }
 
     // 사용자의 탐험대 개수 제한
-    private boolean checkExpeditionLimit(User user) {
-        List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserByUserId(user.getId());
+    private boolean checkExpeditionLimit(UserJpaEntity userJpaEntity) {
+        List<ExpeditionUser> expeditionUserList = expeditionRepository.findAllExpeditionUserByUserId(userJpaEntity.getId());
 
         int currentCount = 0;
 
@@ -271,8 +271,8 @@ public class ExpeditionQueryService {
         return imageUrls;
     }
 
-    private void checkAdmin(User user, Expedition expedition) {
-        if (expedition.getAdmin() != user){
+    private void checkAdmin(UserJpaEntity userJpaEntity, Expedition expedition) {
+        if (expedition.getAdmin() != userJpaEntity){
             throw new BusinessException(ErrorCode.NOT_ADMIN_USER);
         }
     }

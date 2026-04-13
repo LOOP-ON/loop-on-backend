@@ -15,7 +15,7 @@ public interface ChallengeImageJpaRepository extends JpaRepository<ChallengeImag
     @Query("""
             SELECT ci FROM ChallengeImage ci
                 JOIN FETCH ci.challenge
-                WHERE ci.challenge.user.id = :userId
+                WHERE ci.challenge.userJpaEntity.id = :userId
                 AND ci.displayOrder = 0
             """)
     Page<ChallengeImage> findThumbnailsByUserId(@Param("userId") Long userId, Pageable pageable);

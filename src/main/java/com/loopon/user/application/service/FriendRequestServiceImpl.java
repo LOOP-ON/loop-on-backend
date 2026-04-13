@@ -11,7 +11,7 @@ import com.loopon.user.application.dto.response.FriendRequestRespondResponse;
 import com.loopon.user.application.dto.response.FriendSearchResponse;
 import com.loopon.user.domain.Friend;
 import com.loopon.user.domain.FriendStatus;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.FriendRepository;
 import com.loopon.user.domain.repository.FriendRequestRepository;
 import com.loopon.user.domain.repository.UserRepository;
@@ -72,9 +72,9 @@ public class FriendRequestServiceImpl implements FriendRequestService {
             throw new BusinessException(ErrorCode.FRIEND_REQUEST_ALREADY_PENDING);
         }
         //새로운 친구 요청 생성(로직 추가 필요)
-        User requester = userRepository.findById(me)
+        UserJpaEntity requester = userRepository.findById(me)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        User receiver = userRepository.findById(receiverId)
+        UserJpaEntity receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Friend friendRequest = Friend.request(requester, receiver);

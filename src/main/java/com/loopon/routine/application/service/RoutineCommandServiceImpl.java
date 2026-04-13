@@ -3,7 +3,6 @@ package com.loopon.routine.application.service;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
 import com.loopon.global.s3.S3Service;
-import com.loopon.journey.application.JourneyCommandServiceImpl;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.domain.JourneyFeedback;
 import com.loopon.journey.domain.JourneyStatus;
@@ -21,7 +20,7 @@ import com.loopon.routine.domain.service.RoutineCommandService;
 import com.loopon.routine.infrastructure.RoutineJpaRepository;
 import com.loopon.routine.infrastructure.RoutineProgressJpaRepository;
 import com.loopon.routine.infrastructure.RoutineReportJpaRepository;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,18 +50,18 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
             Long userId,
             RoutineRequest.CreateJourneyWithRoutineDto request
     ) {
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        if (journeyRepository.existsByUserAndStatus(user, JourneyStatus.IN_PROGRESS)) {
+        if (journeyRepository.existsByUserAndStatus(userJpaEntity, JourneyStatus.IN_PROGRESS)) {
             throw new BusinessException(ErrorCode.JOURNEY_IN_PROGRESS);
         }
 
-        Integer maxOrder = journeyRepository.findMaxJourneyOrderByUser(user);
+        Integer maxOrder = journeyRepository.findMaxJourneyOrderByUser(userJpaEntity);
         int nextOrder = (maxOrder == null ? 0 : maxOrder) + 1;
 
         Journey journey = Journey.builder()
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .goal(request.goal())
                 .category(request.category())
                 .status(JourneyStatus.IN_PROGRESS)
@@ -114,7 +112,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         RoutineProgress progress = routineProgressRepository.findById(progressId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROUTINE_NOT_FOUND));
 
-        if (!progress.getRoutine().getJourney().getUser().getId().equals(userId)) {
+        if (!progress.getRoutine().getJourney().getUserJpaEntity().getId().equals(userId)) {
             throw new  BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
         }
 
@@ -146,7 +144,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         // 본인 루틴인지 검증
         if (!progress.getRoutine()
                 .getJourney()
-                .getUser()
+                .getUserJpaEntity()
                 .getId()
                 .equals(userId)) {
             throw new BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
@@ -178,14 +176,14 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         LocalDate today = LocalDate.now();
 
         //유저 찾기
-        User user = userRepository.findById(userId)
+        UserJpaEntity userJpaEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // Journey 조회
         Journey journey = journeyRepository.findById(journeyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
-        if (!journey.getUser().getId().equals(userId)) {
+        if (!journey.getUserJpaEntity().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.ROUTINE_FORBIDDEN);
         }
 
@@ -206,7 +204,7 @@ public class RoutineCommandServiceImpl implements RoutineCommandService {
         // 리포트 생성
         RoutineReport report = RoutineReport.builder()
                 .journey(journey)
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .content(request.content())
                 .build();
 

@@ -3,7 +3,7 @@ package com.loopon.notification.domain;
 import com.loopon.global.domain.BaseTimeEntity;
 import com.loopon.global.domain.EnvironmentType;
 import com.loopon.notification.application.dto.request.DeviceTokenRequest;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,7 +39,7 @@ public class DeviceToken extends BaseTimeEntity {
     //한 사용자에 대해 여러 기기 등록 가능(1:N 관계)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserJpaEntity userJpaEntity;
 
     @Column(nullable = false, length = 255)
     private String token;
@@ -49,16 +49,16 @@ public class DeviceToken extends BaseTimeEntity {
 
     private LocalDateTime updatedAt;
 
-    public static DeviceToken create(@NotNull User me, @NotNull DeviceTokenRequest deviceTokenRequest) {
+    public static DeviceToken create(@NotNull UserJpaEntity me, @NotNull DeviceTokenRequest deviceTokenRequest) {
         return DeviceToken.builder()
-                .user(me)
+                .userJpaEntity(me)
                 .token(deviceTokenRequest.deviceToken())
                 .environmentType(deviceTokenRequest.environmentType())
                 .build();
     }
 
-    public void refresh(User user, @NotNull String token) {
-        this.user = user;
+    public void refresh(UserJpaEntity userJpaEntity, @NotNull String token) {
+        this.userJpaEntity = userJpaEntity;
         this.token = token;
     }
 }

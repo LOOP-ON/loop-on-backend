@@ -77,7 +77,7 @@ public class JourneyCommandServiceImpl implements JourneyCommandService {
         Journey journey = journeyRepository.findById(journeyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.JOURNEY_NOT_FOUND));
 
-        if (!journey.getUser().getId().equals(userId)) {
+        if (!journey.getUserJpaEntity().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.JOURNEY_FORBIDDEN);
         }
 

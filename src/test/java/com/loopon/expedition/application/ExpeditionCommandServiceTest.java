@@ -8,7 +8,7 @@ import com.loopon.expedition.domain.*;
 import com.loopon.expedition.domain.repository.ExpeditionRepository;
 import com.loopon.global.domain.ErrorCode;
 import com.loopon.global.exception.BusinessException;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -48,14 +48,14 @@ class ExpeditionCommandServiceTest {
 
     // -------------------------- Helper Methods (Mocking) --------------------------
 
-    private User createMockUser(Long id, String nickname) {
-        User user = mock(User.class);
-        lenient().when(user.getId()).thenReturn(id);
-        lenient().when(user.getNickname()).thenReturn(nickname);
-        return user;
+    private UserJpaEntity createMockUser(Long id, String nickname) {
+        UserJpaEntity userJpaEntity = mock(UserJpaEntity.class);
+        lenient().when(userJpaEntity.getId()).thenReturn(id);
+        lenient().when(userJpaEntity.getNickname()).thenReturn(nickname);
+        return userJpaEntity;
     }
 
-    private Expedition createMockExpedition(Long id, String title, User admin) {
+    private Expedition createMockExpedition(Long id, String title, UserJpaEntity admin) {
         Expedition expedition = mock(Expedition.class);
         lenient().when(expedition.getId()).thenReturn(id);
         lenient().when(expedition.getTitle()).thenReturn(title);
@@ -65,10 +65,10 @@ class ExpeditionCommandServiceTest {
         return expedition;
     }
 
-    private ExpeditionUser createMockExpeditionUser(Long id, User user, ExpeditionUserStatus status) {
+    private ExpeditionUser createMockExpeditionUser(Long id, UserJpaEntity userJpaEntity, ExpeditionUserStatus status) {
         ExpeditionUser eu = mock(ExpeditionUser.class);
         lenient().when(eu.getId()).thenReturn(id);
-        lenient().when(eu.getUser()).thenReturn(user);
+        lenient().when(eu.getUserJpaEntity()).thenReturn(userJpaEntity);
         lenient().when(eu.getStatus()).thenReturn(status);
         return eu;
     }
@@ -83,10 +83,10 @@ class ExpeditionCommandServiceTest {
         void success() {
             // given
             Long userId = 1L;
-            User user = createMockUser(userId, "tester");
+            UserJpaEntity userJpaEntity = createMockUser(userId, "tester");
             ExpeditionPostCommand command = new ExpeditionPostCommand("Title", 10, ExpeditionVisibility.PUBLIC, ExpeditionCategory.GROWTH, "pw", userId);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(new ArrayList<>());
 
             // when
@@ -102,10 +102,10 @@ class ExpeditionCommandServiceTest {
         void fail_expedition_limit() {
             // given
             Long userId = 1L;
-            User user = createMockUser(userId, "tester");
-            List<ExpeditionUser> fullList = Collections.nCopies(5, createMockExpeditionUser(100L, user, ExpeditionUserStatus.APPROVED));
+            UserJpaEntity userJpaEntity = createMockUser(userId, "tester");
+            List<ExpeditionUser> fullList = Collections.nCopies(5, createMockExpeditionUser(100L, userJpaEntity, ExpeditionUserStatus.APPROVED));
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(expeditionRepository.findAllExpeditionUserByUserId(userId)).willReturn(fullList);
 
             // when & then
@@ -124,11 +124,11 @@ class ExpeditionCommandServiceTest {
             // given
             Long userId = 1L;
             Long expId = 100L;
-            User user = createMockUser(userId, "tester");
+            UserJpaEntity userJpaEntity = createMockUser(userId, "tester");
             Expedition expedition = createMockExpedition(expId, "Exp", null);
             ExpeditionJoinCommand command = new ExpeditionJoinCommand(expId, userId, ExpeditionVisibility.PUBLIC, null);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition)); // 현재 5명
             given(expedition.getCurrentUsers()).willReturn(5);
 
@@ -145,11 +145,11 @@ class ExpeditionCommandServiceTest {
             // given
             Long userId = 1L;
             Long expId = 100L;
-            User user = createMockUser(userId, "tester");
+            UserJpaEntity userJpaEntity = createMockUser(userId, "tester");
             Expedition expedition = createMockExpedition(expId, "Exp", null);
-            ExpeditionUser expelledRecord = createMockExpeditionUser(500L, user, ExpeditionUserStatus.EXPELLED);
+            ExpeditionUser expelledRecord = createMockExpeditionUser(500L, userJpaEntity, ExpeditionUserStatus.EXPELLED);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
             given(expeditionRepository.findAllExpeditionUserById(expId)).willReturn(List.of(expelledRecord));
 
@@ -165,12 +165,12 @@ class ExpeditionCommandServiceTest {
             // given
             Long userId = 1L;
             Long expId = 100L;
-            User user = createMockUser(userId, "tester");
+            UserJpaEntity userJpaEntity = createMockUser(userId, "tester");
 
             Expedition expedition = Expedition.builder()
                     .id(expId)
                     .title("Private Exp")
-                    .admin(user)
+                    .admin(userJpaEntity)
                     .userLimit(10)
                     .currentUsers(1)
                     .visibility(ExpeditionVisibility.PRIVATE)
@@ -178,7 +178,7 @@ class ExpeditionCommandServiceTest {
                     .build();
 
             // Repository Stubbing
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(userJpaEntity));
             given(expeditionRepository.findById(expId)).willReturn(Optional.of(expedition));
 
             given(expeditionRepository.findAllExpeditionUserByUserId(userId))
@@ -207,7 +207,7 @@ class ExpeditionCommandServiceTest {
             // given
             Long userId = 1L;
             Long expId = 100L;
-            User admin = createMockUser(userId, "admin");
+            UserJpaEntity admin = createMockUser(userId, "admin");
             Expedition expedition = createMockExpedition(expId, "Title", admin);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(admin));
@@ -226,11 +226,11 @@ class ExpeditionCommandServiceTest {
         @DisplayName("실패: 방장이 아닌 유저가 삭제를 요청하면 권한 에러가 발생한다.")
         void fail_not_admin() {
             // given
-            User admin = createMockUser(1L, "admin");
-            User normalUser = createMockUser(2L, "normal");
+            UserJpaEntity admin = createMockUser(1L, "admin");
+            UserJpaEntity normalUserJpaEntity = createMockUser(2L, "normal");
             Expedition expedition = createMockExpedition(100L, "Title", admin);
 
-            given(userRepository.findById(2L)).willReturn(Optional.of(normalUser));
+            given(userRepository.findById(2L)).willReturn(Optional.of(normalUserJpaEntity));
             given(expeditionRepository.findById(100L)).willReturn(Optional.of(expedition));
 
             // when & then
@@ -250,8 +250,8 @@ class ExpeditionCommandServiceTest {
             Long myId = 1L;
             Long targetId = 2L;
             Long expId = 100L;
-            User admin = createMockUser(myId, "admin");
-            User target = createMockUser(targetId, "target");
+            UserJpaEntity admin = createMockUser(myId, "admin");
+            UserJpaEntity target = createMockUser(targetId, "target");
             Expedition expedition = createMockExpedition(expId, "Title", admin);
             ExpeditionUser targetEU = mock(ExpeditionUser.class);
 
@@ -278,8 +278,8 @@ class ExpeditionCommandServiceTest {
             Long myId = 1L;
             Long targetId = 2L;
             Long expId = 100L;
-            User admin = createMockUser(myId, "admin");
-            User target = createMockUser(targetId, "target");
+            UserJpaEntity admin = createMockUser(myId, "admin");
+            UserJpaEntity target = createMockUser(targetId, "target");
             Expedition expedition = createMockExpedition(expId, "Title", admin);
             ExpeditionUser targetEU = createMockExpeditionUser(500L, target, ExpeditionUserStatus.EXPELLED);
 
@@ -303,11 +303,11 @@ class ExpeditionCommandServiceTest {
         ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "새 제목", ExpeditionVisibility.PUBLIC, "1234", 10,10L);
 
         Expedition mockExpedition = mock(Expedition.class);
-        User mockUser = mock(User.class);
-        lenient().when(mockExpedition.getAdmin()).thenReturn(mockUser);
+        UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
+        lenient().when(mockExpedition.getAdmin()).thenReturn(mockUserJpaEntity);
 
         given(expeditionRepository.findById(command.expeditionId())).willReturn(Optional.of(mockExpedition));
-        given(userRepository.findById(command.userId())).willReturn(Optional.of(mockUser));
+        given(userRepository.findById(command.userId())).willReturn(Optional.of(mockUserJpaEntity));
         given(mockExpedition.getId()).willReturn(1L);
 
 
@@ -328,11 +328,11 @@ class ExpeditionCommandServiceTest {
         ExpeditionModifyCommand command = new ExpeditionModifyCommand(1L, "제목", ExpeditionVisibility.PUBLIC, null, 10, 10L);
 
         Expedition mockExpedition = mock(Expedition.class);
-        User mockUser = mock(User.class);
-        User mockAdmin = mock(User.class);
+        UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
+        UserJpaEntity mockAdmin = mock(UserJpaEntity.class);
 
         given(expeditionRepository.findById(anyLong())).willReturn(Optional.of(mockExpedition));
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUser));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUserJpaEntity));
 
 
         given(mockExpedition.getAdmin()).willReturn(mockAdmin);

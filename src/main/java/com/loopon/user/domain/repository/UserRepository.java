@@ -1,23 +1,23 @@
 package com.loopon.user.domain.repository;
 
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserProvider;
 
 import java.util.Optional;
 
 public interface UserRepository {
 
-    Long save(User user);
+    Long save(UserJpaEntity userJpaEntity);
 
     boolean existsByEmail(String email);
 
     boolean existsByNickname(String nickname);
 
-    Optional<User> findByEmail(String email);
+    Optional<UserJpaEntity> findByEmail(String email);
 
-    Optional<User> findById(Long id);
+    Optional<UserJpaEntity> findById(Long id);
 
-    Optional<User> findBySocialIdAndProvider(String id, UserProvider provider);
+    Optional<UserJpaEntity> findBySocialIdAndProvider(String id, UserProvider provider);
 
-    Optional<User> findByNickname(String nickname);
+    Optional<UserJpaEntity> findByNickname(String nickname);
 }

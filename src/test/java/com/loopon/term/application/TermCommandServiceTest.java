@@ -6,7 +6,7 @@ import com.loopon.term.domain.Term;
 import com.loopon.term.domain.UserTermAgreement;
 import com.loopon.term.domain.repository.TermRepository;
 import com.loopon.term.domain.repository.UserTermAgreementRepository;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -58,20 +58,20 @@ class TermCommandServiceTest {
             return term;
         }
 
-        private User createUser() {
-            User user = User.createLocalUser(
+        private UserJpaEntity createUser() {
+            UserJpaEntity userJpaEntity = UserJpaEntity.createLocalUser(
                     EMAIL,
                     "testuser",
                     "encryptedPassword",
                     null
             );
-            ReflectionTestUtils.setField(user, "id", 100L);
-            return user;
+            ReflectionTestUtils.setField(userJpaEntity, "id", 100L);
+            return userJpaEntity;
         }
 
-        private UserTermAgreement createAgreement(User user, Term term) {
+        private UserTermAgreement createAgreement(UserJpaEntity userJpaEntity, Term term) {
             return UserTermAgreement.builder()
-                    .user(user)
+                    .userJpaEntity(userJpaEntity)
                     .term(term)
                     .build();
         }
@@ -80,7 +80,7 @@ class TermCommandServiceTest {
         @DisplayName("실패: 존재하지 않는 약관 ID 요청 시 예외 발생")
         void 실패_존재하지_않는_약관() {
             // given
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(mock(User.class)));
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(mock(UserJpaEntity.class)));
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.empty());
 
@@ -93,8 +93,8 @@ class TermCommandServiceTest {
         @DisplayName("실패: 필수 약관을 철회하려고 하면 예외 발생")
         void 실패_필수_약관_철회_시도() {
             // given
-            User mockUser = mock(User.class);
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(mockUser));
+            UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(mockUserJpaEntity));
 
             Term mandatoryTerm = createTerm(true);
             given(termRepository.findById(TERM_ID)).willReturn(Optional.ofNullable(mandatoryTerm));
@@ -110,11 +110,11 @@ class TermCommandServiceTest {
         void 성공_신규_동의() {
             // given
             Term optionalTerm = createTerm(false);
-            User user = createUser();
+            UserJpaEntity userJpaEntity = createUser();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
-            given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.empty());
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(userJpaEntity));
+            given(agreementRepository.findByUserAndTerm(userJpaEntity, optionalTerm)).willReturn(Optional.empty());
 
             // when
             termCommandService.updateTermAgreement(EMAIL, TERM_ID, true);
@@ -128,14 +128,14 @@ class TermCommandServiceTest {
         void 성공_재동의_복구() {
             // given
             Term optionalTerm = createTerm(false);
-            User user = createUser();
+            UserJpaEntity userJpaEntity = createUser();
 
-            UserTermAgreement existingAgreement = createAgreement(user, optionalTerm);
+            UserTermAgreement existingAgreement = createAgreement(userJpaEntity, optionalTerm);
             existingAgreement.revoke();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
-            given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.of(existingAgreement));
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(userJpaEntity));
+            given(agreementRepository.findByUserAndTerm(userJpaEntity, optionalTerm)).willReturn(Optional.of(existingAgreement));
 
             // when
             termCommandService.updateTermAgreement(EMAIL, TERM_ID, true);
@@ -151,12 +151,12 @@ class TermCommandServiceTest {
         void 성공_철회() {
             // given
             Term optionalTerm = createTerm(false);
-            User user = createUser();
-            UserTermAgreement existingAgreement = createAgreement(user, optionalTerm);
+            UserJpaEntity userJpaEntity = createUser();
+            UserTermAgreement existingAgreement = createAgreement(userJpaEntity, optionalTerm);
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
-            given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.of(existingAgreement));
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(userJpaEntity));
+            given(agreementRepository.findByUserAndTerm(userJpaEntity, optionalTerm)).willReturn(Optional.of(existingAgreement));
 
             // when
             termCommandService.updateTermAgreement(EMAIL, TERM_ID, false);
@@ -170,11 +170,11 @@ class TermCommandServiceTest {
         void 성공_철회_내역없음_무시() {
             // given
             Term optionalTerm = createTerm(false);
-            User user = createUser();
+            UserJpaEntity userJpaEntity = createUser();
 
             given(termRepository.findById(TERM_ID)).willReturn(Optional.of(optionalTerm));
-            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(user));
-            given(agreementRepository.findByUserAndTerm(user, optionalTerm)).willReturn(Optional.empty());
+            given(userRepository.findByEmail(EMAIL)).willReturn(Optional.ofNullable(userJpaEntity));
+            given(agreementRepository.findByUserAndTerm(userJpaEntity, optionalTerm)).willReturn(Optional.empty());
 
             // when
             termCommandService.updateTermAgreement(EMAIL, TERM_ID, false);

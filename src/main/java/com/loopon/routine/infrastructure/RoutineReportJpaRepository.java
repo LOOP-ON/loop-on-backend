@@ -12,7 +12,7 @@ public interface RoutineReportJpaRepository extends JpaRepository<RoutineReport,
     @Query("""
                 SELECT rr
                     FROM RoutineReport rr
-                    WHERE rr.user.id = :userId
+                    WHERE rr.userJpaEntity.id = :userId
                     AND rr.journey.id = :journeyId
                     AND DATE(rr.createdAt) = :date
             """)

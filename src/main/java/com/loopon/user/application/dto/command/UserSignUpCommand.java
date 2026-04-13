@@ -1,6 +1,6 @@
 package com.loopon.user.application.dto.command;
 
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.policy.UserValidationPolicy;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -40,8 +40,8 @@ public record UserSignUpCommand(
         );
     }
 
-    public User toEntity(PasswordEncoder passwordEncoder) {
-        return User.createLocalUser(
+    public UserJpaEntity toEntity(PasswordEncoder passwordEncoder) {
+        return UserJpaEntity.createLocalUser(
                 email,
                 nickname,
                 passwordEncoder.encode(password),

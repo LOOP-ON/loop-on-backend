@@ -47,14 +47,14 @@ class ChallengeQueryServiceTest {
     @Mock private FriendRepository friendRepository;
 
 
-    private User createTestUser(Long id, String nickname, UserVisibility visibility) {
-        User mockUser = mock(User.class);
+    private UserJpaEntity createTestUser(Long id, String nickname, UserVisibility visibility) {
+        UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
 
-        lenient().when(mockUser.getId()).thenReturn(id);
-        lenient().when(mockUser.getNickname()).thenReturn(nickname);
-        lenient().when(mockUser.getVisibility()).thenReturn(visibility);
+        lenient().when(mockUserJpaEntity.getId()).thenReturn(id);
+        lenient().when(mockUserJpaEntity.getNickname()).thenReturn(nickname);
+        lenient().when(mockUserJpaEntity.getVisibility()).thenReturn(visibility);
 
-        return mockUser;
+        return mockUserJpaEntity;
     }
 
     private Challenge createTestChallenge(Long id) {
@@ -65,7 +65,7 @@ class ChallengeQueryServiceTest {
         lenient().when(mockChallenge.getChallengeHashtags()).thenReturn(new ArrayList<>());
         lenient().when(mockChallenge.getChallengeImages()).thenReturn(new ArrayList<>());
         lenient().when(mockChallenge.getJourney()).thenReturn(mock(Journey.class));
-        lenient().when(mockChallenge.getUser()).thenReturn(mock(User.class));
+        lenient().when(mockChallenge.getUserJpaEntity()).thenReturn(mock(UserJpaEntity.class));
 
 
         return mockChallenge;
@@ -133,22 +133,22 @@ class ChallengeQueryServiceTest {
             ChallengeGetCommentCommand command = new ChallengeGetCommentCommand(1L, 1L, PageRequest.of(0, 10));
             Challenge challenge = createTestChallenge(1L);
 
-            User parentUser = createTestUser(1L, "parent", UserVisibility.PUBLIC);
-            when(parentUser.getProfileImageUrl()).thenReturn("url1");
+            UserJpaEntity parentUserJpaEntity = createTestUser(1L, "parent", UserVisibility.PUBLIC);
+            when(parentUserJpaEntity.getProfileImageUrl()).thenReturn("url1");
 
             Comment parent = mock(Comment.class);
             when(parent.getId()).thenReturn(10L);
-            when(parent.getUser()).thenReturn(parentUser);
+            when(parent.getUserJpaEntity()).thenReturn(parentUserJpaEntity);
 
             Slice<Comment> parentSlice = new SliceImpl<>(List.of(parent));
 
-            User childUser = createTestUser(2L, "child", UserVisibility.PUBLIC);
-            when(childUser.getProfileImageUrl()).thenReturn("url2");
+            UserJpaEntity childUserJpaEntity = createTestUser(2L, "child", UserVisibility.PUBLIC);
+            when(childUserJpaEntity.getProfileImageUrl()).thenReturn("url2");
 
             Comment child = mock(Comment.class);
             when(child.getId()).thenReturn(11L);
             when(child.getParent()).thenReturn(parent);
-            when(child.getUser()).thenReturn(childUser);
+            when(child.getUserJpaEntity()).thenReturn(childUserJpaEntity);
 
             given(challengeRepository.findById(1L)).willReturn(Optional.of(challenge));
             given(challengeRepository.findCommentsWithUserByChallengeId(eq(1L), any())).willReturn(parentSlice);
@@ -171,8 +171,8 @@ class ChallengeQueryServiceTest {
         @DisplayName("성공: 트렌딩 게시물과 친구 게시물을 합쳐서 반환한다.")
         void success_combined_view() {
             // given
-            User user = createTestUser(1L, "me", UserVisibility.PUBLIC);
-            User friend = createTestUser(2L, "friend", UserVisibility.PUBLIC);
+            UserJpaEntity userJpaEntity = createTestUser(1L, "me", UserVisibility.PUBLIC);
+            UserJpaEntity friend = createTestUser(2L, "friend", UserVisibility.PUBLIC);
             ChallengeViewCommand command = new ChallengeViewCommand(1L, PageRequest.of(0, 5), PageRequest.of(0, 5));
 
             Challenge trending = createTestChallenge(100L);
@@ -181,13 +181,13 @@ class ChallengeQueryServiceTest {
             when(trending.getId()).thenReturn(100L);
             when(friend.getId()).thenReturn(200L);
 
-            given(userRepository.findById(1L)).willReturn(Optional.of(user));
+            given(userRepository.findById(1L)).willReturn(Optional.of(userJpaEntity));
             given(challengeRepository.findTrendingChallenges(any(LocalDateTime.class), anyLong(), any(Pageable.class)))
                     .willReturn(new SliceImpl<>(List.of(trending)));
 
             // 친구 목록 mock
             Friend mockFriend = mock(Friend.class);
-            when(mockFriend.getRequester()).thenReturn(user);
+            when(mockFriend.getRequester()).thenReturn(userJpaEntity);
             when(mockFriend.getReceiver()).thenReturn(friend);
             given(friendRepository.findFriendsByUserIdAndStatus(1L, FriendStatus.ACCEPTED)).willReturn(List.of(mockFriend));
 
@@ -226,18 +226,18 @@ class ChallengeQueryServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         ChallengeDetailCommand command = new ChallengeDetailCommand(nickname, pageable);
 
-        User mockUser = mock(User.class);
+        UserJpaEntity mockUserJpaEntity = mock(UserJpaEntity.class);
         Challenge mockChallenge = mock(Challenge.class);
         Journey mockJourney = mock(Journey.class);
-        User author = mock(User.class);
+        UserJpaEntity author = mock(UserJpaEntity.class);
 
 
         List<Challenge> challengeList = List.of(mockChallenge);
         Slice<Challenge> mockSlice = new SliceImpl<>(challengeList, pageable, false);
 
 
-        given(userRepository.findByNickname(nickname)).willReturn(Optional.of(mockUser));
-        given(mockUser.getId()).willReturn(1L);
+        given(userRepository.findByNickname(nickname)).willReturn(Optional.of(mockUserJpaEntity));
+        given(mockUserJpaEntity.getId()).willReturn(1L);
         given(challengeRepository.findAllWithJourneyAndUserByUserId(1L, pageable)).willReturn(mockSlice);
 
 
@@ -250,7 +250,7 @@ class ChallengeQueryServiceTest {
         given(mockChallenge.getJourney()).willReturn(mockJourney);
         given(mockJourney.getJourneyOrder()).willReturn(1);
 
-        given(mockChallenge.getUser()).willReturn(author);
+        given(mockChallenge.getUserJpaEntity()).willReturn(author);
         given(author.getNickname()).willReturn("작성자닉네임");
         given(author.getProfileImageUrl()).willReturn("https://image.com/profile");
 

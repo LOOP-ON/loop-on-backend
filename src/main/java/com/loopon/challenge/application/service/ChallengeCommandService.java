@@ -29,8 +29,7 @@ import com.loopon.global.s3.S3Service;
 import com.loopon.journey.domain.Journey;
 import com.loopon.journey.infrastructure.JourneyJpaRepository;
 import com.loopon.notification.application.event.ChallengeLikeEvent;
-import com.loopon.notification.application.event.FriendRequestCreatedEvent;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -69,7 +68,7 @@ public class ChallengeCommandService {
 
         Journey journey = journeyJpaRepository.findById(dto.journeyId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
-        User user = userRepository.findById(dto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Expedition expedition = null;
         if (dto.expeditionId() != null) {
@@ -77,7 +76,7 @@ public class ChallengeCommandService {
                     .orElseThrow(() -> new BusinessException(ErrorCode.EXPEDITION_NOT_FOUND));
         }
 
-        Challenge challenge = ChallengeConverter.postChallenge(dto, user, journey, expedition);
+        Challenge challenge = ChallengeConverter.postChallenge(dto, userJpaEntity, journey, expedition);
         challengeRepository.save(challenge);
 
         updateChallengeHashtags(challenge, dto.hashtagList());
@@ -93,22 +92,22 @@ public class ChallengeCommandService {
     ) {
         Challenge challenge = challengeRepository.findById(dto.challengeId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
-        User user = userRepository.findById(dto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Long challengeLikeId = null;
 
         if (dto.isLiked()) {
-            ChallengeLike challengeLike = challengeRepository.findChallengeLikeByUserIdAndId(user.getId(), challenge.getId())
+            ChallengeLike challengeLike = challengeRepository.findChallengeLikeByUserIdAndId(userJpaEntity.getId(), challenge.getId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_LIKE_NOT_FOUND));
             challengeRepository.deleteChallengeLikeById(challengeLike.getId());
 
             challenge.updateLikeCount(-1);
         } else {
-            checkIsLiked(challenge, user);
+            checkIsLiked(challenge, userJpaEntity);
 
             ChallengeLike challengeLike = ChallengeLike.builder()
-                    .user(user)
+                    .userJpaEntity(userJpaEntity)
                     .challenge(challenge)
                     .build();
             challengeRepository.saveChallengeLike(challengeLike);
@@ -117,7 +116,7 @@ public class ChallengeCommandService {
             challenge.updateLikeCount(1);
 
             applicationEventPublisher.publishEvent(
-                    new ChallengeLikeEvent(challenge.getId(), challenge.getUser().getId(), user.getId())
+                    new ChallengeLikeEvent(challenge.getId(), challenge.getUserJpaEntity().getId(), userJpaEntity.getId())
             );
         }
         return ChallengeConverter.likeChallenge(dto.challengeId(), challengeLikeId);
@@ -151,7 +150,7 @@ public class ChallengeCommandService {
     ) {
         Challenge challenge = challengeRepository.findById(dto.challengeId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
-        User user = userRepository.findById(dto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Comment parent = null;
@@ -162,7 +161,7 @@ public class ChallengeCommandService {
 
         Comment comment = Comment.builder()
                 .challenge(challenge)
-                .user(user)
+                .userJpaEntity(userJpaEntity)
                 .parent(parent)
                 .content(dto.content())
                 .likeCount(0)
@@ -181,7 +180,7 @@ public class ChallengeCommandService {
     ) {
         Comment comment = challengeRepository.findCommentByCommentId(dto.commentId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
-        User user = userRepository.findById(dto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Long commentLikeId = null;
@@ -193,11 +192,11 @@ public class ChallengeCommandService {
             challengeRepository.deleteCommentLikeById(commentLike.getId());
             comment.updateLikeCount(-1);
         } else {
-            checkCommentIsLiked(comment, user);
+            checkCommentIsLiked(comment, userJpaEntity);
 
             CommentLike newCommentLike = CommentLike.builder()
                     .comment(comment)
-                    .user(user)
+                    .userJpaEntity(userJpaEntity)
                     .build();
 
             challengeRepository.saveCommentLike(newCommentLike);
@@ -216,10 +215,10 @@ public class ChallengeCommandService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
         Challenge challenge = challengeRepository.findById(commandDto.challengeId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkCommentWriter(comment, user);
+        checkCommentWriter(comment, userJpaEntity);
 
         challengeRepository.deleteComment(comment);
         challenge.updateCommentCount(-1);
@@ -233,10 +232,10 @@ public class ChallengeCommandService {
     ) {
         Challenge challenge = challengeRepository.findById(commandDto.challengeId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
-        User user = userRepository.findById(commandDto.userId())
+        UserJpaEntity userJpaEntity = userRepository.findById(commandDto.userId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        checkWriter(challenge, user);
+        checkWriter(challenge, userJpaEntity);
 
         challengeRepository.delete(challenge);
         return null;
@@ -337,27 +336,27 @@ public class ChallengeCommandService {
         }
     }
 
-    private void checkCommentWriter(Comment comment, User user) {
-        if (!comment.getUser().getId().equals(user.getId())) {
+    private void checkCommentWriter(Comment comment, UserJpaEntity userJpaEntity) {
+        if (!comment.getUserJpaEntity().getId().equals(userJpaEntity.getId())) {
             throw new BusinessException(ErrorCode.NOT_COMMENT_WRITER);
         }
     }
 
-    private void checkWriter(Challenge challenge, User user) {
-        User writer = challenge.getUser();
-        if (!user.getId().equals(writer.getId())) {
+    private void checkWriter(Challenge challenge, UserJpaEntity userJpaEntity) {
+        UserJpaEntity writer = challenge.getUserJpaEntity();
+        if (!userJpaEntity.getId().equals(writer.getId())) {
             throw new BusinessException(ErrorCode.NOT_CHALLENGE_WRITER);
         }
     }
 
-    private void checkIsLiked(Challenge challenge, User user) {
-        if (challengeRepository.existsChallengeLikeByIdAndUserId(challenge.getId(), user.getId())) {
+    private void checkIsLiked(Challenge challenge, UserJpaEntity userJpaEntity) {
+        if (challengeRepository.existsChallengeLikeByIdAndUserId(challenge.getId(), userJpaEntity.getId())) {
             throw new BusinessException(ErrorCode.CHALLENGE_LIKE_ALREADY_EXISTS);
         }
     }
 
-    private void checkCommentIsLiked(Comment comment, User user) {
-        if (challengeRepository.existsCommentLikeByCommentIdAndUserId(comment.getId(), user.getId())) {
+    private void checkCommentIsLiked(Comment comment, UserJpaEntity userJpaEntity) {
+        if (challengeRepository.existsCommentLikeByCommentIdAndUserId(comment.getId(), userJpaEntity.getId())) {
             throw new BusinessException(ErrorCode.COMMENT_LIKE_ALREADY_EXISTS);
         }
     }

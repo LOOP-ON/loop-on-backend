@@ -1,6 +1,6 @@
 package com.loopon.user.infrastructure;
 
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import com.loopon.user.domain.UserProvider;
 import com.loopon.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +14,9 @@ public class UserRepositoryImpl implements UserRepository {
     private final UserJpaRepository userJpaRepository;
 
     @Override
-    public Long save(User user) {
-        User savedUser = userJpaRepository.save(user);
-        return savedUser.getId();
+    public Long save(UserJpaEntity userJpaEntity) {
+        UserJpaEntity savedUserJpaEntity = userJpaRepository.save(userJpaEntity);
+        return savedUserJpaEntity.getId();
     }
 
     @Override
@@ -30,22 +30,22 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    public Optional<UserJpaEntity> findByEmail(String email) {
         return userJpaRepository.findByEmail(email);
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<UserJpaEntity> findById(Long id) {
         return userJpaRepository.findById(id);
     }
 
     @Override
-    public Optional<User> findBySocialIdAndProvider(String id, UserProvider provider) {
+    public Optional<UserJpaEntity> findBySocialIdAndProvider(String id, UserProvider provider) {
         return userJpaRepository.findBySocialIdAndProvider(id, provider);
     }
 
     @Override
-    public Optional<User> findByNickname(String nickname) {
+    public Optional<UserJpaEntity> findByNickname(String nickname) {
         return userJpaRepository.findByNickname(nickname);
     }
 }

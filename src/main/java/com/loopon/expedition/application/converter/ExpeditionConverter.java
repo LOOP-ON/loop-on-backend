@@ -9,7 +9,7 @@ import com.loopon.expedition.application.dto.request.ExpeditionPostRequest;
 import com.loopon.expedition.application.dto.response.*;
 import com.loopon.expedition.domain.Expedition;
 import com.loopon.expedition.domain.ExpeditionUser;
-import com.loopon.user.domain.User;
+import com.loopon.user.domain.UserJpaEntity;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -54,11 +54,11 @@ public class ExpeditionConverter {
 
     public static Expedition postExpedition(
             ExpeditionPostCommand commandDto,
-            User user
+            UserJpaEntity userJpaEntity
     ) {
         return Expedition.builder()
                 .title(commandDto.title())
-                .admin(user)
+                .admin(userJpaEntity)
                 .category(commandDto.category())
                 .visibility(commandDto.visibility())
                 .password(commandDto.password())
@@ -236,8 +236,8 @@ public class ExpeditionConverter {
                 .content(challenge.getContent())
                 .hashtags(hashtags)
                 .createdAt(challenge.getCreatedAt())
-                .nickname(challenge.getUser().getNickname())
-                .profileImageUrl(challenge.getUser().getProfileImageUrl())
+                .nickname(challenge.getUserJpaEntity().getNickname())
+                .profileImageUrl(challenge.getUserJpaEntity().getProfileImageUrl())
                 .isLiked(isLiked)
                 .likeCount(challenge.getLikeCount())
                 .build();
